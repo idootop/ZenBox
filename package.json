@@ -1,0 +1,48 @@
+{
+  "name": "zenbox",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Code React like Vue 💚, manage state like Zustand 🐻.",
+  "license": "MIT",
+  "author": {
+    "name": "Del Wang",
+    "email": "hello@xbox.work",
+    "url": "https://github.com/idootop"
+  },
+  "keywords": [
+    "vue",
+    "zustand",
+    "react",
+    "state",
+    "management"
+  ],
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "echo 'Code React like Vue 💚, manage state like Zustand 🐻.'"
+  },
+  "sideEffects": false,
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs",
+    "default": "./dist/index.js"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  },
+  "peerDependencies": {
+    "@types/react": ">=16.8",
+    "react": ">=16.8"
+  },
+  "packageManager": "pnpm@10.0.0",
+  "homepage": "https://github.com/idootop/ZenBox",
+  "bugs": {
+    "url": "https://github.com/idootop/ZenBox/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idootop/ZenBox.git"
+  }
+}
