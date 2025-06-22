@@ -2,13 +2,7 @@
 
 **Code React like Vue 💚, manage state like Zustand 🐻.**
 
-> ✨ Launching soon - stay tuned!
-
-```shell
-npm install zenbox
-```
-
-## Why ZenBox?
+## Vue + Zustand = React state bliss
 
 ### 🐻 Zustand's Simplicity
 
@@ -37,7 +31,12 @@ useWatch(
 
 ## Getting Started
 
-Coming soon...
+> [!TIP]
+> ✨ Launching soon - stay tuned!
+
+```shell
+npm install zenbox
+```
 
 ## ZenBox vs Zustand
 
