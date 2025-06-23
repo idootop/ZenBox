@@ -1,8 +1,8 @@
-<h1 style="display: flex; align-items: center;">ZenBox<img alt="ZenBox" src="./assets/zenbox.png" width='32' height='32' /></h1>
+# ZenBox <img alt="ZenBox" src="./assets/zenbox.webp" height='32' />
 
 **Code React like Vue 💚, manage state like Zustand 🐻.**
 
-<img alt="ZenBox" src="./assets/zenbox.png" width='256' height='256' />
+<img alt="ZenBox" src="./assets/zenbox.webp" height='256' />
 
 ## Vue + Zustand = React state bliss
 
