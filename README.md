@@ -29,7 +29,7 @@ useWatch(
 - **React optimized** - Built specifically for React's rendering model
 - **TypeScript first​​​​**​​ – Fully inferred types , zero manual interfaces
 - **​​Immer built-in**​​ – Mutate state naturally, no spread operators
-- **Tiny Bundle**​​ – Core library under 100 lines, < 3KB gzipped
+- **Tiny bundle**​​ – Core library under 100 lines, < 10KB gzipped
 
 ## Getting Started
 
