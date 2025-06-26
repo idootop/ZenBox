@@ -9,7 +9,7 @@
 ### 🐻 Zustand's Simplicity
 
 ```ts
-const counter = ZenBox({ count: 0 }); // Full TypeScript inference
+const counter = new ZenBox({ count: 0 }); // Full TypeScript inference
 ```
 
 ### ⚡ Vue-like DX
@@ -19,7 +19,7 @@ const doubled = useComputed(() => 2 * counter.value.count);
 
 useWatch(
   () => counter.value.count,
-  (newV, oldV) => console.log("Changed!", newV, oldV)
+  (current, prev) => console.log("Changed!", current, prev)
 );
 ```
 
@@ -50,7 +50,7 @@ npm install zenbox
 | **State Mutation**     | ✅ Direct mutation (Vue-like)        | ❌ Manual `.get()`/`.set()`  |
 | **Computed Values**    | ✅ Cross-store, auto-tracked         | ⚠️ Pre-combined              |
 | **Store Scoping**      | ✅ Built-in Provider for local store | ❌ Global default            |
-| **Immer Support**      | ✅ Out of the box                    | ⚠️ Plugin required           |
+| **Immer Support**      | ✅ Out of the box                    | ⚠️ Middleware required       |
 | **Learning Curve**     | ✅ Minimal (Vue-friendly)            | ✅ Low                       |
 
 ## License

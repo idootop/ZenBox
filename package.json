@@ -18,23 +18,61 @@
   ],
   "scripts": {
     "prepublish": "npm run build",
-    "build": "echo 'Code React like Vue 💚, manage state like Zustand 🐻.'"
+    "build": "del build"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
   "sideEffects": false,
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
-    "import": "./dist/index.js",
-    "require": "./dist/index.cjs",
-    "default": "./dist/index.js"
-  },
-  "devDependencies": {
-    "typescript": "^5"
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./*": {
+      "import": {
+        "types": "./dist/*.d.ts",
+        "default": "./dist/*.js"
+      },
+      "require": {
+        "types": "./dist/*.d.cts",
+        "default": "./dist/*.cjs"
+      }
+    }
   },
   "peerDependencies": {
-    "@types/react": ">=16.8",
-    "react": ">=16.8"
+    "react": ">=16.8.0"
+  },
+  "dependencies": {
+    "@del-wang/equals": "^1.1.0",
+    "@del-wang/react-unstrict": "^1.1.0",
+    "immer": "^10.1.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.5",
+    "@del-wang/config": "^1.2.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.1.8",
+    "jsdom": "^26.1.0",
+    "lefthook": "^1.11.14",
+    "tsup": "^8.5.0",
+    "typescript": "^5",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "packageManager": "pnpm@10.0.0",
   "homepage": "https://github.com/idootop/ZenBox",
