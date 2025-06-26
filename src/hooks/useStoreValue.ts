@@ -2,7 +2,7 @@ import type { ZenBox } from '../core.js';
 import type { Prettify } from '../utils.js';
 import { useComputed } from './useComputed.js';
 
-export function useStore<
+export function useStoreValue<
   S extends ZenBox<any>,
   const K extends (keyof S['value'])[] | undefined = undefined,
 >(

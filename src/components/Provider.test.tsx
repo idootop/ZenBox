@@ -3,26 +3,26 @@
 import { act, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { useStore } from '../hooks/useStore.js';
+import { useStoreValue } from '../hooks/useStoreValue.js';
 import { createProvider } from './Provider.js';
 
 describe('createProvider', () => {
   it('should create provider components and hooks', () => {
-    const [StoreProvider, useGetStore, { getStore, getState, setState }] =
+    const [StoreProvider, useFindStore, { getStore, getState, setState }] =
       createProvider({ count: 0, name: 'test' });
 
     expect(StoreProvider).toBeInstanceOf(Function);
-    expect(useGetStore).toBeInstanceOf(Function);
+    expect(useFindStore).toBeInstanceOf(Function);
     expect(getStore).toBeInstanceOf(Function);
     expect(getState).toBeInstanceOf(Function);
     expect(setState).toBeInstanceOf(Function);
   });
 
   it('should provide store context to children', () => {
-    const [StoreProvider, useGetStore] = createProvider({ count: 42 });
+    const [StoreProvider, useFindStore] = createProvider({ count: 42 });
 
     function TestChild() {
-      const store = useGetStore();
+      const store = useFindStore();
       return <div data-testid="count">{store.value.count}</div>;
     }
 
@@ -36,14 +36,14 @@ describe('createProvider', () => {
   });
 
   it('should merge initial state with provided partial state', () => {
-    const [StoreProvider, useGetStore] = createProvider({
+    const [StoreProvider, useFindStore] = createProvider({
       count: 0,
       name: 'default',
       enabled: true,
     });
 
     function TestChild() {
-      const store = useGetStore();
+      const store = useFindStore();
       return (
         <div>
           <div data-testid="count">{store.value.count}</div>
@@ -65,11 +65,11 @@ describe('createProvider', () => {
   });
 
   it('should update children when store state changes', () => {
-    const [StoreProvider, useGetStore] = createProvider({ count: 0 });
+    const [StoreProvider, useFindStore] = createProvider({ count: 0 });
 
     function TestChild() {
-      const store = useGetStore();
-      const state = useStore(store);
+      const store = useFindStore();
+      const state = useStoreValue(store);
       return (
         <div>
           <div data-testid="count">{state.count}</div>
@@ -102,11 +102,11 @@ describe('createProvider', () => {
     expect(screen.getByTestId('count').textContent).toBe('1');
   });
 
-  it('should throw error when useGetStore is used outside provider', () => {
-    const [, useGetStore] = createProvider({ count: 0 });
+  it('should throw error when useFindStore is used outside provider', () => {
+    const [, useFindStore] = createProvider({ count: 0 });
 
     function TestChild() {
-      useGetStore(); // This should throw
+      useFindStore(); // This should throw
       return <div>test</div>;
     }
 
@@ -116,7 +116,7 @@ describe('createProvider', () => {
 
     expect(() => {
       render(<TestChild />);
-    }).toThrow('useGetStore must be used within StoreProvider');
+    }).toThrow('useFindStore must be used within StoreProvider');
 
     console.error = originalError;
   });
@@ -149,15 +149,15 @@ describe('createProvider', () => {
   });
 
   it('should handle complex state updates', () => {
-    const [StoreProvider, useGetStore] = createProvider({
+    const [StoreProvider, useFindStore] = createProvider({
       user: { name: 'Alice', age: 25 },
       todos: [] as Array<{ id: number; text: string; done: boolean }>,
       settings: { theme: 'light' },
     });
 
     function TestChild() {
-      const store = useGetStore();
-      const state = useStore(store);
+      const store = useFindStore();
+      const state = useStoreValue(store);
       return (
         <div>
           <div data-testid="user">{JSON.stringify(state.user)}</div>

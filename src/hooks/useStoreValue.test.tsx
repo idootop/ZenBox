@@ -2,14 +2,14 @@ import { act, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { createStore } from '../core.js';
-import { useStore } from './useStore.js';
+import { useStoreValue } from './useStoreValue.js';
 
 function TestComponent({ store, options }: { store: any; options?: any }) {
-  const state = useStore(store, options);
+  const state = useStoreValue(store, options);
   return <div data-testid="state">{JSON.stringify(state)}</div>;
 }
 
-describe('useStore', () => {
+describe('useStoreValue', () => {
   it('should return current store state', () => {
     const store = createStore({ count: 42, name: 'Alice' });
 
@@ -94,8 +94,6 @@ describe('useStore', () => {
 
     render(<TestComponent options={{ pick: [] }} store={store} />);
 
-    expect(screen.getByTestId('state').textContent).toBe(
-      '{}',
-    );
+    expect(screen.getByTestId('state').textContent).toBe('{}');
   });
 });

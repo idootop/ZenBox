@@ -53,17 +53,17 @@ export function createProvider<T extends State>(initialState: T) {
     );
   }
 
-  function useGetStore() {
+  function useFindStore() {
     const storeContext = useContext(StoreContext);
     if (!storeContext) {
-      throw new Error(`useGetStore must be used within StoreProvider`);
+      throw new Error(`useFindStore must be used within StoreProvider`);
     }
     return storeContext;
   }
 
   return [
     StoreProvider,
-    useGetStore,
+    useFindStore,
     { getStore, getState, setState },
   ] as const;
 }
