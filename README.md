@@ -1,15 +1,15 @@
-# ZenBox <img alt="ZenBox" src="./assets/zenbox.webp" height='32' />
 
-**Code React like Vue 💚, manage state like Zustand 🐻.**
 
 <img alt="ZenBox" src="./assets/zenbox.webp" height='256' />
 
-## Vue + Zustand = React state bliss
+## What's ZenBox?
+
+A lightweight, intuitive state management library that combines the reactivity of Vue with the simplicity of Zustand for React applications.
 
 ### 🐻 Zustand's Simplicity
 
 ```ts
-const counter = new ZenBox({ count: 0 }); // Full TypeScript inference
+const counter = createStore({ count: 0 }); // Full TypeScript inference
 ```
 
 ### ⚡ Vue-like DX
@@ -23,14 +23,6 @@ useWatch(
 );
 ```
 
-### 🚀 Key Benefits
-
-- **Minimal learning curve** - If you know Vue or Zustand, you know ZenBox
-- **React optimized** - Built specifically for React's rendering model
-- **TypeScript first​​​​**​​ – Fully inferred types , zero manual interfaces
-- **​​Immer built-in**​​ – Mutate state naturally, no spread operators
-- **Tiny bundle**​​ – Core library under 100 lines, < 10KB gzipped
-
 ## Getting Started
 
 > [!TIP]
@@ -40,7 +32,24 @@ useWatch(
 npm install zenbox
 ```
 
-## ZenBox vs Zustand
+## Documentation
+
+- [Core](./docs/core/) - Core API documentation
+- [Hooks](./docs/hooks/) - Detailed hook documentation
+- [Components](./docs/components/) - Component documentation
+
+## Why Choose ZenBox?
+
+**The state management library that feels like magic** ✨
+
+- 🎯 **Simple API** - Love Zustand & Vue? You’ll ❤️ ZenBox! Combines the best of both worlds in an API that feels natural and intuitive
+- ⚡ **Lightning Fast** - Smart selective subscriptions + efficient change detection = blazing performance with minimal re-renders
+- 🔮 **Vue-like Magic in React** - Get `useComputed` and `useWatch` reactivity that just works, no manual dependency tracking needed
+- 📦 **TypeScript Superpowers** - Full auto-inference out of the box. No interfaces, no generics, no headaches - just pure type safety
+- 🏗️ **Mutate Like a Human** - Write `state.count++` instead of `setState(prev => ({...prev, count: prev.count + 1}))`. Immer built-in!
+- 🪶 **Featherweight** - Under 100 lines of core code, < 10KB gzipped. Big power, tiny footprint
+
+### ZenBox vs Zustand
 
 | Feature                | ZenBox                               | Zustand                      |
 | ---------------------- | ------------------------------------ | ---------------------------- |
