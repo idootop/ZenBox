@@ -115,6 +115,31 @@ describe('useWatch', () => {
 
       expect(onChange).toHaveBeenCalledTimes(1);
     });
+
+    it('should resolve mixed array with ZenBox and regular values', () => {
+      const onChange = vi.fn();
+      const store1 = createStore({ count: 1, hello: 'world' });
+      const store2 = createStore({ count: 2, world: 'hello' });
+
+      function TestWatch() {
+        const value = useWatch(
+          [store1, 'hello', store2] as const,
+          (current, prev) => {
+            onChange(current, prev);
+          },
+          { immediate: true },
+        );
+        return <div data-testid="value">{JSON.stringify(value)}</div>;
+      }
+
+      render(<TestWatch />);
+
+      expect(onChange).toHaveBeenCalledTimes(1);
+      expect(onChange).toHaveBeenCalledWith(
+        [{ count: 1, hello: 'world' }, 'hello', { count: 2, world: 'hello' }],
+        [{ count: 1, hello: 'world' }, 'hello', { count: 2, world: 'hello' }],
+      );
+    });
   });
 
   describe('watching function', () => {
@@ -208,6 +233,31 @@ describe('useWatch', () => {
 
       expect(onChange).toHaveBeenCalledTimes(1);
       expect(onChange).toHaveBeenCalledWith([3, 6, 9], [2, 4, 6]);
+    });
+
+    it('should resolve ZenBox value in function return value', () => {
+      const onChange = vi.fn();
+      const store1 = createStore({ count: 1, hello: 'world' });
+      const store2 = createStore({ count: 2, world: 'hello' });
+
+      function TestWatch() {
+        const value = useWatch(
+          () => [store1, 'hello', store2] as const,
+          (current, prev) => {
+            onChange(current, prev);
+          },
+          { immediate: true },
+        );
+        return <div data-testid="value">{JSON.stringify(value)}</div>;
+      }
+
+      render(<TestWatch />);
+
+      expect(onChange).toHaveBeenCalledTimes(1);
+      expect(onChange).toHaveBeenCalledWith(
+        [{ count: 1, hello: 'world' }, 'hello', { count: 2, world: 'hello' }],
+        [{ count: 1, hello: 'world' }, 'hello', { count: 2, world: 'hello' }],
+      );
     });
   });
 

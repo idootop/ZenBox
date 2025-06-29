@@ -2,8 +2,8 @@ import { deepEqual, shallowEqual } from '@del-wang/equals';
 import { useUnStrictEffect, useUnStrictRun } from '@del-wang/react-unstrict';
 import { useCallback, useRef } from 'react';
 
-import { type State, ZenBox } from '../core.js';
-import { NULL, resolveValue } from '../utils.js';
+import { ZenBox } from '../core.js';
+import { NULL, type ResolveZenBox, resolveValue } from '../utils.js';
 
 interface WatchOptions {
   deep?: boolean;
@@ -11,24 +11,17 @@ interface WatchOptions {
   immediate?: boolean;
 }
 
-export function useWatch<T extends State>(
-  watch: ZenBox<T>,
-  onChange: (current: T, prev: T) => void | VoidFunction,
-  options?: WatchOptions,
-): T;
-
 export function useWatch<T>(
-  watch: () => T,
-  onChange: (current: T, prev: T) => void | VoidFunction,
+  _watch: T | (() => T),
+  onChange: (
+    current: ResolveZenBox<T>,
+    prev: ResolveZenBox<T>,
+  ) => void | VoidFunction,
   options?: WatchOptions,
-): T;
-
-export function useWatch<T>(
-  _watch: ZenBox<any> | (() => T),
-  onChange: (current: T, prev: T) => void | VoidFunction,
-  options: WatchOptions = {},
-): T {
-  const watch = typeof _watch === 'function' ? _watch : () => _watch.value;
+): ResolveZenBox<T> {
+  const watch = (
+    typeof _watch === 'function' ? _watch : () => _watch
+  ) as () => ResolveZenBox<T>;
 
   const refs = useRef({
     initialized: false,

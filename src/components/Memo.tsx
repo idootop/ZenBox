@@ -1,11 +1,11 @@
 import { type ReactNode, useState } from 'react';
 
 import { useWatch } from '../hooks/useWatch.js';
-import { NULL } from '../utils.js';
+import { NULL, type ResolveZenBox } from '../utils.js';
 
 export function Memo<T>(props: {
-  children: (state: T) => ReactNode;
-  watch: () => T;
+  children: (state: ResolveZenBox<T>) => ReactNode;
+  watch: T | (() => T);
   deep?: boolean;
 }) {
   const { children, watch, deep } = props;

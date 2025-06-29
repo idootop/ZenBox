@@ -4,6 +4,18 @@ export type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
 
+export type ResolveZenBox<T> = T extends ZenBox<infer U>
+  ? U
+  : T extends readonly [infer A, ...infer Rest]
+    ? readonly [ResolveZenBox<A>, ...ResolveZenBox<Rest>]
+    : T extends readonly (infer U)[]
+      ? readonly ResolveZenBox<U>[]
+      : T extends [infer A, ...infer Rest]
+        ? [ResolveZenBox<A>, ...ResolveZenBox<Rest>]
+        : T extends (infer U)[]
+          ? ResolveZenBox<U>[]
+          : T;
+
 export const NULL = Symbol('NULL');
 
 export function mergeState<T extends State>(
