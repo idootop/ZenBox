@@ -1,5 +1,7 @@
 import { type State, ZenBox } from './core.js';
 
+export { deepEqual, shallowEqual } from '@del-wang/equals';
+
 export type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
@@ -24,7 +26,7 @@ export function mergeState<T extends State>(
 ) {
   const result = { ...initialState };
   for (const key in partialState) {
-    if (key in initialState && partialState[key] !== undefined) {
+    if (Object.hasOwn(initialState, key)) {
       result[key] = partialState[key] as any;
     }
   }

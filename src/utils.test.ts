@@ -13,13 +13,13 @@ describe('mergeState', () => {
     expect(result).toEqual({ count: 1, name: 'Alice', age: 26 });
   });
 
-  it('should ignore undefined values', () => {
+  it('should handle all keys in partial state including undefined', () => {
     const initialState = { count: 0, name: 'Alice' };
     const partialState = { count: 1, name: undefined };
 
     const result = mergeState(initialState, partialState);
 
-    expect(result).toEqual({ count: 1, name: 'Alice' });
+    expect(result).toEqual({ count: 1, name: undefined });
   });
 
   it('should ignore keys not in initial state', () => {

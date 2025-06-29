@@ -1,10 +1,12 @@
 import { shallowEqual } from '@del-wang/equals';
 import { enableMapSet, produce } from 'immer';
 
+import { mergeState } from './utils.js';
+
 export type State = Record<string, any>;
 
 export type StateSetter<S extends State> = (
-  newState: S | ((prev: S) => S | void),
+  newState: Partial<S> | ((prev: S) => S | void),
   options?: { silent?: boolean },
 ) => void;
 
@@ -30,7 +32,7 @@ export class ZenBox<S extends State> {
     return this._state;
   }
 
-  set value(newState: S) {
+  set value(newState: Partial<S>) {
     this.setState(newState);
   }
 
@@ -38,7 +40,7 @@ export class ZenBox<S extends State> {
     this._state =
       typeof newState === 'function'
         ? produce(this._state, newState)
-        : newState;
+        : mergeState(this._state, newState);
     if (options?.silent) return; // skip notify
     for (const listener of this._writeListeners) {
       const { select, equal, onChange, prev } = listener;
