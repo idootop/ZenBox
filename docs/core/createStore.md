@@ -123,6 +123,19 @@ store.setState({ avatar: null });
 store.setState({ unknownField: "ignored" }); // No effect
 ```
 
+#### Direct Assignment
+
+```tsx
+const store = createStore({ count: 0, name: "John" });
+
+// Direct assignment - equivalent to store.setState(...)
+store.value = { count: 1, name: "Jane" };
+
+// Partial updates - merges with existing state
+store.value = { count: 5 };
+// Result: { count: 5, name: "Jane" }
+```
+
 #### Silent Updates
 
 ```tsx
@@ -137,6 +150,10 @@ store.setState({ cache: data }, { silent: true });
 3. **Use function updates** - Leverage Immer for safe mutations and better performance
 4. **Batch related updates** - Group related state changes in a single `setState` call
 5. **Use `silent: true`** for updates that shouldn't trigger re-renders
+6. **Choose the right update method**:
+   - Use `store.value = newState` for simple state replacements
+   - Use `store.setState(updater)` for complex mutations with Immer
+   - Use `store.setState(object)` for explicit partial updates
 
 ## Related
 
