@@ -175,7 +175,13 @@ describe('Memo', () => {
     render(
       <Memo watch={() => store.value.value}>
         {(value) => (
-          <div data-testid="value">{value === null ? 'null' : value === undefined ? 'undefined' : value}</div>
+          <div data-testid="value">
+            {value === null
+              ? 'null'
+              : value === undefined
+                ? 'undefined'
+                : value}
+          </div>
         )}
       </Memo>,
     );

@@ -19,7 +19,8 @@
   "scripts": {
     "prepublish": "npm run build",
     "build": "del build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "biome check --write --no-errors-on-unmatched --diagnostic-level=error ."
   },
   "files": [
     "dist",

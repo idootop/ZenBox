@@ -1,0 +1,70 @@
+---
+title: ZenBox
+description: Simple, intuitive React state management library
+---
+
+# ZenBox
+
+ZenBox is a modern React state management library focused on simplicity and developer experience.
+
+## Features
+
+- 🚀 **Easy to Use** - Minimal learning curve
+- 💪 **TypeScript Support** - Complete type safety
+- ⚡ **High Performance** - Fine-grained reactive updates
+- 🎯 **Flexible** - Supports both global and local state management
+- 🔄 **Immutable Updates** - Built-in Immer support
+
+## Quick Start
+
+```bash
+npm install zenbox
+```
+
+```tsx
+import { createStore, useStoreValue } from "zenbox";
+
+// Create a store
+const counterStore = createStore({ count: 0 });
+
+function Counter() {
+  const { count } = useStoreValue(counterStore);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button
+        onClick={() =>
+          counterStore.setState((s) => {
+            s.count++;
+          })
+        }
+      >
+        Increment
+      </button>
+    </div>
+  );
+}
+```
+
+## Architecture
+
+ZenBox provides three levels of APIs:
+
+### Core API
+
+- [`createStore`](./core/createStore) - Create state stores
+- [`createProvider`](./core/createProvider) - Create component-scoped stores
+
+### Components
+
+- [`Watch`](./components/Watch) - Reactive observer component
+- [`Memo`](./components/Memo) - Memoization component
+
+### Hooks
+
+- [`useStoreValue`](./hooks/useStoreValue) - Subscribe to store changes
+- [`usePick`](./hooks/usePick) - Select specific fields
+- [`useWatch`](./hooks/useWatch) - Watch computed values
+- [`useComputed`](./hooks/useComputed) - Compute derived state
+- [`useWatchEffect`](./hooks/useWatchEffect) - Watch side effects

@@ -1,0 +1,35 @@
+@import "fumadocs-ui/css/style.css";
+
+:root {
+  --color-fd-primary: oklch(0.5 0.5 150);
+}
+
+.dark {
+  --color-fd-primary: oklch(1 0.5 150);
+}
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(0.75);
+  }
+  20% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.75);
+  }
+  60% {
+    transform: scale(1);
+  }
+  80% {
+    transform: scale(0.75);
+  }
+  to {
+    transform: scale(0.75);
+  }
+}
+
+.heart {
+  display: inline-block;
+  animation: heartbeat 1.5s ease-in-out both infinite;
+}

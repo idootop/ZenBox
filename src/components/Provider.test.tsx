@@ -232,12 +232,12 @@ describe('createProvider', () => {
     expect(screen.getByTestId('original-value').textContent).toBe('1');
     expect(screen.getByTestId('doubled-value').textContent).toBe('2');
     expect(screen.getByTestId('tripled-value').textContent).toBe('3');
-    
+
     // Update state and verify changes
     act(() => {
       screen.getByTestId('update-button').click();
     });
-    
+
     expect(screen.getByTestId('original-value').textContent).toBe('10');
     expect(screen.getByTestId('doubled-value').textContent).toBe('20');
     expect(screen.getByTestId('tripled-value').textContent).toBe('30');
