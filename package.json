@@ -57,7 +57,6 @@
   },
   "dependencies": {
     "@del-wang/equals": "^1.1.0",
-    "@del-wang/react-unstrict": "^1.1.0",
     "immer": "^10.1.1"
   },
   "devDependencies": {

@@ -1,8 +1,8 @@
 /** biome-ignore-all lint/a11y/useButtonType: just do it */
-/** biome-ignore-all lint/a11y/useButtonType: just do it */
 import { act, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
+import { useComputed } from '../hooks/useComputed.js';
 import { useStoreValue } from '../hooks/useStoreValue.js';
 import { createProvider } from './Provider.js';
 
@@ -192,5 +192,54 @@ describe('createProvider', () => {
     });
 
     expect(screen.getByTestId('todos-count').textContent).toBe('1');
+  });
+
+  it('should allow getStore to access store instance within provider methods', () => {
+    const [StoreProvider, useFindStore, { getStore }] = createProvider({
+      value: 1,
+      triple() {
+        return getStore().value.value * 3;
+      },
+    });
+
+    function TestChild() {
+      const store = useFindStore();
+      const { value } = useStoreValue(store);
+      const doubledValue = useComputed(() => store.value.value * 2);
+      const tripledValue = useComputed(() => store.value.triple());
+      return (
+        <div>
+          <div data-testid="original-value">{value}</div>
+          <div data-testid="doubled-value">{doubledValue}</div>
+          <div data-testid="tripled-value">{tripledValue}</div>
+          <button
+            data-testid="update-button"
+            onClick={() => store.setState({ value: 10 })}
+          >
+            Update Value
+          </button>
+        </div>
+      );
+    }
+
+    render(
+      <StoreProvider>
+        <TestChild />
+      </StoreProvider>,
+    );
+
+    // Initial state assertions
+    expect(screen.getByTestId('original-value').textContent).toBe('1');
+    expect(screen.getByTestId('doubled-value').textContent).toBe('2');
+    expect(screen.getByTestId('tripled-value').textContent).toBe('3');
+    
+    // Update state and verify changes
+    act(() => {
+      screen.getByTestId('update-button').click();
+    });
+    
+    expect(screen.getByTestId('original-value').textContent).toBe('10');
+    expect(screen.getByTestId('doubled-value').textContent).toBe('20');
+    expect(screen.getByTestId('tripled-value').textContent).toBe('30');
   });
 });

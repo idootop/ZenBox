@@ -1,13 +1,12 @@
-import { useUnStrictRun } from '@del-wang/react-unstrict';
 import {
   createContext,
   type PropsWithChildren,
   useContext,
-  useEffect,
   useRef,
 } from 'react';
 
 import { createStore, type State, type StateSetter, ZenBox } from '../core.js';
+import { useCleanup } from '../hooks/useCleanup.js';
 import { mergeState } from '../utils.js';
 
 export function createProvider<T extends State>(initialState: T) {
@@ -31,20 +30,16 @@ export function createProvider<T extends State>(initialState: T) {
       store: createStore(mergeState(initialState, props.initialState)),
     });
 
-    useUnStrictRun(() => {
-      if (refs.current.unsubscribe) return;
-      refs.current.unsubscribe = ZenBox.subscribeRead((store) => {
-        if (store === refs.current.store) {
-          currentStore = store;
-        }
-      });
+    refs.current.unsubscribe?.();
+    refs.current.unsubscribe = ZenBox.subscribeRead((store) => {
+      if (store === refs.current.store) {
+        currentStore = store;
+      }
     });
 
-    useEffect(() => {
-      return () => {
-        refs.current.unsubscribe?.();
-      };
-    }, []);
+    useCleanup(() => {
+      refs.current.unsubscribe?.();
+    });
 
     return (
       <StoreContext.Provider value={refs.current.store}>

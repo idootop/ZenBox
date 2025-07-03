@@ -1,7 +1,7 @@
-import { useUnStrictEffect, useUnStrictRun } from '@del-wang/react-unstrict';
 import { useCallback, useRef } from 'react';
 
 import { ZenBox } from '../core.js';
+import { useCleanup } from './useCleanup.js';
 
 export function useWatchEffect(watch: () => void | VoidFunction): void {
   const refs = useRef({
@@ -31,13 +31,11 @@ export function useWatchEffect(watch: () => void | VoidFunction): void {
     };
   }, []);
 
-  useUnStrictRun(check);
+  check();
 
-  useUnStrictEffect(() => {
-    return () => {
-      refs.current.cleanupDeps?.();
-      refs.current.cleanupWatchEffect?.();
-      refs.current = null as any;
-    };
-  }, []);
+  useCleanup(() => {
+    refs.current.cleanupDeps?.();
+    refs.current.cleanupWatchEffect?.();
+    refs.current = null as any;
+  });
 }

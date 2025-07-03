@@ -11,9 +11,6 @@ importers:
       '@del-wang/equals':
         specifier: ^1.1.0
         version: 1.1.0
-      '@del-wang/react-unstrict':
-        specifier: ^1.1.0
-        version: 1.1.0(react@19.1.0)
       immer:
         specifier: ^10.1.1
         version: 10.1.1
@@ -158,12 +155,6 @@ packages:
   '@del-wang/equals@1.1.0':
     resolution: {integrity: sha512-sOJ/KI1CcqVnDf9c8zz0kplPC12q2Gugmy2nn1eU8stHT5zeaVpmO1WyfvAvmja07q787uvtc2s2oHGNo1Du0A==}
     engines: {node: '>=18'}
-
-  '@del-wang/react-unstrict@1.1.0':
-    resolution: {integrity: sha512-mQ8VcQ8oMCWuGlv+APqP8bfaWhXzaCP3u5EURKqdfpVRUgJT3+Ms7Fsj8185VHRs/nJ2hQ3AAsOMPid2qP/EDA==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      react: '>=16.8.0'
 
   '@esbuild/aix-ppc64@0.25.5':
     resolution: {integrity: sha512-9o3TMmpmftaCMepOdA5k/yDw8SfInyzWWTjYTFCX3kPSDJMROQTb8jg+h9Cnwnmm1vOzvxN7gIfB5V2ewpjtGA==}
@@ -1306,11 +1297,6 @@ snapshots:
   '@del-wang/config@1.2.0': {}
 
   '@del-wang/equals@1.1.0': {}
-
-  '@del-wang/react-unstrict@1.1.0(react@19.1.0)':
-    dependencies:
-      '@del-wang/equals': 1.1.0
-      react: 19.1.0
 
   '@esbuild/aix-ppc64@0.25.5':
     optional: true

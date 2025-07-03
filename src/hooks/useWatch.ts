@@ -1,9 +1,9 @@
 import { deepEqual, shallowEqual } from '@del-wang/equals';
-import { useUnStrictEffect, useUnStrictRun } from '@del-wang/react-unstrict';
 import { useCallback, useRef } from 'react';
 
 import { ZenBox } from '../core.js';
 import { NULL, type ResolveZenBox, resolveValue } from '../utils.js';
+import { useCleanup } from './useCleanup.js';
 
 interface WatchOptions {
   deep?: boolean;
@@ -75,15 +75,13 @@ export function useWatch<T>(
     refs.current.initialized = true;
   }, []);
 
-  useUnStrictRun(check);
+  check();
 
-  useUnStrictEffect(() => {
-    return () => {
-      refs.current.cleanupDeps?.();
-      refs.current.cleanupWatchEffect?.();
-      refs.current = null as any;
-    };
-  }, []);
+  useCleanup(() => {
+    refs.current.cleanupDeps?.();
+    refs.current.cleanupWatchEffect?.();
+    refs.current = null as any;
+  });
 
   return refs.current.prev;
 }
