@@ -10,9 +10,16 @@ import type { Metadata } from "next/types";
 export function createMetadata(
   options: Metadata & {
     images?: string;
+    slug?: string[];
+    lang?: string;
   }
 ): Metadata {
-  const { images = "/logo.png", ...override } = options;
+  const {
+    images = "/logo.png",
+    slug: _slug,
+    lang: _lang,
+    ...override
+  } = options;
 
   let title = override.title ?? "ZenBox";
   if (title !== "ZenBox") {

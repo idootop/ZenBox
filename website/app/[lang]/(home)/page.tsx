@@ -1,12 +1,26 @@
-import Image from 'next/image';
+import Image from "next/image";
 
-import { createMetadata } from '@/lib/metadata';
+import { createMetadata } from "@/lib/metadata";
 
-export const metadata = createMetadata({
-  title: 'ZenBox',
-  description:
-    'ZenBox is a modern React state management library focused on simplicity and developer experience.',
-});
+export async function generateMetadata(props: {
+  params: Promise<{ lang: string; slug?: string[] }>;
+}) {
+  const { lang } = await props.params;
+
+  if (lang === "cn") {
+    return createMetadata({
+      title: "ZenBox",
+      description:
+        "ZenBox 是一个现代的 React 状态管理库，专注于简单性和开发者体验。",
+    });
+  }
+
+  return createMetadata({
+    title: "ZenBox",
+    description:
+      "ZenBox is a modern React state management library focused on simplicity and developer experience.",
+  });
+}
 
 export default function HomePage() {
   return (
