@@ -28,7 +28,7 @@ In the project, you can see:
 | `app/docs`                | The documentation layout and pages.                    |
 | `app/api/search/route.ts` | The Route Handler for search.                          |
 
-### Fumadocs MDX
+#### Fumadocs MDX
 
 A `source.config.ts` config file has been included, you can customise different options like frontmatter schema.
 

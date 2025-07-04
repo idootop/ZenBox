@@ -1,0 +1,9 @@
+{
+  "pages": [
+    "useStoreValue",
+    "usePick",
+    "useComputed",
+    "useWatch",
+    "useWatchEffect"
+  ]
+}

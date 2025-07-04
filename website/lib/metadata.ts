@@ -6,6 +6,7 @@ export const metadataImage = createMetadataImage({
 });
 
 import type { Metadata } from "next/types";
+import { getSiteDescription, kSiteName, kTitter, kWebsite } from "./const";
 
 export function createMetadata(
   options: Metadata & {
@@ -14,31 +15,23 @@ export function createMetadata(
     lang?: string;
   }
 ): Metadata {
-  const {
-    images = "/logo.png",
-    slug: _slug,
-    lang: _lang,
-    ...override
-  } = options;
+  const { images = "/banner.jpg", slug: _slug, lang, ...override } = options;
 
-  let title = override.title ?? "ZenBox";
-  if (title !== "ZenBox") {
-    title = `${title} | ZenBox`;
+  let title = override.title ?? kSiteName;
+  if (title !== kSiteName) {
+    title = `${title} | ${kSiteName}`;
   }
 
-  const description =
-    override.description ??
-    "ZenBox is a modern React state management library focused on simplicity and developer experience.";
-
+  const description = override.description ?? getSiteDescription(lang);
   return {
     ...override,
-    metadataBase: new URL("https://zenbox.del.wang"),
+    metadataBase: new URL(kWebsite),
     openGraph: {
       title,
       description,
       images,
-      url: "https://zenbox.del.wang",
-      siteName: "ZenBox",
+      url: kWebsite,
+      siteName: kSiteName,
       ...override.openGraph,
     },
     twitter: {
@@ -46,7 +39,7 @@ export function createMetadata(
       description,
       images,
       card: "summary_large_image",
-      creator: "@del_wang_404",
+      creator: kTitter,
       ...override.twitter,
     },
   };

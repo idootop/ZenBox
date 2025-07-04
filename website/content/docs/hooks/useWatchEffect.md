@@ -3,10 +3,6 @@ title: useWatchEffect
 description: Reactive side effects with auto-tracking
 ---
 
-# useWatchEffect
-
-Execute side effects reactively with automatic dependency tracking. Similar to Vue's `watchEffect`.
-
 ## Syntax
 
 ```tsx

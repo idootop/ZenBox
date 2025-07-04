@@ -5,17 +5,8 @@
   "root": true,
   "pages": [
     "index",
-    "---Core---",
-    "core/createStore",
-    "core/createProvider",
-    "---Hooks---",
-    "hooks/usePick",
-    "hooks/useStoreValue",
-    "hooks/useComputed",
-    "hooks/useWatch",
-    "hooks/useWatchEffect",
-    "---Components---",
-    "components/Memo",
-    "components/Watch"
+    "core",
+    "hooks",
+    "components"
   ]
 }

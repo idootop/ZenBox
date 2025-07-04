@@ -8,15 +8,14 @@ interface PageProps {
   params: Promise<{ lang: string; slug: string }>;
 }
 
-export async function generateMetadata(props: {
-  params: Promise<{ lang: string; slug?: string[] }>;
-}) {
+export async function generateMetadata(props: PageProps) {
   const params = await props.params;
-  const page = blog.getPage(params.slug, params.lang);
+  const page = blog.getPage([params.slug], params.lang);
   if (!page) notFound();
 
   return createMetadata({
-    ...params,
+    lang: params.lang,
+    slug: [params.slug],
     title: page.data.title,
     description: page.data.description,
   });

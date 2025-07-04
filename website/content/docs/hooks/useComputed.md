@@ -3,10 +3,6 @@ title: useComputed
 description: Create computed reactive values that automatically update when dependencies change
 ---
 
-# useComputed
-
-Create computed reactive values that automatically update when dependencies change.
-
 ## Syntax
 
 ```tsx

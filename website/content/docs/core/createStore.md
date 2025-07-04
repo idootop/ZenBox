@@ -3,10 +3,6 @@ title: createStore
 description: Create a store instance for state management
 ---
 
-# createStore
-
-Create a store instance for state management.
-
 ## Syntax
 
 ```tsx

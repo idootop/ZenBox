@@ -3,10 +3,6 @@ title: useStoreValue
 description: Subscribe to store changes and automatically trigger component re-renders
 ---
 
-# useStoreValue
-
-Subscribe to store changes and automatically trigger component re-renders.
-
 ## Syntax
 
 ```tsx

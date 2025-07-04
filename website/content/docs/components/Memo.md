@@ -1,11 +1,7 @@
 ---
 title: Memo
-description: Memoized rendering component that caches children and only re-renders when watched dependencies change
+description: Memoized rendering component that caches children and only re-renders when watched dependencies change. Perfect for optimizing expensive computations.
 ---
-
-# Memo
-
-Memoized rendering component that caches children and only re-renders when watched dependencies change. Perfect for optimizing expensive computations.
 
 ## Syntax
 

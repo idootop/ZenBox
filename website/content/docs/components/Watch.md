@@ -3,10 +3,6 @@ title: Watch
 description: Render prop component that reactively renders content based on watched data sources
 ---
 
-# Watch
-
-Render prop component that reactively renders content based on watched data sources.
-
 ## Syntax
 
 ```tsx

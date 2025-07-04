@@ -1,11 +1,7 @@
 ---
 title: useWatch
-description: Watch reactive data sources and execute callbacks when changes occur
+description: Watch reactive data sources and execute callbacks when changes occur. Does **not** trigger component re-renders.
 ---
-
-# useWatch
-
-Watch reactive data sources and execute callbacks when changes occur. Does **not** trigger component re-renders.
 
 ## Syntax
 

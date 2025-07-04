@@ -3,10 +3,6 @@ title: usePick
 description: Convenient shorthand for useStoreValue with selective field subscription
 ---
 
-# usePick
-
-Convenient shorthand for `useStoreValue` with selective field subscription. Only re-render when specific fields change.
-
 ## Syntax
 
 ```tsx

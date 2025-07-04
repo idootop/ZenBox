@@ -1,6 +1,7 @@
 @import "fumadocs-ui/css/style.css";
 
 :root {
+  --fd-nav-height: 56px !important;
   --color-fd-primary: oklch(0.5 0.5 150);
 }
 

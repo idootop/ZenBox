@@ -1,11 +1,7 @@
 ---
 title: createProvider
-description: Create a context provider for component-scoped stores
+description: Create a context provider for component-scoped stores. Perfect for isolated state that's shared within a component tree.
 ---
-
-# createProvider
-
-Create a context provider for component-scoped stores. Perfect for isolated state that's shared within a component tree.
 
 ## Syntax
 

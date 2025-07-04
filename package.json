@@ -20,7 +20,8 @@
     "prepublish": "npm run build",
     "build": "del build",
     "test": "vitest run",
-    "lint": "biome check --write --no-errors-on-unmatched --diagnostic-level=error ."
+    "lint": "biome check --write --no-errors-on-unmatched --diagnostic-level=error .",
+    "postinstall": "[ -n \"$CI\" ] || lefthook install"
   },
   "files": [
     "dist",
@@ -61,13 +62,13 @@
     "immer": "^10.1.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.5",
+    "@biomejs/biome": "^2.0.6",
     "@del-wang/config": "^1.2.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.3.0",
     "@types/react": "^19.1.8",
     "jsdom": "^26.1.0",
-    "lefthook": "^1.11.14",
+    "lefthook": "^1.11.15",
     "tsup": "^8.5.0",
     "typescript": "^5",
     "vitest": "^3.2.4"
