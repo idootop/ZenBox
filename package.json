@@ -20,8 +20,7 @@
     "prepublish": "npm run build",
     "build": "del build",
     "test": "vitest run",
-    "lint": "biome check --write --no-errors-on-unmatched --diagnostic-level=error .",
-    "postinstall": "[ -n \"$CI\" ] || lefthook install"
+    "lint": "biome check --write --no-errors-on-unmatched --diagnostic-level=error ."
   },
   "files": [
     "dist",
@@ -76,7 +75,7 @@
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "pnpm@10.0.0",
+  "packageManager": "pnpm@10.12.4",
   "homepage": "https://github.com/idootop/ZenBox",
   "bugs": {
     "url": "https://github.com/idootop/ZenBox/issues"

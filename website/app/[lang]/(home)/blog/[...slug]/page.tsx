@@ -1,8 +1,8 @@
-import { blog } from "lib/source";
-import { getMDXComponents } from "mdx-components";
-import { notFound } from "next/navigation";
+import { blog } from 'lib/source';
+import { getMDXComponents } from 'mdx-components';
+import { notFound } from 'next/navigation';
 
-import { createMetadata } from "@/lib/metadata";
+import { createMetadata } from '@/lib/metadata';
 
 interface PageProps {
   params: Promise<{ lang: string; slug: string }>;
@@ -31,13 +31,13 @@ export default async function Page(props: PageProps) {
       <div className="flex flex-col gap-4">
         <p className="font-bold text-gray-500 text-sm">
           {new Date(page.data.date).toLocaleDateString(
-            lang === "cn" ? "zh-CN" : "en-US",
+            lang === 'cn' ? 'zh-CN' : 'en-US',
             {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-              weekday: "short",
-            }
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              weekday: 'short',
+            },
           )}
         </p>
         <h1 className="font-bold text-4xl dark:text-[var(--color-fd-primary)]">

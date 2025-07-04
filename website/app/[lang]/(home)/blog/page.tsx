@@ -1,23 +1,23 @@
-import { blog } from "lib/source";
-import Link from "next/link";
+import { blog } from 'lib/source';
+import Link from 'next/link';
 
-import { createMetadata } from "@/lib/metadata";
+import { createMetadata } from '@/lib/metadata';
 
 export async function generateMetadata(props: {
   params: Promise<{ lang: string; slug?: string[] }>;
 }) {
   const { lang } = await props.params;
 
-  if (lang === "cn") {
+  if (lang === 'cn') {
     return createMetadata({
-      title: "博客 | ZenBox",
-      description: "ZenBox 的最新更新和新闻",
+      title: '博客 | ZenBox',
+      description: 'ZenBox 的最新更新和新闻',
     });
   }
 
   return createMetadata({
-    title: "Blog | ZenBox",
-    description: "ZenBox blog",
+    title: 'Blog | ZenBox',
+    description: 'ZenBox blog',
   });
 }
 
@@ -25,19 +25,19 @@ export default async function Page({ params }: { params: { lang: string } }) {
   const { lang } = await params;
 
   const posts = [...blog.getPages(lang)].sort(
-    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime(),
   );
 
   return (
     <main className="mx-auto my-2 w-full max-w-[1024px] p-4">
       <div className="my-4 flex flex-col items-center gap-2">
         <h1 className="flex items-center gap-4 font-bold text-4xl">
-          {lang === "cn" ? "博客" : "Blog"}
+          {lang === 'cn' ? '博客' : 'Blog'}
         </h1>
         <p className="text-gray-500 text-sm">
-          {lang === "cn"
-            ? "ZenBox 的最新更新和新闻"
-            : "The latest updates and news about ZenBox"}
+          {lang === 'cn'
+            ? 'ZenBox 的最新更新和新闻'
+            : 'The latest updates and news about ZenBox'}
         </p>
       </div>
       <hr className="my-4 w-full" />
@@ -49,13 +49,13 @@ export default async function Page({ params }: { params: { lang: string } }) {
         >
           <p className="text-gray-500 text-sm">
             {new Date(post.data.date).toLocaleDateString(
-              lang === "cn" ? "zh-CN" : "en-US",
+              lang === 'cn' ? 'zh-CN' : 'en-US',
               {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                weekday: "short",
-              }
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                weekday: 'short',
+              },
             )}
           </p>
           <h2 className="font-bold text-2xl">{post.data.title}</h2>

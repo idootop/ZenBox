@@ -1,21 +1,22 @@
-import { createMetadataImage } from "fumadocs-core/server";
-import { source } from "lib/source";
+import { createMetadataImage } from 'fumadocs-core/server';
+import { source } from 'lib/source';
 
 export const metadataImage = createMetadataImage({
   source,
 });
 
-import type { Metadata } from "next/types";
-import { getSiteDescription, kSiteName, kTitter, kWebsite } from "./const";
+import type { Metadata } from 'next/types';
+
+import { getSiteDescription, kSiteName, kTitter, kWebsite } from './const';
 
 export function createMetadata(
   options: Metadata & {
     images?: string;
     slug?: string[];
     lang?: string;
-  }
+  },
 ): Metadata {
-  const { images = "/banner.jpg", slug: _slug, lang, ...override } = options;
+  const { images = '/banner.jpg', slug: _slug, lang, ...override } = options;
 
   let title = override.title ?? kSiteName;
   if (title !== kSiteName) {
@@ -38,7 +39,7 @@ export function createMetadata(
       title,
       description,
       images,
-      card: "summary_large_image",
+      card: 'summary_large_image',
       creator: kTitter,
       ...override.twitter,
     },

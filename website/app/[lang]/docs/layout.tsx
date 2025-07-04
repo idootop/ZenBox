@@ -1,7 +1,7 @@
-import { baseOptions } from "app/layout.config";
-import { DocsLayout } from "fumadocs-ui/layouts/notebook";
-import { source } from "lib/source";
-import type { ReactNode } from "react";
+import { baseOptions } from 'app/layout.config';
+import { DocsLayout } from 'fumadocs-ui/layouts/notebook';
+import { source } from 'lib/source';
+import type { ReactNode } from 'react';
 
 export default async function Layout({
   params,
@@ -15,11 +15,11 @@ export default async function Layout({
   return (
     <DocsLayout
       {...baseOptions(lang)}
-      nav={{ ...baseOptions(lang).nav, mode: "top" }}
-      tree={source.pageTree[lang]}
+      nav={{ ...baseOptions(lang).nav, mode: 'top' }}
       sidebar={{
         defaultOpenLevel: 1,
       }}
+      tree={source.pageTree[lang]}
     >
       {children}
     </DocsLayout>
