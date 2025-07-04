@@ -35,6 +35,9 @@ importers:
       remark-mdx:
         specifier: ^3.1.0
         version: 3.1.0
+      shiki:
+        specifier: ^3.7.0
+        version: 3.7.0
     devDependencies:
       '@orama/tokenizers':
         specifier: ^3.1.9

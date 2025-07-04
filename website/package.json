@@ -17,7 +17,8 @@
     "react-dom": "^19.1.0",
     "remark": "^15.0.1",
     "remark-gfm": "^4.0.1",
-    "remark-mdx": "^3.1.0"
+    "remark-mdx": "^3.1.0",
+    "shiki": "^3.7.0"
   },
   "devDependencies": {
     "@orama/tokenizers": "^3.1.9",
