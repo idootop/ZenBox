@@ -9,13 +9,13 @@ interface PageProps {
 }
 
 export async function generateMetadata(props: PageProps) {
-  const params = await props.params;
-  const page = blog.getPage([params.slug], params.lang);
+  const { lang, slug } = await props.params;
+  const page = blog.getPage([slug], lang);
   if (!page) notFound();
 
   return createMetadata({
-    lang: params.lang,
-    slug: [params.slug],
+    lang,
+    slug: ['blog', slug],
     title: page.data.title,
     description: page.data.description,
   });

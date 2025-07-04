@@ -1,6 +1,6 @@
 export const kSiteName = 'ZenBox';
 
-export const kWebsite = 'https://zenbox.del.wang';
+export const kSiteURL = 'https://zenbox.del.wang';
 
 export const kGithub = 'https://github.com/idootop/ZenBox';
 

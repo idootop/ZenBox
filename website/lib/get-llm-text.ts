@@ -5,7 +5,7 @@ import remarkMdx from 'remark-mdx';
 
 import { type Page, source } from '@/lib/source';
 
-import { getSiteDescription, kGithub, kSiteName, kWebsite } from './const';
+import { getSiteDescription, kGithub, kSiteName, kSiteURL } from './const';
 
 const processor = remark().use(remarkMdx).use(remarkInclude).use(remarkGfm);
 
@@ -41,7 +41,7 @@ export async function getLLMTextTree(lang: string = 'en') {
       url = `/${lang}/llms.txt/index`;
     }
     list.push(
-      `- [${page.data.title}](${kWebsite}${url}): ${page.data.description}`,
+      `- [${page.data.title}](${kSiteURL}${url}): ${page.data.description}`,
     );
     map.set(dir, list);
   }

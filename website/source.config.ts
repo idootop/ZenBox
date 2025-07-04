@@ -31,5 +31,5 @@ export const blogCollection = defineCollections({
 });
 
 export default defineConfig({
-  // options
+  lastModifiedTime: 'git',
 });

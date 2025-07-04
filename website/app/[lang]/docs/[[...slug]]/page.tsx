@@ -35,6 +35,7 @@ export async function generateMetadata(props: {
 
   return createMetadata({
     ...params,
+    slug: ['docs', ...(params.slug ?? [])],
     title: page.data.title,
     description: page.data.description,
   });

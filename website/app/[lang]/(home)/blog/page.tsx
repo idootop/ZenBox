@@ -7,17 +7,18 @@ export async function generateMetadata(props: {
   params: Promise<{ lang: string; slug?: string[] }>;
 }) {
   const { lang } = await props.params;
-
-  if (lang === 'cn') {
-    return createMetadata({
-      title: '博客 | ZenBox',
-      description: 'ZenBox 的最新更新和新闻',
-    });
-  }
-
   return createMetadata({
-    title: 'Blog | ZenBox',
-    description: 'ZenBox blog',
+    lang,
+    slug: ['blog'],
+    ...(lang === 'cn'
+      ? {
+          title: '博客',
+          description: 'ZenBox 的最新更新和新闻',
+        }
+      : {
+          title: 'Blog',
+          description: 'ZenBox blog',
+        }),
   });
 }
 

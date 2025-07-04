@@ -1,24 +1,39 @@
 import Image from 'next/image';
 
+import { getSiteDescription, kSiteName } from '@/lib/const';
 import { createMetadata } from '@/lib/metadata';
 
 export async function generateMetadata(props: {
   params: Promise<{ lang: string; slug?: string[] }>;
 }) {
   const { lang } = await props.params;
-
-  if (lang === 'cn') {
-    return createMetadata({
-      title: 'ZenBox',
-      description:
-        'ZenBox 是一个现代的 React 状态管理库，专注于简单性和开发者体验。',
-    });
-  }
-
   return createMetadata({
-    title: 'ZenBox',
-    description:
-      'ZenBox is a modern React state management library focused on simplicity and developer experience.',
+    lang,
+    slug: [],
+    title: kSiteName,
+    description: getSiteDescription(lang),
+    openGraph: {
+      type: 'website',
+      images: [
+        {
+          url: '/banner.jpg',
+          width: 1200,
+          height: 630,
+          alt: kSiteName,
+        },
+      ],
+    },
+    other: {
+      'application-name': kSiteName,
+      'apple-mobile-web-app-title': kSiteName,
+      'apple-mobile-web-app-capable': 'yes',
+      'apple-mobile-web-app-status-bar-style': 'default',
+      'format-detection': 'telephone=no',
+      'mobile-web-app-capable': 'yes',
+      'msapplication-TileColor': '#000000',
+      'msapplication-tap-highlight': 'no',
+      'theme-color': '#000000',
+    },
   });
 }
 

@@ -2,6 +2,8 @@ import { RootProvider } from 'fumadocs-ui/provider';
 import type { Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
+
+import { getLanguageConfig } from '@/lib/seo';
 import './global.css';
 
 const geist = Geist({
@@ -29,10 +31,11 @@ export default async function RootLayout({
   children: ReactNode;
 }) {
   const { lang } = await params;
+
   return (
     <html
       className={`${geist.variable} ${mono.variable}`}
-      lang={lang}
+      lang={getLanguageConfig(lang).htmlLang}
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col">
