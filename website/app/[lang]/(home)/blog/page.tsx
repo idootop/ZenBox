@@ -3,9 +3,11 @@ import Link from 'next/link';
 
 import { createMetadata } from '@/lib/metadata';
 
-export async function generateMetadata(props: {
-  params: Promise<{ lang: string; slug?: string[] }>;
-}) {
+interface PageProps {
+  params: Promise<{ lang: string }>;
+}
+
+export async function generateMetadata(props: PageProps) {
   const { lang } = await props.params;
   return createMetadata({
     lang,
@@ -22,7 +24,7 @@ export async function generateMetadata(props: {
   });
 }
 
-export default async function Page({ params }: { params: { lang: string } }) {
+export default async function Page({ params }: PageProps) {
   const { lang } = await params;
 
   const posts = [...blog.getPages(lang)].sort(

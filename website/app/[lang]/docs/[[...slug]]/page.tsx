@@ -23,7 +23,12 @@ export default async function Page(props: {
 }
 
 export async function generateStaticParams() {
-  return source.generateParams();
+  return source.generateParams().map((param) => {
+    if (param.slug && param.slug.length > 0) {
+      return param;
+    }
+    return { ...param, slug: [] };
+  });
 }
 
 export async function generateMetadata(props: {

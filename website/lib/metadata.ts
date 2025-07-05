@@ -50,6 +50,8 @@ export function createMetadata(
 
   return {
     ...override,
+    title,
+    description,
     metadataBase: new URL(kSiteURL),
     keywords: keywords.join(', '),
     alternates: {

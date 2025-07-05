@@ -1,4 +1,4 @@
-import type { NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 import { getLLMTextTree } from '@/lib/get-llm-text';
 
@@ -10,5 +10,5 @@ export async function GET(
 ) {
   const { lang } = await params;
   const text = await getLLMTextTree(lang);
-  return new Response(text);
+  return new NextResponse(text);
 }

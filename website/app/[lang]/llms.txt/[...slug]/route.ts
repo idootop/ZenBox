@@ -10,12 +10,17 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ slug: string[]; lang: string }> },
 ) {
-  const { slug, lang } = await params;
+  const { slug = [], lang } = await params;
   const text = await getLLMTextPage(slug, lang);
   if (!text) notFound();
   return new NextResponse(text);
 }
 
 export function generateStaticParams() {
-  return source.generateParams();
+  return source.generateParams().map((param) => {
+    if (param.slug && param.slug.length > 0) {
+      return param;
+    }
+    return { ...param, slug: ['index'] };
+  });
 }
