@@ -1,4 +1,9 @@
-import { DocsBody, DocsPage } from 'fumadocs-ui/page';
+import {
+  DocsBody,
+  DocsDescription,
+  DocsPage,
+  DocsTitle,
+} from 'fumadocs-ui/page';
 import { createMetadata } from 'lib/metadata';
 import { source } from 'lib/source';
 import { getMDXComponents } from 'mdx-components';
@@ -14,7 +19,21 @@ export default async function Page(props: {
   const MDX = page.data.body;
 
   return (
-    <DocsPage toc={page.data.toc}>
+    <DocsPage
+      breadcrumb={{ enabled: false }}
+      editOnGithub={{
+        owner: 'idootop',
+        repo: 'ZenBox',
+        sha: 'main',
+        path:
+          page.url.replace(`/${params.lang}/docs`, '/website/content/docs') +
+          '.mdx',
+      }}
+      lastUpdate={page.data.lastModified}
+      toc={page.data.toc}
+    >
+      <DocsTitle>{page.data.title}</DocsTitle>
+      <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
         <MDX components={getMDXComponents()} />
       </DocsBody>

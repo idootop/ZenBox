@@ -54,13 +54,16 @@ export default async function RootLayout({
             ],
             translations: {
               cn: {
-                toc: '目录',
                 search: '搜索',
-                lastUpdate: '最后更新于',
                 searchNoResult: '没有结果',
+                toc: '目录',
+                tocNoHeadings: '暂无目录',
+                lastUpdate: '最后更新于',
+                chooseLanguage: '选择语言',
                 previousPage: '上一页',
                 nextPage: '下一页',
-                chooseLanguage: '选择语言',
+                chooseTheme: '选择主题',
+                editOnGithub: '在 GitHub 上编辑',
               },
             }[lang],
           }}
