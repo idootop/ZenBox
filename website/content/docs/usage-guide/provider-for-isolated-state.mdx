@@ -1,0 +1,80 @@
+---
+title: Provider for isolated state
+description: Create a context provider for component-scoped store
+icon: Network
+---
+
+## Create a provider for isolated state
+
+You can use `createProvider` to create a provider for store that's shared within a component tree.
+
+```tsx
+const [Provider, useFindStore, storeActions] = createProvider(initialState);
+```
+
+For example, you can create a provider for a scoped store with `actions` like this:
+
+```tsx
+const [CounterStoreProvider, useFindCounterStore, storeActions] =
+  createProvider({
+    count: 0,
+    increment() {
+      // Use the `getState` to get the current state
+      const state = storeActions.getState();
+
+      // Use the `setState` to set the new state
+      storeActions.setState({
+        ...state,
+        count: state.count + 1,
+      });
+    },
+  });
+```
+
+**Note:**
+
+- The `storeActions` can **ONLY** be used within the initial state's `actions` function.
+- You can use `useFindStore` to get the store instance from the provider.
+- It's very similar to Vue's `provide` and `inject` pattern.
+
+## Wrap your component tree with the provider
+
+You can pass different initial state to different store providers, they are isolated from each other.
+
+```tsx
+function App() {
+  return (
+    <Tabs>
+      <CounterStoreProvider initialState={{ count: 111 }}>
+        <Counter />
+      </CounterStoreProvider>
+      <CounterStoreProvider initialState={{ count: 222 }}>
+        <Counter />
+      </CounterStoreProvider>
+    </Tabs>
+  );
+}
+```
+
+## Get the store instance from the provider
+
+```tsx
+function Counter() {
+  // First, get the store instance from the provider
+  const counterStore = useFindCounterStore();
+
+  // Then, use the store instance as a normal store
+  const { count } = useStoreValue(counterStore);
+
+  return (
+    <>
+      <p>Count: {count}</p>
+      <button onClick={counterStore.value.increment}>Increment</button>
+    </>
+  );
+}
+```
+
+You already know how to use `createProvider` to create a provider for a scoped store with `actions`.
+
+That's all. Enjoy!

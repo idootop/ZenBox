@@ -15,7 +15,7 @@ const counter = createStore({ count: 0 }); // Full TypeScript inference
 ### ⚡ Vue-like DX
 
 ```ts
-const doubled = useComputed(() => 2 * counter.value.count);
+const doubled = useComputed(() => counter.value.count * 2);
 
 useWatch(
   () => counter.value.count,

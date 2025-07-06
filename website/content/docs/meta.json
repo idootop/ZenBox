@@ -3,5 +3,20 @@
   "description": "ZenBox is a modern React state management library focused on simplicity and developer experience.",
   "icon": "🧘",
   "root": true,
-  "pages": ["index", "core", "hooks", "components"]
+  "pages": [
+    "---Getting started---",
+    "index",
+    "quick-start",
+    "why-zenbox",
+    "---Usage guide---",
+    "usage-guide/how-to-create-and-update-store",
+    "usage-guide/use-store-value",
+    "usage-guide/use-watch",
+    "usage-guide/memo-watch",
+    "usage-guide/provider-for-isolated-state",
+    "---API reference---",
+    "core",
+    "hooks",
+    "components"
+  ]
 }

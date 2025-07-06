@@ -1,0 +1,117 @@
+---
+title: Quick Start
+description: Get started with ZenBox
+icon: Rocket
+---
+
+## Installation
+
+```npm
+npm install zenbox
+```
+
+## Basic Usage
+
+<div className="fd-steps">
+
+<div className="fd-step">
+
+### Create a store
+
+Use `createStore` to create a store.
+
+```tsx
+const counterStore = createStore({ count: 0 });
+```
+
+</div>
+
+<div className="fd-step">
+
+### Read state
+
+Use `store.value` to read current state.
+
+```tsx
+const count = counterStore.value.count;
+```
+
+</div>
+
+<div className="fd-step">
+
+### Update state
+
+Use `store.setState` to update state (Immer built-in).
+
+```tsx
+counterStore.setState((state) => {
+  state.count++;
+});
+```
+
+</div>
+
+<div className="fd-step">
+
+### Use store in component
+
+Use `useStoreValue` to read state in component, the component will auto re-render when the state changes.
+
+```tsx
+function Counter() {
+  const { count } = useStoreValue(counterStore);
+
+  function increment() {
+    counterStore.setState((state) => {
+      state.count++;
+    });
+  }
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>Increment</button>
+    </div>
+  );
+}
+```
+
+</div>
+
+<div className="fd-step">
+
+### Use store the Vue way
+
+ZenBox provides the `useComputed`, `useWatch`, `useWatchEffect` React hooks, which is similar to Vue's `computed`, `watch`, `watchEffect`.
+
+```tsx
+function DoubleCount() {
+  const doubleCount = useComputed(() => counterStore.value.count * 2);
+
+  return <p>Double Count: {doubleCount}</p>;
+}
+
+function CountWatcher() {
+  useWatch(
+    () => counterStore.value.count,
+    (current, prev) => {
+      console.log("count changed", current, prev);
+    }
+  );
+
+  useWatchEffect(() => {
+    if (counterStore.value.count > 10) {
+      console.log("count is greater than 10");
+    }
+  });
+
+  return <p>Watching count...</p>;
+}
+```
+
+</div>
+
+</div>
+
+For more details, please refer to the [Usage guide](./usage-guide/how-to-create-and-update-store) section.

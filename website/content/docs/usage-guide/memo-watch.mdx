@@ -1,0 +1,56 @@
+---
+title: Memo / Watch
+description: Convenient components to memoize children and subscribe the state changes
+icon: Zap
+---
+
+## Memo
+
+Like `React.memo`, you can use `Memo` to wrap the sub-tree and memoize it.
+
+The sub-tree will only re-render when the watched value changes, useful for expensive UI rendering.
+
+```tsx
+<Memo watch={counterStore}>
+  {() => {
+    // ✅ The whole sub-tree will be memoized, only re-render when the store changes
+    return <SubTree />;
+  }}
+</Memo>
+```
+
+You can also watch any computed value and associate it with the sub-tree.
+
+```tsx
+<Memo
+  watch={() => ({
+    count: counterStore.value.count,
+    name: userStore.value.name,
+  })}
+>
+  {({ count, name }) => <SubTree count={count} name={name} />}
+</Memo>
+```
+
+## Watch
+
+Similar to `Memo`, but it doesn't memoize the children, it will re-render when the state changes.
+
+It's useful when you want to re-render the sub-tree when the state changes.
+
+```tsx
+<Watch watch={counterStore}>{(count) => <p>Count: {count}</p>}</Watch>
+```
+
+You can also watch any computed value and associate it with the sub-tree.
+
+```tsx
+<Watch
+  watch={() => ({
+    count: counterStore.value.count,
+    name: userStore.value.name,
+  })}
+>
+  {({ count, name }) => <SubTree count={count} name={name} />}
+</Watch>
+```

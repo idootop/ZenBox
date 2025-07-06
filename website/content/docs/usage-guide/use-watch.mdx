@@ -1,0 +1,122 @@
+---
+title: useWatch / useWatchEffect
+description: Subscribe the state changes of a store
+icon: Glasses
+---
+
+## useWatch
+
+`useWatch` is a React hook that allows you to subscribe the state changes of a store.
+
+It's similar to `useStoreValue`, but it will **NOT** trigger the component re-render when the state changes.
+
+It's useful when you want to do something when the state changes, but you don't want to re-render the component.
+
+For example, you can use it to log the state changes.
+
+```tsx
+useWatch(
+  () => counterStore.value.count,
+  (current, prev) => {
+    console.log("count changed", current, prev);
+  }
+);
+```
+
+By default, it will trigger the effect when the state changes.
+
+### immediate
+
+If you want to trigger the effect immediately, you can use `immediate: true` option.
+
+```tsx
+useWatch(
+  () => counterStore.value.count,
+  (current, prev) => {
+    console.log("Immediate", current, prev);
+  },
+  { immediate: true }
+);
+```
+
+### once
+
+If you want to trigger the effect only once, you can use `once: true` option.
+
+```tsx
+useWatch(
+  () => counterStore.value.count,
+  (current, prev) => {
+    console.log("Only run once", current, prev);
+  },
+  { once: true }
+);
+```
+
+### cleanup
+
+You can also return a function to clean up the effect. It's useful when you want to clean up the effect when the component unmounts or before the next effect runs.
+
+```tsx
+useWatch(
+  () => counterStore.value.count,
+  (current, prev) => {
+    if (current > 10) {
+      const handleClick = () => {
+        console.log("Current count", counterStore.value.count);
+      };
+      window.addEventListener("click", handleClick);
+      return () => {
+        window.removeEventListener("click", handleClick);
+      };
+    }
+  }
+);
+```
+
+### multiple stores
+
+You can also watch multiple stores at the same time.
+
+```tsx
+useWatch(
+  () => [counterStore, userStore] as const, // ✅ use `as const` to infer the type
+  ([counter, user]) => {
+    console.log("counter and user changed", counter.value, user.value);
+  }
+);
+```
+
+**Note:**
+
+- If you want to watch an array of stores, you can use `[x, y, z] as const` to infer the type.
+
+## useWatchEffect
+
+`useWatchEffect` is similar to `useWatch`, but the effect runs immediately when build the component.
+
+It will auto collect the dependencies and trigger the effect when the dependencies change.
+
+```tsx
+useWatchEffect(() => {
+  if (counterStore.value.count > 10) {
+    console.log("count is greater than 10");
+  }
+});
+```
+
+And also support cleanup function.
+
+```tsx
+useWatchEffect(() => {
+  if (counterStore.value.count > 10) {
+    const handleClick = () => {
+      console.log("Current count", counterStore.value.count);
+    };
+    window.addEventListener("click", handleClick);
+    return () => {
+      window.removeEventListener("click", handleClick);
+    };
+  }
+});
+```

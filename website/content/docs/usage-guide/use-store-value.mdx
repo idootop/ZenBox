@@ -1,0 +1,82 @@
+---
+title: useStoreValue / useComputed
+description: Use store value in component
+icon: Sigma
+---
+
+## useStoreValue
+
+`useStoreValue` is a React hook that allows you to read the state of a store.
+
+It's similar to `store.value` but it will trigger the component re-render when the state changes.
+
+So you can use it to keep the component state in sync with the store.
+
+```tsx
+// ✅ The component will AUTO re-render when the state changes
+function Counter1() {
+  const { count } = useStoreValue(counterStore);
+  return <div>Current Count: {count}</div>;
+}
+
+// ❌ The component will NOT re-render when the state changes
+function Counter2() {
+  const count = counterStore.value.count;
+  return <div>Initial Count: {count}</div>;
+}
+```
+
+## usePick
+
+If the component only needs a few fields from the store, you can use `pick` to select specific fields.
+
+So the component will only re-render when the selected fields change.
+
+```tsx
+const { name, followers } = useStoreValue(userStore, {
+  pick: ["name", "followers"],
+});
+```
+
+Or `usePick` to select specific fields, which is a shortcut for `useStoreValue(store, { pick })`.
+
+```tsx
+const { name, followers } = usePick(userStore, "name", "followers");
+```
+
+## useComputed
+
+The `useComputed` hook is similar to `useStoreValue`, but it will re-compute the value when the state changes.
+
+And it will trigger the component re-render only when the computed value changes.
+
+```tsx
+const counterStore = createStore({ count: 0 });
+
+function Counter3() {
+  const isEven = useComputed(() => counterStore.value.count % 2 === 0);
+
+  return <div>Is Even: {isEven ? "Yes" : "No"}</div>;
+}
+
+counterStore.setState({ count: 1 }); // ✅ Re-render (from even to odd)
+counterStore.setState({ count: 3 }); // ❌ Not re-render (isEven is still false)
+```
+
+You can also use `useComputed` to compute the value from multiple store.
+
+```tsx
+const store1 = createStore({
+  count: 1,
+});
+
+const store2 = createStore({
+  isEven: true,
+});
+
+const value = useComputed(() => {
+  return store1.value.count + (store2.value.isEven ? 1 : 0);
+});
+```
+
+Similar to the `computed` in Vue.

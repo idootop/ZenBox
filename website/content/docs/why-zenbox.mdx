@@ -1,0 +1,293 @@
+---
+title: Why ZenBox?
+description: How is ZenBox different from other existing state management libraries?
+icon: CircleQuestionMark
+---
+
+## Motivation
+
+There are already so many state management libraries in the React ecosystem, but most are either too complex (e.g. Redux's rigid boilerplate) or require learning different paradigms with excessive mental overhead (e.g. Valtio's use of `this` in `proxy`).
+
+![Zustand x Vue](/zustand-vue.jpg)
+
+I was wondering if there is a state management library that combines the simplicity of Zustand and the reactivity of Vue, what would it look like?
+
+So I created ZenBox, which combines the best of both worlds in an API that feels natural and intuitive.
+
+Love Zustand & Vue? You'll ❤️ ZenBox!
+
+## Comparison
+
+### Auto type inference
+
+**The Zustand way:** You need to define the type of the store manually.
+
+```tsx
+import { create } from "zustand";
+
+interface BearState {
+  bears: number;
+  increase: (by: number) => void;
+}
+
+const useBearStore = create<BearState>()((set) => ({
+  bears: 0,
+  increase: (by) => set((state) => ({ bears: state.bears + by })),
+}));
+```
+
+**✅ The ZenBox way:** Types are automatically inferred from the initial state.
+
+```tsx
+const store = createStore({
+  count: 0,
+  name: "ZenBox",
+  increment: () => {
+    store.setState((state) => {
+      state.count++;
+    });
+    return store.value.count;
+  },
+});
+
+store.value.count; // number
+store.value.name; // string
+store.value.increment(); // () => number
+```
+
+### Derived values across stores
+
+**The Zustand way:** You need to pre-combine the stores for selector.
+
+```tsx
+interface BearSlice {
+  bears: number;
+  addBear: () => void;
+}
+
+interface FishSlice {
+  fishes: number;
+  addFish: () => void;
+}
+
+const createBearSlice = (set) => ({
+  bears: 0,
+  addBear: () => set((state) => ({ bears: state.bears + 1 })),
+});
+
+const createFishSlice = (set) => ({
+  fishes: 0,
+  addFish: () => set((state) => ({ fishes: state.fishes + 1 })),
+});
+
+const useBoundStore = create<BearSlice & FishSlice>()((...a) => ({
+  ...createBearSlice(...a),
+  ...createFishSlice(...a),
+}));
+
+const total = useBoundStore((state) => state.bears + state.fishes);
+```
+
+**✅ The ZenBox way:** You can use `useComputed` to automatically track the dependencies.
+
+```tsx
+const bearStore = createStore({
+  bears: 0,
+});
+
+const fishStore = createStore({
+  fishes: 0,
+});
+
+// ✅ As easy as 1 + 1 = 2
+const total = useComputed(() => {
+  return bearStore.value.bears + fishStore.value.fishes;
+});
+```
+
+### Getters and setters
+
+**The Zustand way:** You need to manually pass `get()` and `set()` to get and set the state.
+
+```tsx
+import { create } from "zustand";
+
+const useCountStore = create((set, get) => ({
+  count: 0,
+  increment: () => {
+    set({
+      ...get(),
+      count: get().count + 1,
+    });
+  },
+}));
+
+useCountStore.getState().count;
+useCountStore.getState().increment();
+```
+
+**The Jotai way:** The `get` and `set` function is so annoying and not readable friendly.
+
+```tsx
+const count1 = atom(1);
+const count2 = atom(2);
+const count3 = atom(3);
+
+const sum = atom((get) => get(count1) + get(count2) + get(count3));
+
+// Or if you like fp patterns ...
+const atoms = [count1, count2, count3, ...otherAtoms];
+const sum = atom((get) => atoms.map(get).reduce((acc, count) => acc + count));
+
+const decrementCountAtom = atom(
+  (get) => get(countAtom),
+  (get, set, _arg) => set(countAtom, get(countAtom) - 1)
+);
+```
+
+**The Valtio way:** Using `this` and getter / setter in `proxy` with mental overhead.
+
+```tsx
+const state = proxy({
+  count: 1,
+  get doubled() {
+    return this.count * 2;
+  },
+  user: {
+    name: "John",
+  },
+  greetings: {
+    // WRONG - `this` points to `state.greetings`.
+    get greetingEn() {
+      return "Hello " + this.user.name;
+    },
+  },
+});
+
+// Getter calls on the snapshot work as expected
+const snap = snapshot(state);
+console.log(snap.doubled); // 2
+
+// When count changes in the state proxy
+state.count = 10;
+// Then snapshot's computed property does not change
+console.log(snap.doubled); // 2
+```
+
+**✅ The ZenBox way:** Unified `store.value` to get and set the state.
+
+```tsx
+// Get state
+const count = store.value.count;
+
+// Set state
+store.value = { count: count + 1 };
+
+// Call actions
+store.value.increment();
+
+// Computed values
+const doubleCount = useComputed(() => store.value.count * 2);
+```
+
+### Immer integration
+
+**The Zustand way:** Manually use `immer` middleware to mutate the state.
+
+```tsx
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
+
+type State = {
+  count: number;
+};
+
+type Actions = {
+  increment: (qty: number) => void;
+  decrement: (qty: number) => void;
+};
+
+export const useCountStore = create<State & Actions>()(
+  immer((set) => ({
+    count: 0,
+    increment: (qty: number) =>
+      set((state) => {
+        state.count += qty;
+      }),
+    decrement: (qty: number) =>
+      set((state) => {
+        state.count -= qty;
+      }),
+  }))
+);
+```
+
+**✅ The ZenBox way:** Immer built-in, more concise.
+
+```tsx
+const store = createStore({
+  count: 0,
+  increment: (qty: number) => {
+    store.setState((state) => {
+      state.count += qty;
+    });
+  },
+});
+```
+
+### Shallow updates
+
+**The Zustand way:** Manually use `useShallow` to avoid unnecessary re-renders.
+
+```tsx
+import { create } from "zustand";
+import { useShallow } from "zustand/react/shallow";
+
+const useMeals = create(() => ({
+  papaBear: "large porridge-pot",
+  mamaBear: "middle-size porridge pot",
+  littleBear: "A little, small, wee pot",
+}));
+
+export const BearNames = () => {
+  const names = useMeals(() => {
+    return useShallow((state) => Object.keys(state));
+  });
+
+  return <div>{names.join(", ")}</div>;
+};
+```
+
+**✅ The ZenBox way:** Using shallow diff to avoid unnecessary re-renders as default.
+
+```tsx
+const names = useComputed(() => {
+  return Object.keys(bearStore.value);
+});
+```
+
+You can also enable deep diff by passing `{ deep: true }` to avoid unnecessary re-renders.
+
+```tsx
+const names = useComputed(() => Object.keys(bearStore.value), { deep: true });
+```
+
+**Note:**
+
+- For most cases, the default shallow diff is enough.
+- The deep diff is more expensive, so you should only use it when you need to.
+
+## ZenBox vs Zustand
+
+| Feature                | ZenBox                                  | Zustand                        |
+| ---------------------- | --------------------------------------- | ------------------------------ |
+| **Learning Curve**     | ✅ Minimal (Vue-friendly)               | ✅ Low                         |
+| **Vue-like DX**        | ✅ `useComputed`/`useWatch`             | ❌ Manual handling             |
+| **TypeScript Support** | ✅ Full auto-inference                  | ⚠️ Manual interface required   |
+| **State Mutation**     | ✅ All through `store.value`            | ❌ Manual `get()`/`set()`      |
+| **Computed Values**    | ✅ Cross-store, auto-tracked            | ⚠️ Pre-combined                |
+| **Store Scoping**      | ✅ Built-in Provider for isolated state | ❌ Global default              |
+| **Immer Support**      | ✅ Out of the box                       | ⚠️ Middleware required         |
+| **Persist Support**    | ❌ No built-in support                  | ⚠️ Middleware required         |
+| **Devtools Support**   | ❌ No built-in support                  | ⚠️ Middleware required         |
+| **Bundle Size**        | **< 3KB** gzipped (without Immer)       | **< 1KB** gzipped (very small) |

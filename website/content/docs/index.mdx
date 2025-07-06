@@ -1,67 +1,44 @@
 ---
-title: ZenBox
-description: Simple, intuitive React state management library
-icon: Star
+title: Introduction
+description: Introducing ZenBox, a simple, intuitive React state management library
+icon: BookOpen
 ---
+
+> Code React like Vue 💚, manage state like Zustand 🐻
+
+![ZenBox](/banner.jpg)
+
+## What is ZenBox?
+
+ZenBox is a state management library for React. It is designed to be simple, lightweight, and easy to use.
+
+ZenBox is highly inspired by Vue and Zustand, but combines the best of both worlds in an API that feels natural and intuitive.
+
+Love Zustand & Vue? You'll ❤️ ZenBox!
+
+### 🐻 Zustand's Simplicity
+
+```ts
+const counter = createStore({ count: 0 });
+
+counter.setState((state) => ({ count: state.count + 1 }));
+```
+
+### 💚 Vue-like DX
+
+```ts
+const doubled = useComputed(() => counter.value.count * 2);
+
+useWatch(
+  () => counter.value.count,
+  (current, prev) => console.log("Changed!", current, prev)
+);
+```
 
 ## Features
 
 - 🚀 **Easy to Use** - Minimal learning curve
-- 💪 **TypeScript Support** - Complete type safety
 - ⚡ **High Performance** - Fine-grained reactive updates
+- 💪 **TypeScript Support** - Full auto-inference out of the box
 - 🎯 **Flexible** - Supports both global and local state management
-- 🔄 **Immutable Updates** - Built-in Immer support
-
-## Quick Start
-
-```bash
-npm install zenbox
-```
-
-```tsx
-import { createStore, useStoreValue } from "zenbox";
-
-// Create a store
-const counterStore = createStore({ count: 0 });
-
-function Counter() {
-  const { count } = useStoreValue(counterStore);
-
-  return (
-    <div>
-      <p>Count: {count}</p>
-      <button
-        onClick={() =>
-          counterStore.setState((s) => {
-            s.count++;
-          })
-        }
-      >
-        Increment
-      </button>
-    </div>
-  );
-}
-```
-
-## Architecture
-
-ZenBox provides three levels of APIs:
-
-### Core API
-
-- [`createStore`](./core/createStore) - Create state stores
-- [`createProvider`](./core/createProvider) - Create component-scoped stores
-
-### Components
-
-- [`Watch`](./components/Watch) - Reactive observer component
-- [`Memo`](./components/Memo) - Memoization component
-
-### Hooks
-
-- [`useStoreValue`](./hooks/useStoreValue) - Subscribe to store changes
-- [`usePick`](./hooks/usePick) - Select specific fields
-- [`useWatch`](./hooks/useWatch) - Watch computed values
-- [`useComputed`](./hooks/useComputed) - Compute derived state
-- [`useWatchEffect`](./hooks/useWatchEffect) - Watch side effects
+- 📦 **Lightweight** - Under 100 lines of core code, < 3KB gzipped (without Immer)

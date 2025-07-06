@@ -1,0 +1,160 @@
+---
+title: How to create and update store
+description: Best practices for creating and updating store
+icon: Box
+---
+
+## Store with actions (Recommended)
+
+We recommend encapsulating the state modification logic in the `actions` of the store, so you don't need to use `store.setState` to modify the state every time, which is more clear and convenient to use.
+
+```tsx
+const counterStore = createStore({
+  count: 0,
+  increment() {
+    // Use the store instance to mutate the state directly
+    counterStore.setState((state) => {
+      state.count++;
+    });
+  },
+  // You can also define async actions
+  async incrementAsync() {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // You can use `store.value` to read current state
+    const count = counterStore.value.count;
+
+    // Call other actions in the store as well
+    counterStore.value.increment();
+  },
+});
+
+// Now you can use the store actions like this:
+counterStore.value.increment();
+await counterStore.value.incrementAsync();
+```
+
+## Different ways to update state
+
+First, let's define a complex store with `actions`.
+
+```tsx
+const userStore = createStore({
+  name: "John",
+  followers: 0,
+  settings: {
+    language: "en",
+    theme: {
+      primary: "blue",
+    },
+  },
+  updateSettings(settings) {
+    userStore.setState((state) => {
+      state.settings = settings;
+    });
+  },
+});
+```
+
+### 1. Use `store.setState` the Immer way (Recommended)
+
+```tsx
+userStore.setState((state) => {
+  state.followers++;
+  state.settings.theme.primary = "red";
+});
+```
+
+**When to use this way?**
+
+- When mutate only part of state
+- When store has `actions` _(store actions are also considered part of state)_
+
+So you don't need to use `store.value` to read state and spread it like this:
+
+```tsx
+userStore.setState({
+  ...userStore.value,
+  followers: userStore.value.followers + 1,
+  settings: {
+    ...userStore.value.settings,
+    theme: {
+      ...userStore.value.settings.theme,
+      primary: "red",
+    },
+  },
+});
+```
+
+### 2. Use `store.setState` the native way
+
+```tsx
+const counterStore = createStore({ count: 0 });
+
+counterStore.setState({
+  count: counterStore.value.count + 1,
+});
+```
+
+This way is more convenient for simple state updates, but it's more troublesome for complex state updates, you need to manually spread the entire state.
+
+For example, update a store with actions:
+
+```tsx
+userStore.setState({
+  ...userStore.value, // spread the entire state with original actions
+  followers: userStore.value.followers + 1, // update the followers
+});
+```
+
+### 3. Update partial state
+
+But luckily, ZenBox allows you to update partial state like this:
+
+```tsx
+userStore.setState({
+  name: "Jane",
+  followers: userStore.value.followers + 1,
+  age: 18, // no effect, new properties are ignored
+});
+```
+
+The new state object provided will be merged into the original state.
+
+What a life saver!
+
+**Note:**
+
+- Only the first level of state is supported for merging
+- If you want to update nested state, you need to use `store.setState` the Immer way
+
+### 4. Use `store.value = x` to update state
+
+Or you can use `store.value = x` the more intuitive way to update state.
+
+```tsx
+userStore.value = {
+  name: "Jane",
+  followers: 100,
+  settings: {
+    language: "zh",
+    theme: {
+      primary: "red",
+    },
+  },
+};
+```
+
+As same as `store.setState(x)`, you can also use `store.value = x` to update partial state.
+
+```tsx
+userStore.value = {
+  name: "Jane",
+  followers: userStore.value.followers + 1,
+};
+```
+
+**Note:**
+
+- Though the partial state update is more concise, it's more confusing to understand.
+- We recommend using the Immer way to update partial state.

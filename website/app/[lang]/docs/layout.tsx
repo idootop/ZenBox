@@ -17,7 +17,7 @@ export default async function Layout({
       {...baseOptions(lang)}
       nav={{ ...baseOptions(lang).nav, mode: 'top' }}
       sidebar={{
-        defaultOpenLevel: 1,
+        defaultOpenLevel: 0,
       }}
       tree={source.pageTree[lang]}
     >
