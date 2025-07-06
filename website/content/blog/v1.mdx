@@ -1,0 +1,34 @@
+---
+title: ZenBox v1.0.0
+description: Release ZenBox v1.0.0
+date: 2025-07-07
+---
+
+The ZenBox v1.0.0 is a major release that introduces a new way to manage state in React.
+
+## Quick Start
+
+```npm
+npm install zenbox
+```
+
+## Example
+
+```tsx
+import { createStore, useStoreValue } from "zenbox";
+
+const counterStore = createStore({ count: 0 });
+
+const Counter = () => {
+  const count = useStoreValue(counterStore);
+  return <div>{count}</div>;
+};
+```
+
+## Features
+
+- 🚀 **Easy to Use** - Minimal learning curve
+- 💪 **TypeScript Support** - Complete type safety
+- ⚡ **High Performance** - Fine-grained reactive updates
+- 🎯 **Flexible** - Supports both global and local state management
+- 🔄 **Immutable Updates** - Built-in Immer support

@@ -1,0 +1,181 @@
+---
+title: 100 行代码实现 React 状态管理
+description: 一个非常轻量级的 React 状态管理解决方案，核心代码仅 100 行
+date: 2025-07-06
+---
+
+## 背景
+
+两年前，我写了一个 200 行的 React 状态管理库，叫做 [XSta](https://github.com/idootop/xsta)。
+
+当时我写这个库的初衷是，我需要一个非常轻量级的状态管理库，能够满足我的基本需求，同时又不会引入太多的学习成本。
+
+![XSta](/images/xsta.webp)
+
+XSta 成功了：
+
+- 它提供了与 useState 一致的 API，零学习成本
+- 同时又非常轻量级，核心代码仅 200 行（包含注释和类型定义）
+
+## 实现
+
+但是我觉得它还不够好，至少还可以再简单一点。
+
+所以，这一次我准备用 100 行代码重写一个状态管理库，叫做 XStore（也是 [ZenBox](https://github.com/idootop/ZenBox) 的前身）。
+
+```tsx lineNumbers
+import { useCallback, useEffect, useRef, useState } from "react";
+import { shallowEqual } from "@del-wang/equals";
+
+interface Listener<T, V = T> {
+  prev: V;
+  select: (state: T) => V;
+  equal: (a: V, b: V) => boolean;
+  onChange: (current: V, prev: V) => void;
+}
+
+const identity = <T,>(state: T) => state;
+
+export class XStore<T extends Record<string, any>> {
+  constructor(private _state: T) {}
+  private _listeners: Set<Listener<T, any>> = new Set();
+  get value(): Readonly<T> {
+    return this._state;
+  }
+  setState = (newState: T | ((prev: Readonly<T>) => T)) => {
+    this._state =
+      typeof newState === "function" ? newState(this._state) : newState;
+    for (const listener of this._writeListeners) {
+      const current = listener.select(this._state);
+      if (listener.equal(listener.prev, current)) continue; // no changes
+      listener.onChange(current, listener.prev);
+      listener.prev = current;
+    }
+  };
+  subscribe = <V = T,>(options: {
+    onChange: (current: V, prev: V) => void;
+    select?: (state: T) => V;
+    equal?: (a: V, b: V) => boolean;
+  }) => {
+    const { onChange, select = identity, equal = shallowEqual } = options;
+    const listener = { onChange, select, equal, prev: select(this._state) };
+    this._listeners.add(listener);
+    return () => this._listeners.delete(listener);
+  };
+}
+
+export function useWatch<
+  const S extends XStore<any>[],
+  V = { [K in keyof S]: S[K]["value"] }
+>(options: {
+  stores: S;
+  select?: (...store: { [K in keyof S]: S[K]["value"] }) => V;
+  onChange: (current: V, prev: V) => void | VoidFunction;
+  equal?: (a: V, b: V) => boolean;
+}): V {
+  const { stores, onChange, select = identity, equal = shallowEqual } = options;
+
+  const refs = useRef({
+    cleanup: null as null | void | VoidFunction,
+    prev: select(...(stores.map((store) => store.value) as any)),
+    ...{ stores, onChange, select, equal },
+  });
+  refs.current = { ...refs.current, stores, onChange, select, equal };
+
+  const check = useCallback(() => {
+    const { prev, select, equal, onChange, cleanup, stores } = refs.current;
+    const current = select(...(stores.map((store) => store.value) as any));
+    if (equal(prev as V, current as V)) return; // no changes
+    cleanup?.(); // cleanup previous effect
+    refs.current.cleanup = onChange(current as V, prev as V);
+    refs.current.prev = current;
+  }, []);
+
+  check();
+
+  useEffect(() => {
+    const unsubscribes = stores.map((store) =>
+      store.subscribe({ onChange: check })
+    );
+    return () => {
+      refs.current.cleanup?.();
+      unsubscribes.forEach((unsubscribe) => unsubscribe());
+    };
+  }, [...stores]);
+
+  return refs.current.prev as V;
+}
+
+export function useComputed<
+  const S extends XStore<any>[],
+  V = { [K in keyof S]: S[K]["value"] }
+>(options: {
+  stores: S;
+  select?: (...store: { [K in keyof S]: S[K]["value"] }) => V;
+  equal?: (a: V, b: V) => boolean;
+}) {
+  const { stores, select, equal } = options;
+  const [_, setState] = useState({});
+  const rebuild = useCallback(() => setState({}), []);
+  return useWatch({ stores, select, equal, onChange: rebuild });
+}
+```
+
+## 用法
+
+麻雀虽小，五脏俱全。XStore 只用 100 行代码就实现了 React 状态管理的核心功能：
+
+```tsx
+import { XStore } from "xstore";
+
+const counterStore = new XStore({ count: 0 });
+
+const Counter = () => {
+  const doubleCount = useComputed({
+    stores: [counterStore],
+    select: (store) => store.value.count * 2,
+  });
+
+  useWatch({
+    stores: [counterStore],
+    onChange: (current, prev) => {
+      console.log("count changed", current, prev);
+      return () => {
+        console.log("cleanup effect");
+      };
+    },
+  });
+
+  const increment = () => {
+    // Get the current state
+    const count = counterStore.value.count;
+
+    // Update the state
+    counterStore.setState({
+      ...counterStore.value,
+      count: count + 1,
+    });
+  };
+
+  return (
+    <div>
+      <p>Double Count: {doubleCount}</p>
+      <button onClick={increment}>Increment</button>
+    </div>
+  );
+};
+```
+
+可以看到，XStore 已经很接近 [ZenBox](https://github.com/idootop/ZenBox) 了。
+
+## 后续
+
+后来，我在 XStore 的基础上创造了 [ZenBox](https://github.com/idootop/ZenBox)，添加了更多功能，比如：
+
+- 更精简、符合直觉的 API 设计
+- 更完善的 TypeScript 类型自动推断
+- 支持局部或使用 `Immer` 的方式更新 State
+- Vue 风格的开发体验: `useComputed`, `useWatch`, `useWatchEffect`
+- ……
+
+现在，[ZenBox](https://github.com/idootop/ZenBox) 已经成为了我新项目的首选 React 状态管理库（之前是 [Zustand](https://github.com/pmndrs/zustand)）。

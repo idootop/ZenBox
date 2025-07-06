@@ -46,7 +46,7 @@ export default async function Page({ params }: PageProps) {
       <hr className="my-4 w-full" />
       {posts.map((post) => (
         <Link
-          className="flex w-full flex-col gap-2 rounded-xl border p-4 hover:shadow-sm dark:hover:text-[var(--color-fd-primary)]"
+          className="my-4 flex w-full flex-col gap-2 rounded-xl border p-4 hover:shadow-sm dark:hover:text-[var(--color-fd-primary)]"
           href={post.url}
           key={post.data.title}
         >

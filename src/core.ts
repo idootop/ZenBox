@@ -1,7 +1,7 @@
 import { shallowEqual } from '@del-wang/equals';
 import { enableMapSet, produce } from 'immer';
 
-import { mergeState } from './utils.js';
+import { identity, mergeState } from './utils.js';
 
 export type State = Record<string, any>;
 
@@ -56,11 +56,7 @@ export class ZenBox<S extends State> {
     select?: (state: S) => V;
     equal?: (a: V, b: V) => boolean;
   }) => {
-    const {
-      onChange,
-      select = (state) => state,
-      equal = shallowEqual,
-    } = options;
+    const { onChange, select = identity, equal = shallowEqual } = options;
     const listener = { onChange, select, equal, prev: select(this._state) };
     this._writeListeners.add(listener);
     return () => this._writeListeners.delete(listener);

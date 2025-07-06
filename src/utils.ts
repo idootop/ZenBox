@@ -20,6 +20,8 @@ export type ResolveZenBox<T> = T extends ZenBox<infer U>
 
 export const NULL = Symbol('NULL');
 
+export const identity = <T>(state: T) => state;
+
 export function mergeState<T extends State>(
   initialState: T,
   partialState: Partial<T> = {},
