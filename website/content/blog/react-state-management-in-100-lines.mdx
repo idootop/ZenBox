@@ -1,0 +1,181 @@
+---
+title: React State Management in 100 Lines of Code
+description: A super lightweight React state management solution with just 100 lines of core code
+date: 2025-07-06
+---
+
+## Background
+
+Two years ago, I built a 200-line React state management library called [XSta](https://github.com/idootop/xsta).
+
+My goal was simple: create an ultra-lightweight state management library that could handle basic needs without introducing a steep learning curve.
+
+![XSta](/images/xsta.webp)
+
+XSta was a success:
+
+- It provided an API consistent with `useState` — zero learning curve
+- Extremely lightweight with just 200 lines of core code (including comments and type definitions)
+
+## Implementation
+
+But I felt it could be even better — simpler, more elegant.
+
+So this time, I decided to rewrite it in just 100 lines of code, calling it XStore (which later became the foundation for [ZenBox](https://github.com/idootop/ZenBox)).
+
+```tsx lineNumbers
+import { useCallback, useEffect, useRef, useState } from "react";
+import { shallowEqual } from "@del-wang/equals";
+
+interface Listener<T, V = T> {
+  prev: V;
+  select: (state: T) => V;
+  equal: (a: V, b: V) => boolean;
+  onChange: (current: V, prev: V) => void;
+}
+
+const identity = <T,>(state: T) => state;
+
+export class XStore<T extends Record<string, any>> {
+  constructor(private _state: T) {}
+  private _listeners: Set<Listener<T, any>> = new Set();
+  get value(): Readonly<T> {
+    return this._state;
+  }
+  setState = (newState: T | ((prev: Readonly<T>) => T)) => {
+    this._state =
+      typeof newState === "function" ? newState(this._state) : newState;
+    for (const listener of this._writeListeners) {
+      const current = listener.select(this._state);
+      if (listener.equal(listener.prev, current)) continue; // no changes
+      listener.onChange(current, listener.prev);
+      listener.prev = current;
+    }
+  };
+  subscribe = <V = T,>(options: {
+    onChange: (current: V, prev: V) => void;
+    select?: (state: T) => V;
+    equal?: (a: V, b: V) => boolean;
+  }) => {
+    const { onChange, select = identity, equal = shallowEqual } = options;
+    const listener = { onChange, select, equal, prev: select(this._state) };
+    this._listeners.add(listener);
+    return () => this._listeners.delete(listener);
+  };
+}
+
+export function useWatch<
+  const S extends XStore<any>[],
+  V = { [K in keyof S]: S[K]["value"] }
+>(options: {
+  stores: S;
+  select?: (...store: { [K in keyof S]: S[K]["value"] }) => V;
+  onChange: (current: V, prev: V) => void | VoidFunction;
+  equal?: (a: V, b: V) => boolean;
+}): V {
+  const { stores, onChange, select = identity, equal = shallowEqual } = options;
+
+  const refs = useRef({
+    cleanup: null as null | void | VoidFunction,
+    prev: select(...(stores.map((store) => store.value) as any)),
+    ...{ stores, onChange, select, equal },
+  });
+  refs.current = { ...refs.current, stores, onChange, select, equal };
+
+  const check = useCallback(() => {
+    const { prev, select, equal, onChange, cleanup, stores } = refs.current;
+    const current = select(...(stores.map((store) => store.value) as any));
+    if (equal(prev as V, current as V)) return; // no changes
+    cleanup?.(); // cleanup previous effect
+    refs.current.cleanup = onChange(current as V, prev as V);
+    refs.current.prev = current;
+  }, []);
+
+  check();
+
+  useEffect(() => {
+    const unsubscribes = stores.map((store) =>
+      store.subscribe({ onChange: check })
+    );
+    return () => {
+      refs.current.cleanup?.();
+      unsubscribes.forEach((unsubscribe) => unsubscribe());
+    };
+  }, [...stores]);
+
+  return refs.current.prev as V;
+}
+
+export function useComputed<
+  const S extends XStore<any>[],
+  V = { [K in keyof S]: S[K]["value"] }
+>(options: {
+  stores: S;
+  select?: (...store: { [K in keyof S]: S[K]["value"] }) => V;
+  equal?: (a: V, b: V) => boolean;
+}) {
+  const { stores, select, equal } = options;
+  const [_, setState] = useState({});
+  const rebuild = useCallback(() => setState({}), []);
+  return useWatch({ stores, select, equal, onChange: rebuild });
+}
+```
+
+## Usage
+
+Small but mighty. XStore packs all the core React state management features into just 100 lines:
+
+```tsx
+import { XStore } from "xstore";
+
+const counterStore = new XStore({ count: 0 });
+
+const Counter = () => {
+  const doubleCount = useComputed({
+    stores: [counterStore],
+    select: (store) => store.value.count * 2,
+  });
+
+  useWatch({
+    stores: [counterStore],
+    onChange: (current, prev) => {
+      console.log("count changed", current, prev);
+      return () => {
+        console.log("cleanup effect");
+      };
+    },
+  });
+
+  const increment = () => {
+    // Get the current state
+    const count = counterStore.value.count;
+
+    // Update the state
+    counterStore.setState({
+      ...counterStore.value,
+      count: count + 1,
+    });
+  };
+
+  return (
+    <div>
+      <p>Double Count: {doubleCount}</p>
+      <button onClick={increment}>Increment</button>
+    </div>
+  );
+};
+```
+
+As you can see, XStore was already quite close to what would become [ZenBox](https://github.com/idootop/ZenBox).
+
+## What's Next
+
+Later, I evolved XStore into [ZenBox](https://github.com/idootop/ZenBox), adding more features like:
+
+- Cleaner, more intuitive API design
+- Better TypeScript type inference
+- Support for partial updates and `Immer`-style mutations
+- Vue-inspired developer experience: `useComputed`, `useWatch`, `useWatchEffect`
+- And more...
+
+Today, [ZenBox](https://github.com/idootop/ZenBox) has become my go-to React state management library for new projects (previously it was [Zustand](https://github.com/pmndrs/zustand)).
