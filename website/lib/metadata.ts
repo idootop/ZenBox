@@ -17,7 +17,7 @@ export function createMetadata(
   const {
     slug,
     lang = i18n.defaultLanguage,
-    images = '/banner.jpg',
+    images = '/banners/default.png',
     ...override
   } = options;
 

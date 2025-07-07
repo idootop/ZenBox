@@ -30,6 +30,15 @@ export const blogCollection = defineCollections({
   }),
 });
 
+export const pageCollection = defineCollections({
+  type: 'doc',
+  dir: 'content/page',
+  schema: frontmatterSchema.extend({
+    title: z.string(),
+    description: z.string(),
+  }),
+});
+
 export default defineConfig({
   lastModifiedTime: 'git',
 });

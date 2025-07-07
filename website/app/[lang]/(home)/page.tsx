@@ -16,7 +16,7 @@ export async function generateMetadata(props: {
       type: 'website',
       images: [
         {
-          url: '/banner.jpg',
+          url: '/banners/default.png',
           width: 1200,
           height: 630,
           alt: kSiteName,

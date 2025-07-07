@@ -5,6 +5,15 @@ const withMDX = createMDX();
 
 const config: NextConfig = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'img.shields.io',
+        port: '',
+      },
+    ],
+  },
   async rewrites() {
     return [
       {
