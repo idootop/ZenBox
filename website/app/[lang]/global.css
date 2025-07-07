@@ -1,15 +1,15 @@
 @import "fumadocs-ui/css/style.css";
 
+:root {
+  --fd-nav-height: 56px !important;
+  --color-fd-primary: oklch(0.5 0.5 150);
+}
+
+.dark {
+  --color-fd-primary: oklch(1 0.5 150);
+}
+
 @layer base {
-  :root {
-    --fd-nav-height: 56px !important;
-    --color-fd-primary: oklch(0.5 0.5 150);
-  }
-
-  .dark {
-    --color-fd-primary: oklch(1 0.5 150);
-  }
-
   @keyframes heartbeat {
     0% {
       transform: scale(0.75);
@@ -63,6 +63,20 @@
     &:hover::-webkit-scrollbar-thumb {
       background-color: var(--text-disabled);
     }
+  }
+
+  .home-container {
+    --color-grid-border: rgba(0, 0, 0, 0.05);
+
+    .dark & ::selection,
+    .dark & ::-moz-selection {
+      @apply bg-fd-primary/10 text-fd-primary;
+      background-color: rgba(34, 197, 94, 0.3);
+    }
+  }
+
+  .dark .home-container {
+    --color-grid-border: rgba(255, 255, 255, 0.05);
   }
 }
 

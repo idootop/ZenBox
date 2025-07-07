@@ -17,6 +17,10 @@ const config: NextConfig = {
   async rewrites() {
     return [
       {
+        source: '/',
+        destination: '/en',
+      },
+      {
         source: '/llms.txt',
         destination: '/en/llms.txt',
       },
