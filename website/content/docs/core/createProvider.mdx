@@ -1,42 +1,46 @@
 ---
 title: createProvider
-description: Create a context provider for component-scoped stores. Perfect for isolated state that's shared within a component tree.
+description: Create isolated, component-scoped stores with React Context integration
 ---
 
-## Syntax
+## When to Use Providers
+
+Perfect for state that should be **isolated per component instance**:
+
+- Modal or dialog state
+- Form state that shouldn't persist
+- Tab or accordion panel state
+- Feature-specific state that shouldn't be global
+
+## API Reference
+
+### Syntax
 
 ```tsx
 const [Provider, useStore, storeActions] = createProvider(initialState);
 ```
 
-## Parameters
+### Parameters
 
-- `initialState`: Initial state object for the store
+- `initialState`: Object defining the store's initial state and actions
 
-## Returns
+### Returns
 
 A tuple containing:
 
-- `Provider`: React component that provides the store to its children
-- `useStore`: Hook to access the store instance within the provider tree
-- `storeActions`: Object with utility functions (`getStore`, `getState`, `setState`)
+- `Provider`: React component that provides isolated store instance to children
+- `useStore`: Hook to access the store instance within provider tree
+- `storeActions`: Utility object with `getStore`, `getState`, `setState` methods
 
-## Key Features
+## Examples
 
-- **Component-scoped state**: Each provider creates its own isolated store instance
-- **State isolation**: Multiple instances don't interfere with each other
-- **Flexible initialization**: Can override initial state per provider instance
-- **Context-based**: Uses React Context for efficient updates
-
-## Quick Start
-
-### Simple Provider Setup
+### Simple Isolated State
 
 ```tsx
 import { createProvider, useStoreValue } from "zenbox";
 
-// Create a provider for user session state
-const [SessionProvider, useSessionStore] = createProvider({
+// Create isolated session state per provider
+const [SessionProvider, useFindSessionStore] = createProvider({
   user: null,
   isAuthenticated: false,
   sessionId: null,
@@ -47,10 +51,7 @@ const [SessionProvider, useSessionStore] = createProvider({
 });
 
 function UserProfile() {
-  // Get the store instance from the provider context
-  const store = useSessionStore();
-
-  // Subscribe to specific store values for reactive updates
+  const store = useFindSessionStore();
   const { user, isAuthenticated } = useStoreValue(store);
 
   if (!isAuthenticated) {
@@ -60,7 +61,7 @@ function UserProfile() {
   return (
     <div>
       <h1>Welcome, {user.name}!</h1>
-      <p>Session ID: {store.value.sessionId}</p>
+      <p>Session: {store.value.sessionId}</p>
     </div>
   );
 }
@@ -74,10 +75,10 @@ function App() {
 }
 ```
 
-### Using Store Actions
+### Provider with Actions
 
 ```tsx
-const [GameProvider, useGameStore, gameActions] = createProvider({
+const [GameProvider, useFindGameStore, gameActions] = createProvider({
   // State
   score: 0,
   level: 1,
@@ -85,16 +86,17 @@ const [GameProvider, useGameStore, gameActions] = createProvider({
   gameState: "playing" as "playing" | "paused" | "gameOver",
 
   // Actions
-  increaseScore: (points) => {
+  increaseScore(points) {
     gameActions.setState((state) => {
       state.score += points;
-      // Level up every 1000 points
+      // Auto level-up every 1000 points
       if (state.score >= state.level * 1000) {
         state.level += 1;
       }
     });
   },
-  loseLife: () => {
+
+  loseLife() {
     gameActions.setState((state) => {
       state.lives -= 1;
       if (state.lives <= 0) {
@@ -102,24 +104,24 @@ const [GameProvider, useGameStore, gameActions] = createProvider({
       }
     });
   },
-  resetGame: () => {
-    gameActions.setState({
-      ...gameActions.value,
-      score: 0,
-      level: 1,
-      lives: 3,
-      gameState: "playing",
+
+  resetGame() {
+    gameActions.setState((state) => {
+      state.score = 0;
+      state.level = 1;
+      state.lives = 3;
+      state.gameState = "playing";
     });
   },
 });
 
 function GameComponent() {
-  const store = useGameStore();
+  const store = useFindGameStore();
   const { score, level, lives, gameState } = useStoreValue(store);
 
   return (
     <div className="game">
-      <div className="game-hud">
+      <div className="hud">
         <span>Score: {score}</span>
         <span>Level: {level}</span>
         <span>Lives: {lives}</span>
@@ -127,13 +129,13 @@ function GameComponent() {
 
       {gameState === "gameOver" ? (
         <div className="game-over">
-          <h2>Game Over!</h2>
+          <h2>Game Over! Final Score: {score}</h2>
           <button onClick={store.value.resetGame}>Play Again</button>
         </div>
       ) : (
         <div className="game-area">
           <button onClick={() => store.value.increaseScore(100)}>
-            Score Points
+            +100 Points
           </button>
           <button onClick={store.value.loseLife}>Lose Life</button>
         </div>
@@ -142,23 +144,102 @@ function GameComponent() {
   );
 }
 
+// Multiple independent game instances
 function App() {
   return (
-    <GameProvider>
-      <GameComponent />
-    </GameProvider>
+    <div className="app">
+      <h1>Game Arena</h1>
+
+      <div className="games">
+        <GameProvider>
+          <h2>Player 1</h2>
+          <GameComponent />
+        </GameProvider>
+
+        <GameProvider>
+          <h2>Player 2</h2>
+          <GameComponent />
+        </GameProvider>
+      </div>
+    </div>
   );
 }
 ```
 
+### Nested Providers
+
+```tsx
+function App() {
+  return (
+    <SessionProvider>
+      <div className="app">
+        {/* Each modal has isolated state */}
+        <Modal defaultTitle="Settings" />
+        <Modal defaultTitle="User Profile" />
+
+        {/* Each game instance is independent */}
+        <GameProvider>
+          <GameComponent />
+        </GameProvider>
+      </div>
+    </SessionProvider>
+  );
+}
+```
+
+## Provider vs Global Store
+
+| Feature                | createProvider         | createStore          |
+| ---------------------- | ---------------------- | -------------------- |
+| **Scope**              | Component tree         | Global application   |
+| **Isolation**          | ✅ Perfect isolation   | ❌ Shared across app |
+| **Context**            | ✅ React Context       | ❌ Direct access     |
+| **Multiple instances** | ✅ Independent         | ❌ Single instance   |
+| **Best for**           | Modals, forms, widgets | App state, user data |
+
 ## Best Practices
 
-1. **Use for isolated state** - Perfect for modals, tabs, forms that need their own state
-2. **Initialize with meaningful defaults** - Provide sensible initial state
-3. **Keep providers focused** - One provider per logical component or feature
+✅ **Use for truly isolated state**
 
-## Related
+```tsx
+// Good: Modal state shouldn't leak between instances
+const [ModalProvider, useModal] = createProvider({
+  isOpen: false,
+  step: 1,
+});
+```
 
-- [`createStore`](./createStore.md) - Create global stores
-- [`useStoreValue`](../hooks/useStoreValue.md) - Subscribe to store changes
-- [`usePick`](../hooks/usePick.md) - Select specific fields from stores
+✅ **Initialize with meaningful defaults**
+
+```tsx
+<GameProvider initialState={{
+  difficulty: "hard",
+  playerName: "Anonymous"
+}}>
+```
+
+✅ **Keep providers focused**
+
+```tsx
+// Good: Single responsibility
+const [FormProvider, useForm] = createProvider({
+  values: {},
+  errors: {},
+  isSubmitting: false,
+});
+```
+
+❌ **Don't use for global state**
+
+```tsx
+// Bad: User auth should be global, not per-provider
+const [AuthProvider] = createProvider({
+  currentUser: null, // This should be global!
+});
+```
+
+## Related APIs
+
+- [`createStore`](./createStore) - Global store creation
+- [`useStoreValue`](../hooks/useStoreValue) - Subscribe to store changes
+- [`useComputed`](../hooks/useComputed) - Derived reactive values

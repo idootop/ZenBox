@@ -1,46 +1,67 @@
 ---
 title: usePick
-description: Convenient shorthand for useStoreValue with selective field subscription
+description: Selective field subscription with automatic performance optimization
 ---
 
-## Syntax
+## Why Use usePick?
+
+Perfect for **performance optimization** - only re-renders when the specific fields you're using actually change.
+
+### Performance Comparison
+
+```tsx
+const userStore = createStore({
+  name: "John",
+  age: 30,
+  email: "john@example.com",
+  avatar: "avatar.jpg",
+  preferences: { theme: "dark", language: "en" },
+  lastLogin: new Date(),
+});
+
+// ❌ Inefficient: Re-renders on ANY store change
+function UserName() {
+  const user = useStoreValue(userStore);
+  return <h1>{user.name}</h1>; // Only uses name, but subscribes to everything
+}
+
+// ✅ Efficient: Only re-renders when name changes
+function OptimizedUserName() {
+  const { name } = usePick(userStore, "name");
+  return <h1>{name}</h1>; // Perfect - minimal subscriptions
+}
+```
+
+## API Reference
+
+### Syntax
 
 ```tsx
 const selectedFields = usePick(store, ...keys);
 const selectedFields = usePickDeeply(store, ...keys); // Deep equality checking
 ```
 
-## Parameters
+### Parameters
 
 - `store`: ZenBox store instance
 - `...keys`: Field names to pick from the store
 
-## Returns
+### Returns
 
 Object containing only the selected fields from the store.
 
-## Quick Start
+## Examples
 
-### Single Field Selection
+### Single Field
 
 ```tsx
-import { createStore, usePick } from "zenbox";
-
-const userStore = createStore({
-  name: "John",
-  age: 30,
-  email: "john@example.com",
-  avatar: "avatar.jpg",
-  isOnline: true,
-});
-
 function UserName() {
   const { name } = usePick(userStore, "name");
-  return <h1>{name}</h1>; // Only re-renders when 'name' changes
+  return <h1>{name}</h1>;
 }
 ```
 
-### Multiple Field Selection
+### Multiple Fields
 
 ```tsx
 function UserContact() {
@@ -51,18 +72,80 @@ function UserContact() {
       <h2>{name}</h2>
       <p>Email: {email}</p>
     </div>
-  ); // Only re-renders when 'name' or 'email' changes
+  );
 }
 ```
 
+### Deep Equality Checking
+
+For nested objects that need deep comparison:
+
+```tsx
+const settingsStore = createStore({
+  theme: {
+    colors: { primary: "#blue", secondary: "#gray" },
+    fonts: { heading: "Arial", body: "Helvetica" },
+  },
+  notifications: {
+    email: true,
+    push: false,
+  },
+});
+
+function ThemeSettings() {
+  // Deep comparison for nested objects
+  const { theme } = usePickDeeply(settingsStore, "theme");
+
+  return (
+    <div
+      style={{
+        color: theme.colors.primary,
+        fontFamily: theme.fonts.heading,
+      }}
+    >
+      Current theme configuration
+    </div>
+  );
+}
+```
+
+## usePick vs useStoreValue
+
+| Approach                 | Code                                                | Performance                       |
+| ------------------------ | --------------------------------------------------- | --------------------------------- |
+| **usePick**              | `usePick(store, "name", "email")`                   | ✅ Optimal - specific fields only |
+| **useStoreValue + pick** | `useStoreValue(store, { pick: ["name", "email"] })` | ✅ Same performance, more verbose |
+| **useStoreValue**        | `useStoreValue(store)`                              | ❌ Re-renders on any change       |
+
 ## Best Practices
 
-1. **Keep field lists minimal** - only pick what you actually use
-2. **Use `usePick` over `useStoreValue`** for field selection - more concise
-3. **Group related fields** together rather than separate hooks
+✅ **Be specific with field selection**
 
-## Related
+```tsx
+// ❌ Bad: Pick nothing (same as useStoreValue)
+const { name } = usePick(userStore);
 
-- [`useStoreValue`](./useStoreValue.md) - Full store subscription with options
-- [`useWatch`](./useWatch.md) - Watch changes without re-rendering
-- [`useComputed`](./useComputed.md) - Create computed reactive values
+// ❌ Bad: Pick too many fields
+const { name } = usePick(userStore, "name", "age", "email", "avatar");
+
+// ✅ Good: Only pick what you need
+const { name, status } = usePick(userStore, "name", "status");
+```
+
+✅ **Group related fields together**
+
+```tsx
+// ❌ Bad: Too granular
+const { name } = usePick(userStore, "name");
+const { email } = usePick(userStore, "email");
+const { age } = usePick(userStore, "age");
+
+// ✅ Good: Group related fields
+const { name, email, age } = usePick(userStore, "name", "email", "age");
+```
+
+## Related Hooks
+
+- [`useStoreValue`](./useStoreValue) - Full store subscription
+- [`useComputed`](./useComputed) - Derived reactive values
+- [`useWatch`](./useWatch) - Side effects without re-renders

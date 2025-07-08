@@ -1,0 +1,122 @@
+---
+title: useWatch / useWatchEffect
+description: 订阅 store 的状态变化
+icon: Glasses
+---
+
+## useWatch
+
+`useWatch` 是一个 React Hook，允许你订阅 store 的状态变化。
+
+它类似于 `useStoreValue`，但**不会**在状态变化时触发组件重新渲染。
+
+当你想在状态变化时做某些事情，但不想重新渲染组件时很有用。
+
+例如，你可以用它来记录状态变化。
+
+```tsx
+useWatch(
+  () => counterStore.value.count,
+  (current, prev) => {
+    console.log("count 变化了", current, prev);
+  }
+);
+```
+
+默认情况下，它会在状态变化时触发效果。
+
+### immediate
+
+如果你想立即触发效果，可以使用 `immediate: true` 选项。
+
+```tsx
+useWatch(
+  () => counterStore.value.count,
+  (current, prev) => {
+    console.log("立即", current, prev);
+  },
+  { immediate: true }
+);
+```
+
+### once
+
+如果你只想触发一次效果，可以使用 `once: true` 选项。
+
+```tsx
+useWatch(
+  () => counterStore.value.count,
+  (current, prev) => {
+    console.log("只运行一次", current, prev);
+  },
+  { once: true }
+);
+```
+
+### cleanup
+
+你也可以返回一个函数来清理效果。当组件卸载或下一个效果运行前，这很有用。
+
+```tsx
+useWatch(
+  () => counterStore.value.count,
+  (current, prev) => {
+    if (current > 10) {
+      const handleClick = () => {
+        console.log("当前计数", counterStore.value.count);
+      };
+      window.addEventListener("click", handleClick);
+      return () => {
+        window.removeEventListener("click", handleClick);
+      };
+    }
+  }
+);
+```
+
+### multiple stores
+
+你也可以同时监听多个 store。
+
+```tsx
+useWatch(
+  () => [counterStore, userStore] as const, // ✅ 使用 `as const` 推断类型
+  ([counter, user]) => {
+    console.log("counter 和 user 变化了", counter.value, user.value);
+  }
+);
+```
+
+**注意：**
+
+- 如果你想监听 store 数组，可以使用 `[x, y, z] as const` 来推断类型。
+
+## useWatchEffect
+
+`useWatchEffect` 类似于 `useWatch`，但效果在构建组件时立即运行。
+
+它会自动收集依赖并在依赖变化时触发效果。
+
+```tsx
+useWatchEffect(() => {
+  if (counterStore.value.count > 10) {
+    console.log("count 大于 10");
+  }
+});
+```
+
+同时支持清理函数。
+
+```tsx
+useWatchEffect(() => {
+  if (counterStore.value.count > 10) {
+    const handleClick = () => {
+      console.log("当前计数", counterStore.value.count);
+    };
+    window.addEventListener("click", handleClick);
+    return () => {
+      window.removeEventListener("click", handleClick);
+    };
+  }
+});
+```

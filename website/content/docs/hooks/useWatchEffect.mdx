@@ -1,122 +1,204 @@
 ---
 title: useWatchEffect
-description: Reactive side effects with auto-tracking
+description: Auto-tracked reactive side effects that run immediately and clean up automatically
 ---
 
-## Syntax
+## Why Choose useWatchEffect?
+
+Perfect when you want reactive side effects but don't want to manually specify dependencies. Think of it as a "smart `useEffect`" that knows which stores it depends on.
+
+## API Reference
+
+### Syntax
 
 ```tsx
 useWatchEffect(effect);
 ```
 
-## Parameters
+### Parameters
 
-- `effect`: Function that contains the side effect logic. Can return a cleanup function.
+- `effect`: Function containing side effect logic (can return cleanup function)
 
-## Key Features
+### Returns
 
-- **Automatic dependency tracking**: No need to manually specify dependencies
-- **Immediate execution**: Runs immediately when the component mounts
-- **Cleanup support**: Return a cleanup function for proper resource management
-- **No re-renders**: Only executes side effects, doesn't trigger component re-renders
+- `undefined`: No return value
 
-## Quick Start
+## Examples
 
-### Simple Side Effect
+### Simple Reactive Side Effects
 
 ```tsx
-import { createStore, useWatchEffect } from "zenbox";
-
 const userStore = createStore({
   name: "John",
   isOnline: false,
 });
 
-function UserStatusTracker() {
+function DocumentTitleUpdater() {
   useWatchEffect(() => {
-    // Automatically tracks userStore.value access
+    // Automatically tracks userStore access
     document.title = `${userStore.value.name} - ${
       userStore.value.isOnline ? "Online" : "Offline"
     }`;
   });
 
-  return <div>Status tracker active</div>;
+  return <div>Title updater active</div>;
 }
 ```
 
-### With Cleanup
+**No dependency array needed** - ZenBox automatically detects that this effect depends on `userStore.value.name` and `userStore.value.isOnline`.
+
+### Auto-Save with Cleanup
 
 ```tsx
-const settingsStore = createStore({
+const documentStore = createStore({
+  content: "",
   autoSave: true,
   saveInterval: 30000,
 });
 
 function AutoSaveEffect() {
   useWatchEffect(() => {
-    if (!settingsStore.value.autoSave) return;
+    // Conditional logic with early return
+    if (!documentStore.value.autoSave) return;
 
     console.log(
-      `Setting up auto-save every ${settingsStore.value.saveInterval}ms`
+      `Setting up auto-save every ${documentStore.value.saveInterval}ms`
     );
 
     const interval = setInterval(() => {
-      console.log("Auto-saving...");
-      // Perform save operation
-    }, settingsStore.value.saveInterval);
+      console.log("Auto-saving content...");
+      api.saveDocument(documentStore.value.content);
+    }, documentStore.value.saveInterval);
 
-    // Cleanup function
+    // Cleanup runs automatically before next effect or on unmount
     return () => {
       console.log("Cleaning up auto-save interval");
       clearInterval(interval);
     };
   });
 
-  return <div>Auto-save effect active</div>;
+  return <div>Auto-save manager active</div>;
 }
 ```
 
+**Smart dependency tracking**: The effect automatically re-runs when `autoSave`, `saveInterval`, or `content` changes.
 
+### Analytics Tracker
+
+```tsx
+const analyticsStore = createStore({
+  userId: null,
+  sessionId: null,
+  pageViews: 0,
+  events: [],
+});
+
+function AnalyticsTracker() {
+  useWatchEffect(() => {
+    const { userId, sessionId, pageViews } = analyticsStore.value;
+
+    if (!userId || !sessionId) return;
+
+    // Track page view count
+    if (pageViews > 0) {
+      analytics.track("page_view_count", {
+        userId,
+        sessionId,
+        count: pageViews,
+        timestamp: Date.now(),
+      });
+    }
+
+    // Set up user identification
+    analytics.identify(userId, {
+      sessionId,
+      lastActive: Date.now(),
+    });
+
+    console.log(
+      `Analytics: Tracking user ${userId}, session ${sessionId}, ${pageViews} views`
+    );
+  });
+
+  return null;
+}
+```
+
+## useWatchEffect vs useWatch
+
+| Feature                 | useWatchEffect       | useWatch                 |
+| ----------------------- | -------------------- | ------------------------ |
+| **Dependency tracking** | ✅ Automatic         | ❌ Manual                |
+| **Initial execution**   | ✅ Immediate         | ❌ On changes by default |
+| **Configuration**       | ✅ Zero setup        | ⚠️ Requires source param |
+| **Best for**            | General side effects | Specific data watching   |
+
+**useWatchEffect** - When you want "reactive useEffect":
+
+```tsx
+// Automatic dependency tracking
+useWatchEffect(() => {
+  if (userStore.value.isLoggedIn) {
+    initializeUserSession(userStore.value.id);
+  }
+});
+```
+
+**useWatch** - When you need precise control:
+
+```tsx
+// Manual dependency specification
+useWatch(
+  () => userStore.value.loginAttempts,
+  (attempts) => {
+    if (attempts > 3) {
+      lockAccount();
+    }
+  }
+);
+```
 
 ## Best Practices
 
-✅ **Keep effects focused** - Each effect should handle one specific concern
+✅ **Keep effects focused and pure**
 
 ```tsx
-// Good - focused effect
+// Good: Single responsibility
 useWatchEffect(() => {
-  document.title = `${userStore.value.name} - App`;
+  document.title = `${appStore.value.title} - MyApp`;
 });
 ```
 
-✅ **Return cleanup functions** - Always clean up resources
+✅ **Use early returns for conditional logic**
 
 ```tsx
-// Good - with cleanup
+// Good: Clear conditional logic
 useWatchEffect(() => {
-  const interval = setInterval(() => {}, 1000);
-  return () => clearInterval(interval);
+  if (!settingsStore.value.enableNotifications) return;
+
+  setupNotificationService();
+  return () => teardownNotificationService();
 });
 ```
 
-✅ **Handle conditional logic** - Use early returns
+✅ **Always return cleanup functions for resources**
 
 ```tsx
-// Good - conditional logic
+// Good: Proper resource management
 useWatchEffect(() => {
-  if (!settingsStore.value.enabled) return;
-  // ... rest of effect
+  const timer = setInterval(updateClock, 1000);
+  return () => clearInterval(timer);
 });
 ```
 
 ❌ **Don't modify reactive state inside effects**
 
 ```tsx
-// Bad - creates infinite loop
+// Bad: Creates infinite loop
 useWatchEffect(() => {
   const count = counterStore.value.count;
   counterStore.setState((state) => {
-    state.count = count + 1; // This will trigger the effect again!
+    state.count = count + 1; // This triggers the effect again!
   });
 });
 ```
@@ -124,24 +206,24 @@ useWatchEffect(() => {
 ❌ **Don't use for component rendering state**
 
 ```tsx
-// Bad - use useStoreValue instead
-const [displayValue, setDisplayValue] = useState("");
+// Bad: Use useStoreValue instead
+const [localState, setLocalState] = useState("");
 useWatchEffect(() => {
-  setDisplayValue(store.value.data); // Unnecessary setState
+  setLocalState(store.value.data); // Unnecessary indirection
 });
 ```
 
-## Comparison with Other Hooks
+## Hook Comparison
 
-| Hook             | Dependency Tracking | Immediate Execution | Re-renders | Use Case                    |
-| ---------------- | ------------------- | ------------------- | ---------- | --------------------------- |
-| `useWatchEffect` | ✅ Automatic        | ✅ Yes              | ❌ No      | Auto-tracking side effects  |
-| `useWatch`       | ❌ Manual           | ❌ No               | ❌ No      | Manual dependency watching  |
-| `useEffect`      | ❌ Manual           | ✅ Yes              | ❌ No      | React-specific side effects |
-| `useStoreValue`  | ❌ Manual           | ✅ Yes              | ✅ Yes     | Component state sync        |
+| Hook             | Dependency Tracking | Immediate | Re-renders | Use Case                        |
+| ---------------- | ------------------- | --------- | ---------- | ------------------------------- |
+| `useWatchEffect` | ✅ Automatic        | ✅ Yes    | ❌ No      | General reactive side effects   |
+| `useWatch`       | ❌ Manual           | ❌ No     | ❌ No      | Specific data watching          |
+| `useEffect`      | ❌ Manual deps      | ✅ Yes    | ❌ No      | React-specific effects          |
+| `useStoreValue`  | ❌ Manual           | ✅ Yes    | ✅ Yes     | Component state synchronization |
 
-## Related
+## Related Hooks
 
-- [`useWatch`](./useWatch.md) - Manual dependency watching with callbacks
-- [`useStoreValue`](./useStoreValue.md) - Subscribe to changes with re-rendering
-- [`useComputed`](./useComputed.md) - Create computed reactive values
+- [`useWatch`](./useWatch) - Manual dependency watching with callbacks
+- [`useStoreValue`](./useStoreValue) - Component state synchronization with re-renders
+- [`useComputed`](./useComputed) - Derived reactive values for rendering

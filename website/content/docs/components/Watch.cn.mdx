@@ -1,0 +1,167 @@
+---
+title: Watch
+description: 基于监听数据源响应式渲染内容的渲染属性组件
+---
+
+## 语法
+
+```tsx
+<Watch watch={watchSource} deep={boolean?}>
+{(value) => ReactNode}
+</Watch>
+```
+
+## 属性
+
+- `watch`: 要监听的数据源（store、函数或任何值）
+- `deep` (可选): 为嵌套对象启用深度相等检查
+- `children`: 接收监听值的渲染函数
+
+## 快速开始
+
+### 监听 Store 变化
+
+```tsx
+import { createStore, Watch } from "zenbox";
+
+const counterStore = createStore({ count: 0 });
+
+function CounterDisplay() {
+  return (
+    <div>
+      <Watch watch={counterStore}>
+        {(state) => (
+          <div>
+            <h1>计数: {state.count}</h1>
+            <p>偶数: {state.count % 2 === 0 ? "是" : "否"}</p>
+          </div>
+        )}
+      </Watch>
+
+      <button onClick={() => counterStore.setState((s) => s.count++)}>
+        递增
+      </button>
+    </div>
+  );
+}
+```
+
+### 监听计算值
+
+```tsx
+const userStore = createStore({
+  firstName: "张",
+  lastName: "三",
+  age: 30,
+});
+
+function UserInfo() {
+  return (
+    <div>
+      <Watch
+        watch={() => `${userStore.value.firstName}${userStore.value.lastName}`}
+      >
+        {(fullName) => <h1>欢迎，{fullName}！</h1>}
+      </Watch>
+
+      <Watch watch={() => userStore.value.age >= 18}>
+        {(isAdult) => <p>{isAdult ? "成年人" : "未成年"}</p>}
+      </Watch>
+    </div>
+  );
+}
+```
+
+### 多 Store 监听
+
+```tsx
+const cartStore = createStore({
+  items: [
+    { id: 1, name: "笔记本电脑", price: 999, quantity: 1 },
+    { id: 2, name: "鼠标", price: 25, quantity: 2 },
+  ],
+});
+
+const settingsStore = createStore({
+  currency: "CNY",
+  taxRate: 0.08,
+});
+
+function CartSummary() {
+  return (
+    <Watch
+      watch={() => ({
+        items: cartStore.value.items,
+        currency: settingsStore.value.currency,
+        taxRate: settingsStore.value.taxRate,
+      })}
+    >
+      {({ items, currency, taxRate }) => {
+        const subtotal = items.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0
+        );
+        const tax = subtotal * taxRate;
+        const total = subtotal + tax;
+
+        return (
+          <div>
+            <h3>购物车摘要</h3>
+            <p>项目: {items.length}</p>
+            <p>
+              小计: {subtotal.toFixed(2)} {currency}
+            </p>
+            <p>
+              税费: {tax.toFixed(2)} {currency}
+            </p>
+            <p>
+              总计: {total.toFixed(2)} {currency}
+            </p>
+          </div>
+        );
+      }}
+    </Watch>
+  );
+}
+```
+
+### 条件渲染
+
+```tsx
+const appStore = createStore({
+  user: null,
+  isLoading: false,
+  error: null,
+});
+
+function UserProfile() {
+  return (
+    <Watch watch={() => appStore.value}>
+      {({ user, isLoading, error }) => {
+        if (isLoading) return <div>加载用户资料中...</div>;
+        if (error) return <div>错误: {error.message}</div>;
+        if (!user) return <div>请登录</div>;
+
+        return (
+          <div>
+            <h1>欢迎，{user.name}！</h1>
+            <p>邮箱: {user.email}</p>
+          </div>
+        );
+      }}
+    </Watch>
+  );
+}
+```
+
+## 最佳实践
+
+1. **用于复杂渲染逻辑** - 适用于基于多个条件的条件渲染
+2. **保持 watch 函数纯净** - 不要在 watch 函数中执行副作用
+3. **明确依赖** - 只访问你实际需要的数据
+
+## 相关内容
+
+- [`<Memo>`](./Memo) - 记忆化渲染组件
+- [`useComputed`](../hooks/useComputed) - 计算响应式值
+- [`useStoreValue`](../hooks/useStoreValue) - 直接 store 订阅

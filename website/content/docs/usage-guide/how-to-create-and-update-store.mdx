@@ -1,12 +1,12 @@
 ---
-title: How to create and update store
+title: How to Create and Update Store
 description: Best practices for creating and updating store
 icon: Box
 ---
 
-## Store with actions (Recommended)
+## Store with Actions (Recommended)
 
-We recommend encapsulating the state modification logic in the `actions` of the store, so you don't need to use `store.setState` to modify the state every time, which is more clear and convenient to use.
+We recommend encapsulating the state modification logic within your store for cleaner, more maintainable code. This keeps your components focused on presentation while centralizing business logic.
 
 ```tsx
 const counterStore = createStore({
@@ -17,26 +17,26 @@ const counterStore = createStore({
       state.count++;
     });
   },
-  // You can also define async actions
+  // Async actions are also supported
   async incrementAsync() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // You can use `store.value` to read current state
-    const count = counterStore.value.count;
+    // Access current state with `store.value`
+    const currentCount = counterStore.value.count;
 
-    // Call other actions in the store as well
+    // Call other store actions
     counterStore.value.increment();
   },
 });
 
-// Now you can use the store actions like this:
+// Clean API calls
 counterStore.value.increment();
 await counterStore.value.incrementAsync();
 ```
 
-## Different ways to update state
+## State Update Patterns
 
-First, let's define a complex store with `actions`.
+Let's explore different approaches using a realistic user store:
 
 ```tsx
 const userStore = createStore({
@@ -48,27 +48,25 @@ const userStore = createStore({
       primary: "blue",
     },
   },
-  updateSettings(settings) {
+  updateSettings(newSettings) {
     userStore.setState((state) => {
-      state.settings = settings;
+      state.settings = newSettings;
     });
   },
 });
 ```
 
-### 1. Use `store.setState` the Immer way (Recommended)
+### 1. Immer-style Updates (Recommended)
+
+Best for partial updates and stores with actions. Immer handles immutability automatically.
 
 ```tsx
+// Natural and readable
 userStore.setState((state) => {
   state.followers++;
   state.settings.theme.primary = "red";
 });
 ```
-
-**When to use this way?**
-
-- When mutate only part of state
-- When store has `actions` _(store actions are also considered part of state)_
 
 So you don't need to use `store.value` to read state and spread it like this:
 
@@ -86,7 +84,9 @@ userStore.setState({
 });
 ```
 
-### 2. Use `store.setState` the native way
+### 2. Direct Object Updates
+
+Ideal for simple stores without actions or complete state replacements.
 
 ```tsx
 const counterStore = createStore({ count: 0 });
@@ -96,7 +96,7 @@ counterStore.setState({
 });
 ```
 
-This way is more convenient for simple state updates, but it's more troublesome for complex state updates, you need to manually spread the entire state.
+But it's more troublesome for complex state updates, you need to manually spread the original state.
 
 For example, update a store with actions:
 
@@ -107,32 +107,31 @@ userStore.setState({
 });
 ```
 
-### 3. Update partial state
+### 3. Partial State Merging
 
-But luckily, ZenBox allows you to update partial state like this:
+Luckily, ZenBox allows you to update partial state like this:
 
 ```tsx
 userStore.setState({
   name: "Jane",
   followers: userStore.value.followers + 1,
-  age: 18, // no effect, new properties are ignored
+  age: 18, // new properties are ignored, existing structure preserved
 });
 ```
 
-The new state object provided will be merged into the original state.
-
 What a life saver!
 
-**Note:**
+**Notes:**
 
-- Only the first level of state is supported for merging
-- If you want to update nested state, you need to use `store.setState` the Immer way
+- Only first-level merging is supported
+- For nested updates, use the Immer approach
 
-### 4. Use `store.value = x` to update state
+### 4. Direct Value Assignment
 
-Or you can use `store.value = x` the more intuitive way to update state.
+You can also use `store.value = x` to update state directly.
 
 ```tsx
+// Complete replacement
 userStore.value = {
   name: "Jane",
   followers: 100,
@@ -143,18 +142,15 @@ userStore.value = {
     },
   },
 };
-```
 
-As same as `store.setState(x)`, you can also use `store.value = x` to update partial state.
-
-```tsx
+// Partial replacement (same as setState)
 userStore.value = {
   name: "Jane",
   followers: userStore.value.followers + 1,
 };
 ```
 
-**Note:**
+**Notes:**
 
-- Though the partial state update is more concise, it's more confusing to understand.
-- We recommend using the Immer way to update partial state.
+- Can be confusing for partial updates
+- Prefer Immer-style for complex changes

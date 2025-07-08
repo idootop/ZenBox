@@ -1,0 +1,10 @@
+{
+  "icon": "Atom",
+  "pages": [
+    "useStoreValue",
+    "usePick",
+    "useComputed",
+    "useWatch",
+    "useWatchEffect"
+  ]
+}

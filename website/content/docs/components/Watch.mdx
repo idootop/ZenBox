@@ -3,7 +3,9 @@ title: Watch
 description: Render prop component that reactively renders content based on watched data sources
 ---
 
-## Syntax
+## API Reference
+
+### Syntax
 
 ```tsx
 <Watch watch={watchSource} deep={boolean?}>
@@ -11,13 +13,13 @@ description: Render prop component that reactively renders content based on watc
 </Watch>
 ```
 
-## Props
+### Props
 
 - `watch`: Data source to watch (store, function, or any value)
 - `deep` (optional): Enable deep equality checking for nested objects
 - `children`: Render function that receives the watched value
 
-## Quick Start
+## Examples
 
 ### Watch Store Changes
 
@@ -162,6 +164,6 @@ function UserProfile() {
 
 ## Related
 
-- [`<Memo>`](./Memo.md) - Memoized rendering component
-- [`useComputed`](../hooks/useComputed.md) - Computed reactive values
-- [`useStoreValue`](../hooks/useStoreValue.md) - Direct store subscription
+- [`<Memo>`](./Memo) - Memoized rendering component
+- [`useComputed`](../hooks/useComputed) - Computed reactive values
+- [`useStoreValue`](../hooks/useStoreValue) - Direct store subscription

@@ -1,0 +1,137 @@
+---
+title: useComputed
+description: 创建在依赖变化时自动更新的计算响应式值
+---
+
+## 语法
+
+```tsx
+const computedValue = useComputed(compute, options?)
+```
+
+## 参数
+
+- `compute`: 要计算的函数或值
+- `options` (可选):
+  - `deep`: 为嵌套对象/数组启用深度相等检查
+
+## 核心特性
+
+- **自动依赖跟踪**: 跟踪访问的 store
+- **触发重渲染**: 依赖变化时引起组件重渲染
+- **多 Store 支持**: 可以组合来自多个 store 的数据
+
+## 快速开始
+
+### 简单计算值
+
+```tsx
+import { createStore, useComputed } from "zenbox";
+
+const userStore = createStore({
+  firstName: "张",
+  lastName: "三",
+  age: 30,
+});
+
+function UserProfile() {
+  const fullName = useComputed(() => {
+    return `${userStore.value.firstName}${userStore.value.lastName}`;
+  });
+
+  const ageGroup = useComputed(() => {
+    const age = userStore.value.age;
+    return age < 18 ? "未成年" : age < 65 ? "成年人" : "老年人";
+  });
+
+  return (
+    <div>
+      <h1>{fullName}</h1>
+      <p>年龄组: {ageGroup}</p>
+    </div>
+  );
+}
+```
+
+### 多 Store 计算
+
+```tsx
+const cartStore = createStore({
+  items: [
+    { id: 1, price: 999, quantity: 1 },
+    { id: 2, price: 25, quantity: 2 },
+  ],
+});
+
+const settingsStore = createStore({
+  taxRate: 0.08,
+  discountPercent: 0.1,
+});
+
+function CartSummary() {
+  const subtotal = useComputed(() => {
+    return cartStore.value.items.reduce((sum, item) => {
+      return sum + item.price * item.quantity;
+    }, 0);
+  });
+
+  const total = useComputed(() => {
+    const discount = subtotal * settingsStore.value.discountPercent;
+    const tax = (subtotal - discount) * settingsStore.value.taxRate;
+    return subtotal - discount + tax;
+  });
+
+  return (
+    <div>
+      <p>小计: ¥{subtotal.toFixed(2)}</p>
+      <p>总计: ¥{total.toFixed(2)}</p>
+    </div>
+  );
+}
+```
+
+## 最佳实践
+
+✅ **保持计算纯净** - 无副作用
+
+```tsx
+const good = useComputed(() => store.value.count * 2);
+```
+
+❌ **不要执行副作用**
+
+```tsx
+const bad = useComputed(() => {
+  localStorage.setItem("count", store.value.count); // 副作用！
+  return store.value.count;
+});
+```
+
+✅ **明确依赖**
+
+```tsx
+const specific = useComputed(() => userStore.value.name.toUpperCase());
+```
+
+❌ **避免广泛依赖**
+
+```tsx
+const broad = useComputed(() => {
+  const user = userStore.value; // 依赖整个用户对象
+  return user.name.toUpperCase(); // 只需要 name
+});
+```
+
+## 与其他 Hooks 的对比
+
+| Hook            | 用途               | 重渲染 |
+| --------------- | ------------------ | ------ |
+| `useComputed`   | 计算响应式值       | ✅ 是  |
+| `useStoreValue` | 直接 store 订阅    | ✅ 是  |
+| `useWatch`      | 变化时的副作用     | ❌ 否  |
+
+## 相关内容
+
+- [`useStoreValue`](./useStoreValue) - 直接 store 订阅
+- [`useWatch`](./useWatch) - 使用回调监听变化
+- [`useWatchEffect`](./useWatchEffect) - 响应式副作用

@@ -1,0 +1,82 @@
+---
+title: useStoreValue / useComputed
+description: 在组件中使用 store 值
+icon: Sigma
+---
+
+## useStoreValue
+
+`useStoreValue` 是一个 React Hook，允许你读取 store 的状态。
+
+它类似于 `store.value`，但会在状态变化时触发组件重新渲染。
+
+所以你可以用它来保持组件状态与 store 同步。
+
+```tsx
+// ✅ 组件会在状态变化时自动重新渲染
+function Counter1() {
+  const { count } = useStoreValue(counterStore);
+  return <div>当前计数: {count}</div>;
+}
+
+// ❌ 组件不会在状态变化时重新渲染
+function Counter2() {
+  const count = counterStore.value.count;
+  return <div>初始计数: {count}</div>;
+}
+```
+
+## usePick
+
+如果组件只需要 store 中的几个字段，你可以使用 `pick` 来选择特定字段。
+
+这样组件只会在选定字段变化时重新渲染。
+
+```tsx
+const { name, followers } = useStoreValue(userStore, {
+  pick: ["name", "followers"],
+});
+```
+
+或者使用 `usePick` 选择特定字段，这是 `useStoreValue(store, { pick })` 的简写。
+
+```tsx
+const { name, followers } = usePick(userStore, "name", "followers");
+```
+
+## useComputed
+
+`useComputed` Hook 类似于 `useStoreValue`，但它会在状态变化时重新计算值。
+
+并且只有当计算值发生变化时，它才会触发组件重新渲染。
+
+```tsx
+const counterStore = createStore({ count: 0 });
+
+function Counter3() {
+  const isEven = useComputed(() => counterStore.value.count % 2 === 0);
+
+  return <div>是偶数: {isEven ? "是" : "否"}</div>;
+}
+
+counterStore.setState({ count: 1 }); // ✅ 重新渲染（从偶数到奇数）
+counterStore.setState({ count: 3 }); // ❌ 不重新渲染（isEven 仍然是 false）
+```
+
+你也可以使用 `useComputed` 从多个 store 计算值。
+
+```tsx
+const store1 = createStore({
+  count: 1,
+});
+
+const store2 = createStore({
+  isEven: true,
+});
+
+const value = useComputed(() => {
+  return store1.value.count + (store2.value.isEven ? 1 : 0);
+});
+```
+
+类似于 Vue 中的 `computed`。

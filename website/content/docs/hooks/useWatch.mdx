@@ -1,44 +1,101 @@
 ---
 title: useWatch
-description: Watch reactive data sources and execute callbacks when changes occur. Does **not** trigger component re-renders.
+description: Execute side effects when reactive data changes without triggering component re-renders
 ---
 
-## Syntax
+## API Reference
+
+### Syntax
 
 ```tsx
 const currentValue = useWatch(watchSource, callback, options?)
 ```
 
-## Parameters
+### Parameters
 
 - `watchSource`: Store instance, computed function, or array of sources to watch
-- `callback`: Function to execute when watched data changes. Can return a cleanup function
+- `callback`: Function executed when watched data changes (can return cleanup function)
 - `options` (optional):
-  - `immediate`: Execute callback immediately with current value
-  - `once`: Execute callback only once, then stop watching
-  - `deep`: Use deep equality checking for nested objects
+  - `immediate`: Execute callback immediately with current value (default: false)
+  - `once`: Execute callback only once, then stop watching (default: false)
+  - `deep`: Enable deep equality checking for nested objects (default: false)
 
-## Quick Start
+### Returns
+
+- `currentValue`: The current value of the watched source
+
+## Configuration Options
+
+### Immediate Execution
+
+```tsx
+useWatch(
+  () => userStore.value.preferences,
+  (preferences) => {
+    applyUserPreferences(preferences);
+  },
+  { immediate: true } // Applies preferences immediately on building the component
+);
+```
+
+### One-time Watchers
+
+```tsx
+useWatch(
+  () => userStore.value.isLoggedIn,
+  (isLoggedIn) => {
+    if (isLoggedIn) {
+      console.log("First login detected!");
+      showWelcomeMessage();
+    }
+  },
+  { once: true } // Only triggers once
+);
+```
+
+### Deep Equality Checking
+
+```tsx
+const configStore = createStore({
+  api: {
+    endpoints: { users: "/api/users", orders: "/api/orders" },
+    timeout: 5000,
+  },
+});
+
+useWatch(
+  () => configStore.value.api,
+  (apiConfig, prevApiConfig) => {
+    console.log("API configuration changed");
+    reinitializeApiClient(apiConfig);
+  },
+  { deep: true } // Deep comparison prevents unnecessary triggers
+);
+```
+
+## Examples
 
 ### Watch Store Changes
 
-```tsx
-import { createStore, useWatch } from "zenbox";
+Track store changes for logging, analytics, or external API calls:
 
+```tsx
 const counterStore = createStore({ count: 0 });
 
 function Counter() {
-  // Watch store changes without re-rendering
+  // Side effect only - no re-renders triggered
   useWatch(counterStore, (current, prev) => {
-    console.log("Counter changed:", current.count, "was:", prev.count);
+    console.log(`Count: ${prev.count} → ${current.count}`);
+
+    // Track analytics
+    analytics.track("counter_changed", {
+      from: prev.count,
+      to: current.count,
+    });
   });
 
   return (
-    <button
-      onClick={() => {
-        counterStore.setState((s) => s.count++);
-      }}
-    >
+    <button onClick={() => counterStore.setState((s) => s.count++)}>
       Increment
     </button>
   );
@@ -47,6 +104,8 @@ function Counter() {
 
 ### Watch Computed Values
 
+Monitor derived data for business logic:
+
 ```tsx
 const userStore = createStore({
   firstName: "John",
@@ -54,218 +113,170 @@ const userStore = createStore({
   age: 30,
 });
 
-function UserWatcher() {
-  // Watch a computed value
+function UserTracker() {
+  // Watch full name changes
   useWatch(
     () => `${userStore.value.firstName} ${userStore.value.lastName}`,
     (fullName, prevFullName) => {
-      console.log(`Name changed from "${prevFullName}" to "${fullName}"`);
+      if (prevFullName) {
+        console.log(`Name updated: "${prevFullName}" → "${fullName}"`);
+        api.updateUserProfile({ fullName });
+      }
     }
   );
 
-  // Watch age changes for specific logic
+  // Watch age milestones
   useWatch(
     () => userStore.value.age,
     (age, prevAge) => {
       if (age >= 18 && prevAge < 18) {
         console.log("User became an adult!");
+        unlockAdultFeatures();
       }
     }
   );
 
-  return <div>Watching user changes...</div>;
+  return <div>Tracking user changes...</div>;
 }
 ```
 
 ### Watch Multiple Sources
 
+Monitor changes across multiple stores simultaneously:
+
 ```tsx
 const userStore = createStore({ name: "John", role: "user" });
 const settingsStore = createStore({ theme: "light", language: "en" });
 
-function MultiSourceWatcher() {
+function AppWatcher() {
   useWatch(
-    () => [userStore, settingsStore],
+    () => [userStore.value, settingsStore.value] as const,
     ([user, settings], [prevUser, prevSettings]) => {
-      if (user.role !== prevUser.role) {
-        console.log(`Role changed: ${prevUser.role} → ${user.role}`);
+      // Role-based logic
+      if (user.role !== prevUser?.role) {
+        console.log(`Role changed: ${prevUser?.role} → ${user.role}`);
+        redirectBasedOnRole(user.role);
       }
 
-      if (settings.theme !== prevSettings.theme) {
-        console.log(`Theme changed: ${prevSettings.theme} → ${settings.theme}`);
+      // Theme persistence
+      if (settings.theme !== prevSettings?.theme) {
+        console.log(`Theme: ${prevSettings?.theme} → ${settings.theme}`);
         document.body.className = settings.theme;
+        localStorage.setItem("theme", settings.theme);
       }
     }
   );
 
-  return <div>Watching multiple stores...</div>;
+  return <div>Monitoring app state...</div>;
 }
 ```
 
-### With Cleanup
+### Cleanup Functions
 
-The callback function can optionally return a cleanup function that will be executed before the next callback run or when the component unmounts:
-
-```tsx
-useWatch(
-  () => store.value.userId,
-  (userId, prevUserId) => {
-    // Setup side effect
-    const subscription = subscribeToUser(userId);
-
-    // Return cleanup function
-    return () => {
-      subscription.unsubscribe();
-    };
-  }
-);
-```
-
-## Options
-
-### Immediate Execution
+Perfect for managing subscriptions, timers, and external resources:
 
 ```tsx
-useWatch(
-  () => userStore.value.name,
-  (name) => console.log("Current name:", name),
-  { immediate: true } // Executes immediately with current value
-);
-```
+function WebSocketManager() {
+  useWatch(
+    () => userStore.value.connectionId,
+    (connectionId, prevConnectionId) => {
+      if (!connectionId) return;
 
-### One-time Watcher
+      console.log(`Connecting to: ${connectionId}`);
+      const ws = new WebSocket(`ws://api.com/${connectionId}`);
 
-```tsx
-useWatch(
-  () => userStore.value.isLoggedIn,
-  (isLoggedIn) => {
-    if (isLoggedIn) {
-      console.log("User logged in for the first time!");
+      ws.onopen = () => console.log("Connected");
+      ws.onmessage = (event) => handleMessage(event.data);
+      ws.onerror = (error) => console.error("WebSocket error:", error);
+
+      // Cleanup function - automatically called on next change or unmount
+      return () => {
+        console.log(`Disconnecting from: ${connectionId}`);
+        ws.close();
+      };
     }
-  },
-  { once: true } // Only executes once
-);
-```
+  );
 
-### Deep Equality Checking
-
-The `deep` option uses deep equality comparison to determine if the watched value has actually changed. This prevents unnecessary callback executions when nested objects are recreated but contain the same values.
-
-```tsx
-const appStore = createStore({
-  user: {
-    profile: { name: "John", avatar: "avatar.jpg" },
-  },
-});
-
-useWatch(
-  () => appStore.value.user,
-  (user, prevUser) => {
-    console.log("User object reference changed with different content");
-  },
-  { deep: true }
-);
-
-// Example: This will NOT trigger the callback because deep content is the same
-appStore.setState((state) => {
-  // Creating new object with same content
-  state.user = {
-    profile: { name: "John", avatar: "avatar.jpg" },
-  };
-});
-
-// Example: This WILL trigger the callback because deep content is different
-appStore.setState((state) => {
-  state.user.profile.name = "Alice";
-});
-```
-
-**Without `deep: true`** (default behavior):
-
-```tsx
-useWatch(
-  () => appStore.value.user,
-  (user, prevUser) => {
-    console.log("User object reference changed (regardless of content)");
-  }
-  // No deep option - uses reference equality
-);
-
-// This WILL trigger the callback even though content is identical
-appStore.setState((state) => {
-  state.user = { ...state.user }; // New reference, same content
-});
+  return <div>WebSocket manager active</div>;
+}
 ```
 
 ## Best Practices
 
-✅ **Use for side effects only** - Not for component state that affects rendering
+✅ **Use for side effects only**
 
 ```tsx
-// Good - side effect
+// Good: External side effects
 useWatch(
   () => store.value.theme,
   (theme) => {
     document.body.className = theme;
+    localStorage.setItem("theme", theme);
   }
 );
 ```
 
-❌ **Don't use for rendering state**
+❌ **Don't use for component state**
 
 ```tsx
-// Bad - use useStoreValue instead
+// Bad: Use useStoreValue instead
 const [displayValue, setDisplayValue] = useState("");
 useWatch(
   () => store.value.data,
-  (data) => setDisplayValue(data)
+  (data) => {
+    setDisplayValue(data); // This creates unnecessary indirection
+  }
 );
 ```
 
 ✅ **Be specific with watchers**
 
 ```tsx
-// Good - specific field
+// Good: Watch specific fields
 useWatch(
-  () => userStore.value.name,
-  (name) => updateTitle(name)
+  () => userStore.value.email,
+  (email) => {
+    validateEmail(email);
+  }
 );
 ```
 
 ❌ **Avoid watching large objects**
 
 ```tsx
-// Bad - triggers on any change
+// Bad: Triggers on any store change
 useWatch(
   () => largeStore.value,
-  (store) => console.log("Changed")
-);
-```
-
-✅ **Always cleanup side effects**
-
-```tsx
-// Good - proper cleanup
-useWatch(
-  () => store.value.connectionId,
-  (id) => {
-    const connection = createConnection(id);
-    return () => connection.close();
+  (store) => {
+    console.log("Something changed"); // Too broad
   }
 );
 ```
 
-## Comparison with Other Hooks
+✅ **Always clean up resources**
 
-| Hook             | Purpose                      | Re-renders | Use Case                         |
-| ---------------- | ---------------------------- | ---------- | -------------------------------- |
-| `useWatch`       | Execute callbacks on changes | ❌ No      | Side effects, logging, API calls |
-| `useWatchEffect` | Reactive side effects        | ❌ No      | Auto-tracking dependencies       |
-| `useStoreValue`  | Subscribe to store changes   | ✅ Yes     | Component state synchronization  |
-| `useComputed`    | Computed reactive values     | ✅ Yes     | Derived state for rendering      |
+```tsx
+// Good: Proper cleanup
+useWatch(
+  () => store.value.intervalMs,
+  (ms) => {
+    const interval = setInterval(doSomething, ms);
+    return () => clearInterval(interval);
+  }
+);
+```
 
-## Related
+## Hook Comparison
 
-- [`useStoreValue`](./useStoreValue.md) - Subscribe to changes with re-rendering
-- [`useWatchEffect`](./useWatchEffect.md) - Reactive side effects with auto-tracking
-- [`useComputed`](./useComputed.md) - Create computed reactive values
+| Hook             | Purpose                    | Re-renders | Auto-tracking | Best For              |
+| ---------------- | -------------------------- | ---------- | ------------- | --------------------- |
+| `useWatch`       | Manual dependency watching | ❌ No      | ❌ No         | Specific side effects |
+| `useWatchEffect` | Auto-tracked side effects  | ❌ No      | ✅ Yes        | General side effects  |
+| `useStoreValue`  | Component state sync       | ✅ Yes     | ❌ No         | UI state              |
+| `useComputed`    | Derived reactive values    | ✅ Yes     | ✅ Yes        | Calculated data       |
+
+## Related Hooks
+
+- [`useWatchEffect`](./useWatchEffect) - Auto-tracked side effects
+- [`useStoreValue`](./useStoreValue) - Component state synchronization
+- [`useComputed`](./useComputed) - Derived reactive values

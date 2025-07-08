@@ -1,6 +1,6 @@
 ---
 title: Quick Start
-description: Get started with ZenBox
+description: Get up and running with ZenBox in minutes
 icon: Rocket
 ---
 
@@ -10,17 +10,19 @@ icon: Rocket
 npm install zenbox
 ```
 
-## Basic Usage
+## Get Started in 4 Steps
 
 <div className="fd-steps">
 
 <div className="fd-step">
 
-### Create a store
+### Create a Store
 
-Use `createStore` to create a store.
+Start with `createStore` and your initial state.
 
 ```tsx
+import { createStore } from "zenbox";
+
 const counterStore = createStore({ count: 0 });
 ```
 
@@ -28,9 +30,9 @@ const counterStore = createStore({ count: 0 });
 
 <div className="fd-step">
 
-### Read state
+### Read State
 
-Use `store.value` to read current state.
+Access current state with `store.value`.
 
 ```tsx
 const count = counterStore.value.count;
@@ -40,9 +42,9 @@ const count = counterStore.value.count;
 
 <div className="fd-step">
 
-### Update state
+### Update State
 
-Use `store.setState` to update state (Immer built-in).
+Use `store.setState` with built-in Immer support.
 
 ```tsx
 counterStore.setState((state) => {
@@ -54,11 +56,13 @@ counterStore.setState((state) => {
 
 <div className="fd-step">
 
-### Use store in component
+### Connect to Components
 
-Use `useStoreValue` to read state in component, the component will auto re-render when the state changes.
+Use `useStoreValue` for automatic re-renders on state changes.
 
 ```tsx
+import { useStoreValue } from "zenbox";
+
 function Counter() {
   const { count } = useStoreValue(counterStore);
 
@@ -81,9 +85,9 @@ function Counter() {
 
 <div className="fd-step">
 
-### Use store the Vue way
+### Vue-style Reactivity
 
-ZenBox provides the `useComputed`, `useWatch`, `useWatchEffect` React hooks, which is similar to Vue's `computed`, `watch`, `watchEffect`.
+Unlock reactive programming patterns with Vue-inspired hooks.
 
 ```tsx
 function DoubleCount() {
@@ -96,17 +100,17 @@ function CountWatcher() {
   useWatch(
     () => counterStore.value.count,
     (current, prev) => {
-      console.log("count changed", current, prev);
+      console.log("Count changed from", prev, "to", current);
     }
   );
 
   useWatchEffect(() => {
     if (counterStore.value.count > 10) {
-      console.log("count is greater than 10");
+      console.log("Count exceeded 10!");
     }
   });
 
-  return <p>Watching count...</p>;
+  return <p>Watching count changes...</p>;
 }
 ```
 
@@ -114,4 +118,4 @@ function CountWatcher() {
 
 </div>
 
-For more details, please refer to the [Usage guide](./usage-guide/how-to-create-and-update-store) section.
+**Next Steps:** Check out the [Usage Guide](./usage-guide/how-to-create-and-update-store) for advanced patterns and best practices.

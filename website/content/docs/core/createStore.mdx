@@ -1,9 +1,11 @@
 ---
 title: createStore
-description: Create a store instance for state management
+description: Create reactive stores with automatic TypeScript inference and built-in Immer support
 ---
 
-## Syntax
+## API Reference
+
+### Syntax
 
 ```tsx
 const store = createStore(initialState);
@@ -11,45 +13,36 @@ const store = createStore(initialState);
 
 ## Parameters
 
-- `initialState`: Initial state object for the store
+- `initialState`: Object defining your store's initial state and actions
 
-## Returns
+### Returns
 
-A `ZenBox` store instance with the following properties and methods:
+A reactive store instance with:
 
-- `value`: Read-only access to the current state (triggers dependency tracking)
-- `setState(updater, options?)`: Update the store state
-- `subscribe(options)`: Subscribe to store changes with fine-grained control
+- `value`: Current state (read/write access with dependency tracking)
+- `setState(updater, options?)`: Update state with Immer support
+- `subscribe(options)`: Fine-grained subscription control
 
-## Key Features
+## Examples
 
-- **TypeScript support**: Full type safety with IntelliSense
-- **Immutable updates**: Uses Immer for safe state mutations
-- **Flexible scope**: Use for global, module-level, or any shared state
-- **Reactive tracking**: Automatic dependency tracking for efficient re-renders
-- **Fine-grained subscriptions**: Subscribe to specific fields or computed values
-
-## Quick Start
-
-### Basic Usage
+### Simple State Management
 
 ```tsx
 import { createStore, useStoreValue } from "zenbox";
 
-// Create a store instance with initial state
+// Types are automatically inferred
 const counterStore = createStore({ count: 0 });
 
-// Access state directly via store.value property
+// Direct access for imperative operations
 console.log("Current count:", counterStore.value.count);
 
 function Counter() {
-  // Subscribe to store using useStoreValue hook for reactive updates
+  // Reactive subscription for components
   const { count } = useStoreValue(counterStore);
 
   const increment = () => {
-    // Update state via store.setState method
     counterStore.setState((state) => {
-      state.count++;
+      state.count++; // Immer-powered mutations
     });
   };
 
@@ -62,47 +55,53 @@ function Counter() {
 }
 ```
 
-### With Actions
+### Store with Actions
+
+Co-locate state and behavior for clean, maintainable code:
 
 ```tsx
 const userStore = createStore({
-  // State properties
+  // State
   name: "Del Wang",
   blog: "https://del.wang",
-  follower: 0,
+  followers: 0,
 
-  // Action methods
+  // Actions
   follow() {
     userStore.setState((state) => {
-      state.follower++;
+      state.followers++;
     });
   },
-  async fetchData() {
+
+  async fetchProfile() {
     const response = await fetch("https://api.github.com/users/del-wang");
     const data = await response.json();
     userStore.setState(data);
   },
 });
 
-// Call action methods via store.value
+// Clean API calls
 userStore.value.follow();
-console.log("Current followers:", userStore.value.follower);
+await userStore.value.fetchProfile();
 ```
 
-### State Updates
+## Update Patterns
 
-#### Function Updates (Recommended)
+### 1. Immer-style Updates (Recommended)
+
+Perfect for complex mutations and nested state:
 
 ```tsx
-// Use Immer-powered draft mutations for complex updates
 store.setState((state) => {
   state.count += 1;
-  state.user.name = "Updated";
-  state.todos.push({ id: 1, text: "New todo" });
+  state.user.profile.name = "Updated";
+  state.todos.push({ id: Date.now(), text: "New todo", completed: false });
 });
 ```
 
-#### Object Updates
+### 2. Partial Object Updates
+
+Merge new properties with existing state:
 
 ```tsx
 const store = createStore({
@@ -112,53 +111,81 @@ const store = createStore({
   avatar: "avatar.jpg",
 });
 
-// Partial object updates - merge with existing state
+// Shallow merge with existing state
 store.setState({ name: "Jane", age: 30 });
 // Result: { name: "Jane", age: 30, email: "john@example.com", avatar: "avatar.jpg" }
 
-// Explicit null/undefined values override existing values
+// Explicit overwrites (including null/undefined)
 store.setState({ avatar: null });
-// Result: { name: "Jane", age: 30, email: "john@example.com", avatar: null }
 
-// Unknown properties are ignored during updates
+// Unknown properties are ignored
 store.setState({ unknownField: "ignored" }); // No effect
 ```
 
-#### Direct Assignment
+### 3. Direct Assignment
+
+For complete state replacement or when you prefer explicit assignment:
 
 ```tsx
-const store = createStore({ count: 0, name: "John" });
-
-// Direct assignment - equivalent to store.setState(...)
+// Complete replacement
 store.value = { count: 1, name: "Jane" };
 
-// Partial updates - merges with existing state
-store.value = { count: 5 };
-// Result: { count: 5, name: "Jane" }
+// Partial updates (same as setState)
+store.value = { count: 5 }; // Merges: { count: 5, name: "Jane" }
 ```
 
-#### Silent Updates
+### 4. Silent Updates
+
+Update state without triggering subscriptions / re-renders:
 
 ```tsx
-// Update state without triggering subscriber notifications
-store.setState({ cache: data }, { silent: true });
+// Background cache updates
+store.setState({ cache: freshData }, { silent: true });
 ```
 
 ## Best Practices
 
-1. **Keep actions with state** - Define methods directly in the initial state object
-2. **Use selective subscriptions** - Subscribe only to the data you need
-3. **Use function updates** - Leverage Immer for safe mutations and better performance
-4. **Batch related updates** - Group related state changes in a single `setState` call
-5. **Use `silent: true`** for updates that shouldn't trigger re-renders
-6. **Choose the right update method**:
-   - Use `store.value = newState` for simple state replacements
-   - Use `store.setState(updater)` for complex mutations with Immer
-   - Use `store.setState(object)` for explicit partial updates
+✅ **Co-locate state and actions**
 
-## Related
+```tsx
+const store = createStore({
+  count: 0,
+  increment() {
+    /* action logic */
+  },
+});
+```
 
-- [`createProvider`](./createProvider.md) - Create component-scoped stores
-- [`useStoreValue`](../hooks/useStoreValue.md) - Subscribe to store changes
-- [`usePick`](../hooks/usePick.md) - Select specific fields from stores
-- [`useWatch`](../hooks/useWatch.md) - Watch computed values and functions
+✅ **Use Immer-style for complex updates**
+
+```tsx
+store.setState((state) => {
+  state.nested.property = newValue;
+});
+```
+
+✅ **Handle async operations properly**
+
+```tsx
+async fetchData() {
+  store.setState(state => { state.loading = true; });
+  try {
+    // API call
+  } finally {
+    store.setState(state => { state.loading = false; });
+  }
+}
+```
+
+✅ **Use silent updates for background data**
+
+```tsx
+store.setState({ cache: data }, { silent: true });
+```
+
+## Related APIs
+
+- [`createProvider`](./createProvider) - Component-scoped stores
+- [`useStoreValue`](../hooks/useStoreValue) - Subscribe to store changes
+- [`useComputed`](../hooks/useComputed) - Derived reactive values
+- [`useWatch`](../hooks/useWatch) - Side effects on store changes

@@ -1,0 +1,96 @@
+---
+title: useStoreValue
+description: 订阅 store 变化并自动触发组件重渲染
+---
+
+## 语法
+
+```tsx
+const state = useStoreValue(store, options?)
+```
+
+## 参数
+
+- `store`: ZenBox store 实例
+- `options` (可选):
+  - `pick`: 要选择性监听的键数组
+  - `deep`: 为嵌套对象启用深度相等检查
+
+## 返回值
+
+根据 `pick` 选项返回当前 store 状态或选定字段。
+
+## 快速开始
+
+### 订阅整个 Store
+
+```tsx
+import { createStore, useStoreValue } from "zenbox";
+
+const userStore = createStore({
+  name: "张三",
+  age: 30,
+  email: "zhangsan@example.com",
+});
+
+function UserProfile() {
+  const user = useStoreValue(userStore);
+
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <p>年龄: {user.age}</p>
+      <p>邮箱: {user.email}</p>
+    </div>
+  );
+}
+```
+
+### 选择性订阅
+
+```tsx
+function UserName() {
+  // 只有 'name' 变化时才重渲染
+  const { name } = useStoreValue(userStore, {
+    pick: ["name"],
+  });
+
+  return <h1>{name}</h1>;
+}
+
+function UserContact() {
+  // 只有 'name' 或 'email' 变化时才重渲染
+  const { name, email } = useStoreValue(userStore, {
+    pick: ["name", "email"],
+  });
+
+  return (
+    <div>
+      <p>{name}</p>
+      <p>{email}</p>
+    </div>
+  );
+}
+```
+
+## 最佳实践
+
+1. **使用 `pick` 提升性能** - 只订阅你使用的字段
+2. **优先使用 `usePick`** - 对于简单字段选择更简洁
+3. **将相关字段组合在一起** 而不是使用分离的 hooks
+4. **除非必要避免深度监听** - 比浅层监听开销更大
+
+## 与其他 Hooks 的对比
+
+| Hook            | 用途                         | 重渲染 |
+| --------------- | ---------------------------- | ------ |
+| `useStoreValue` | 订阅 store 变化              | ✅ 是  |
+| `useWatch`      | 使用回调监听变化             | ❌ 否  |
+| `usePick`       | 选择性订阅的简写             | ✅ 是  |
+| `useComputed`   | 创建计算的响应式值           | ✅ 是  |
+
+## 相关内容
+
+- [`usePick`](./usePick) - 字段选择的便捷简写
+- [`useWatch`](./useWatch) - 无重渲染的变化监听
+- [`useComputed`](./useComputed) - 创建计算的响应式值

@@ -1,0 +1,241 @@
+---
+title: useWatch
+description: 监听响应式数据源，当变化发生时执行回调。**不会**触发组件重渲染
+---
+
+## 语法
+
+```tsx
+const currentValue = useWatch(watchSource, callback, options?)
+```
+
+## 参数
+
+- `watchSource`: 要监听的 Store 实例、计算函数或源数组
+- `callback`: 监听数据变化时执行的函数。可以返回一个清理函数
+- `options` (可选):
+  - `immediate`: 立即执行回调，使用当前值
+  - `once`: 只执行一次回调，然后停止监听
+  - `deep`: 对嵌套对象使用深度相等检查
+
+## 快速开始
+
+### 监听 Store 变化
+
+```tsx
+import { createStore, useWatch } from "zenbox";
+
+const counterStore = createStore({ count: 0 });
+
+function Counter() {
+  // 监听 store 变化而不重渲染
+  useWatch(counterStore, (current, prev) => {
+    console.log("计数器变化:", current.count, "之前是:", prev.count);
+  });
+
+  return (
+    <button
+      onClick={() => {
+        counterStore.setState((s) => s.count++);
+      }}
+    >
+      递增
+    </button>
+  );
+}
+```
+
+### 监听计算值
+
+```tsx
+const userStore = createStore({
+  firstName: "张",
+  lastName: "三",
+  age: 30,
+});
+
+function UserWatcher() {
+  // 监听计算值
+  useWatch(
+    () => `${userStore.value.firstName}${userStore.value.lastName}`,
+    (fullName, prevFullName) => {
+      console.log(`姓名从 "${prevFullName}" 改为 "${fullName}"`);
+    }
+  );
+
+  // 监听年龄变化的特定逻辑
+  useWatch(
+    () => userStore.value.age,
+    (age, prevAge) => {
+      if (age >= 18 && prevAge < 18) {
+        console.log("用户成年了！");
+      }
+    }
+  );
+
+  return <div>监听用户变化...</div>;
+}
+```
+
+### 监听多个源
+
+```tsx
+const userStore = createStore({ name: "张三", role: "user" });
+const settingsStore = createStore({ theme: "light", language: "zh" });
+
+function MultiSourceWatcher() {
+  useWatch(
+    () => [userStore, settingsStore],
+    ([user, settings], [prevUser, prevSettings]) => {
+      if (user.role !== prevUser.role) {
+        console.log(`角色变化: ${prevUser.role} → ${user.role}`);
+      }
+
+      if (settings.theme !== prevSettings.theme) {
+        console.log(`主题变化: ${prevSettings.theme} → ${settings.theme}`);
+        document.body.className = settings.theme;
+      }
+    }
+  );
+
+  return <div>监听多个 store...</div>;
+}
+```
+
+### 带清理功能
+
+回调函数可以可选地返回一个清理函数，该函数将在下次回调运行之前或组件卸载时执行：
+
+```tsx
+useWatch(
+  () => store.value.userId,
+  (userId, prevUserId) => {
+    // 设置副作用
+    const subscription = subscribeToUser(userId);
+
+    // 返回清理函数
+    return () => {
+      subscription.unsubscribe();
+    };
+  }
+);
+```
+
+## 选项
+
+### 立即执行
+
+```tsx
+useWatch(
+  () => userStore.value.name,
+  (name) => console.log("当前姓名:", name),
+  { immediate: true } // 立即执行，使用当前值
+);
+```
+
+### 一次性监听器
+
+```tsx
+useWatch(
+  () => userStore.value.isLoggedIn,
+  (isLoggedIn) => {
+    if (isLoggedIn) {
+      console.log("用户首次登录！");
+    }
+  },
+  { once: true } // 只执行一次
+);
+```
+
+### 深度相等检查
+
+`deep` 选项使用深度相等比较来确定监听值是否真正发生了变化。这可以防止当嵌套对象被重新创建但包含相同值时不必要的回调执行。
+
+```tsx
+const appStore = createStore({
+  user: {
+    profile: { name: "张三", avatar: "avatar.jpg" },
+  },
+});
+
+useWatch(
+  () => appStore.value.user,
+  (user, prevUser) => {
+    console.log("用户对象引用变化，但内容不同");
+  },
+  { deep: true }
+);
+
+// 示例：这不会触发回调，因为深层内容相同
+appStore.setState((state) => {
+  // 创建具有相同内容的新对象
+  state.user = {
+    profile: { name: "张三", avatar: "avatar.jpg" },
+  };
+});
+
+// 示例：这会触发回调，因为深层内容不同
+appStore.setState((state) => {
+  state.user.profile.name = "李四";
+});
+```
+
+## 最佳实践
+
+✅ **仅用于副作用** - 不用于影响渲染的组件状态
+
+```tsx
+// 好 - 副作用
+useWatch(
+  () => store.value.theme,
+  (theme) => {
+    document.body.className = theme;
+  }
+);
+```
+
+❌ **不要用于渲染状态**
+
+```tsx
+// 坏 - 使用 useStoreValue 代替
+const [displayValue, setDisplayValue] = useState("");
+useWatch(
+  () => store.value.data,
+  (data) => setDisplayValue(data)
+);
+```
+
+✅ **明确监听器**
+
+```tsx
+// 好 - 特定字段
+useWatch(
+  () => userStore.value.name,
+  (name) => updateTitle(name)
+);
+```
+
+❌ **避免监听大对象**
+
+```tsx
+// 坏 - 任何变化都会触发
+useWatch(
+  () => largeStore.value,
+  (store) => console.log("变化了")
+);
+```
+
+## 与其他 Hooks 的对比
+
+| Hook             | 用途                     | 重渲染 | 使用场景                     |
+| ---------------- | ------------------------ | ------ | ---------------------------- |
+| `useWatch`       | 变化时执行回调           | ❌ 否  | 副作用、日志记录、API 调用   |
+| `useWatchEffect` | 响应式副作用             | ❌ 否  | 自动跟踪依赖                 |
+| `useStoreValue`  | 订阅 store 变化          | ✅ 是  | 组件状态同步                 |
+| `useComputed`    | 计算响应式值             | ✅ 是  | 用于渲染的派生状态           |
+
+## 相关内容
+
+- [`useStoreValue`](./useStoreValue) - 带重渲染的变化订阅
+- [`useWatchEffect`](./useWatchEffect) - 自动跟踪的响应式副作用
+- [`useComputed`](./useComputed) - 创建计算响应式值

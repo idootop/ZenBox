@@ -1,0 +1,145 @@
+---
+title: useWatchEffect
+description: 自动跟踪的响应式副作用
+---
+
+## 语法
+
+```tsx
+useWatchEffect(effect);
+```
+
+## 参数
+
+- `effect`: 包含副作用逻辑的函数。可以返回一个清理函数。
+
+## 核心特性
+
+- **自动依赖跟踪**: 无需手动指定依赖
+- **立即执行**: 组件挂载时立即运行
+- **清理支持**: 返回清理函数以正确管理资源
+- **无重渲染**: 只执行副作用，不触发组件重渲染
+
+## 快速开始
+
+### 简单副作用
+
+```tsx
+import { createStore, useWatchEffect } from "zenbox";
+
+const userStore = createStore({
+  name: "张三",
+  isOnline: false,
+});
+
+function UserStatusTracker() {
+  useWatchEffect(() => {
+    // 自动跟踪 userStore.value 访问
+    document.title = `${userStore.value.name} - ${
+      userStore.value.isOnline ? "在线" : "离线"
+    }`;
+  });
+
+  return <div>状态跟踪器已激活</div>;
+}
+```
+
+### 带清理功能
+
+```tsx
+const settingsStore = createStore({
+  autoSave: true,
+  saveInterval: 30000,
+});
+
+function AutoSaveEffect() {
+  useWatchEffect(() => {
+    if (!settingsStore.value.autoSave) return;
+
+    console.log(
+      `设置自动保存，间隔 ${settingsStore.value.saveInterval}ms`
+    );
+
+    const interval = setInterval(() => {
+      console.log("自动保存中...");
+      // 执行保存操作
+    }, settingsStore.value.saveInterval);
+
+    // 清理函数
+    return () => {
+      console.log("清理自动保存间隔");
+      clearInterval(interval);
+    };
+  });
+
+  return <div>自动保存效果已激活</div>;
+}
+```
+
+## 最佳实践
+
+✅ **保持效果专注** - 每个效果应该处理一个特定关注点
+
+```tsx
+// 好 - 专注的效果
+useWatchEffect(() => {
+  document.title = `${userStore.value.name} - 应用`;
+});
+```
+
+✅ **返回清理函数** - 始终清理资源
+
+```tsx
+// 好 - 带清理
+useWatchEffect(() => {
+  const interval = setInterval(() => {}, 1000);
+  return () => clearInterval(interval);
+});
+```
+
+✅ **处理条件逻辑** - 使用提前返回
+
+```tsx
+// 好 - 条件逻辑
+useWatchEffect(() => {
+  if (!settingsStore.value.enabled) return;
+  // ... 效果的其余部分
+});
+```
+
+❌ **不要在效果内修改响应式状态**
+
+```tsx
+// 坏 - 创建无限循环
+useWatchEffect(() => {
+  const count = counterStore.value.count;
+  counterStore.setState((state) => {
+    state.count = count + 1; // 这会再次触发效果！
+  });
+});
+```
+
+❌ **不要用于组件渲染状态**
+
+```tsx
+// 坏 - 使用 useStoreValue 代替
+const [displayValue, setDisplayValue] = useState("");
+useWatchEffect(() => {
+  setDisplayValue(store.value.data); // 不必要的 setState
+});
+```
+
+## 与其他 Hooks 的对比
+
+| Hook             | 依赖跟踪 | 立即执行 | 重渲染 | 使用场景             |
+| ---------------- | -------- | -------- | ------ | -------------------- |
+| `useWatchEffect` | ✅ 自动  | ✅ 是    | ❌ 否  | 自动跟踪副作用       |
+| `useWatch`       | ❌ 手动  | ❌ 否    | ❌ 否  | 手动依赖监听         |
+| `useEffect`      | ❌ 手动  | ✅ 是    | ❌ 否  | React 特定副作用     |
+| `useStoreValue`  | ❌ 手动  | ✅ 是    | ✅ 是  | 组件状态同步         |
+
+## 相关内容
+
+- [`useWatch`](./useWatch) - 带回调的手动依赖监听
+- [`useStoreValue`](./useStoreValue) - 带重渲染的变化订阅
+- [`useComputed`](./useComputed) - 创建计算响应式值

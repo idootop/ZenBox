@@ -1,12 +1,16 @@
 ---
-title: Provider for isolated state
-description: Create a context provider for component-scoped store
+title: Provider for Isolated State
+description: Create component-scoped stores with perfect isolation using React Context
 icon: Network
 ---
 
-## Create a provider for isolated state
+## Why Use Providers?
 
-You can use `createProvider` to create a provider for store that's shared within a component tree.
+Providers create **isolated store instances** perfect for components that need their own state without affecting other instances. Think modals, tabs, or any component that appears multiple times.
+
+## Creating a Provider
+
+Use `createProvider` to create isolated, component-scoped stores:
 
 ```tsx
 const [Provider, useFindStore, storeActions] = createProvider(initialState);
@@ -19,10 +23,8 @@ const [CounterStoreProvider, useFindCounterStore, storeActions] =
   createProvider({
     count: 0,
     increment() {
-      // Use the `getState` to get the current state
+      // Access store actions within the provider scope
       const state = storeActions.getState();
-
-      // Use the `setState` to set the new state
       storeActions.setState({
         ...state,
         count: state.count + 1,
@@ -31,50 +33,56 @@ const [CounterStoreProvider, useFindCounterStore, storeActions] =
   });
 ```
 
-**Note:**
+**Notes:**
 
-- The `storeActions` can **ONLY** be used within the initial state's `actions` function.
-- You can use `useFindStore` to get the store instance from the provider.
-- It's very similar to Vue's `provide` and `inject` pattern.
+- The `storeActions` can **ONLY** be used within the initial state's `actions` function
+- You can use `useFindStore` to get the store instance from the provider
+- It's very similar to Vue's `provide` / `inject` pattern
 
-## Wrap your component tree with the provider
+## Multiple Isolated Instances
 
 You can pass different initial state to different store providers, they are isolated from each other.
 
 ```tsx
 function App() {
   return (
-    <Tabs>
-      <CounterStoreProvider initialState={{ count: 111 }}>
-        <Counter />
-      </CounterStoreProvider>
-      <CounterStoreProvider initialState={{ count: 222 }}>
-        <Counter />
-      </CounterStoreProvider>
-    </Tabs>
+    <div className="app">
+      <h1>Independent Counters</h1>
+
+      {/* Each counter is completely isolated */}
+      <CounterProvider initialState={{ count: 100 }}>
+        <Counter title="Counter A" />
+      </CounterProvider>
+
+      <CounterProvider initialState={{ count: 200 }}>
+        <Counter title="Counter B" />
+      </CounterProvider>
+    </div>
   );
 }
 ```
 
-## Get the store instance from the provider
+## Using the Store
+
+Access the provider's store instance within the component tree:
 
 ```tsx
-function Counter() {
-  // First, get the store instance from the provider
-  const counterStore = useFindCounterStore();
+function Counter({ title }) {
+  // Get the isolated store instance
+  const counterStore = useCounterStore();
 
-  // Then, use the store instance as a normal store
+  // Use like any other store
   const { count } = useStoreValue(counterStore);
 
   return (
-    <>
+    <div className="counter">
+      <h2>{title}</h2>
       <p>Count: {count}</p>
       <button onClick={counterStore.value.increment}>Increment</button>
-    </>
+    </div>
   );
 }
 ```
 
-You already know how to use `createProvider` to create a provider for a scoped store with `actions`.
+Perfect isolation made simple. Each provider creates its own universe! 🌟
 
-That's all. Enjoy!

@@ -3,7 +3,9 @@ title: Memo
 description: Memoized rendering component that caches children and only re-renders when watched dependencies change. Perfect for optimizing expensive computations.
 ---
 
-## Syntax
+## API Reference
+
+### Syntax
 
 ```tsx
 <Memo watch={watchSource} deep={boolean?}>
@@ -11,20 +13,13 @@ description: Memoized rendering component that caches children and only re-rende
 </Memo>
 ```
 
-## Props
+### Props
 
 - `watch`: Data source to watch (store, function, or any value)
 - `deep` (optional): Enable deep equality checking for nested objects
 - `children`: Render function that receives the watched value
 
-## Key Features
-
-- **Memoization**: Caches rendered output and reuses it when dependencies haven't changed
-- **Performance optimization**: Prevents unnecessary re-renders of expensive components
-- **Automatic dependency tracking**: Tracks stores accessed in the watch function
-- **Memory efficient**: Only stores the last rendered result
-
-## Quick Start
+## Examples
 
 ### Expensive Component Optimization
 
@@ -153,39 +148,6 @@ function CartSummary() {
 }
 ```
 
-## Performance Comparison
-
-```tsx
-// Without Memo - re-renders on every parent update
-function ExpensiveComponentWithoutMemo() {
-  const data = useStoreValue(dataStore);
-  console.log("Expensive computation running..."); // Runs on every render
-
-  const processedData = data.items
-    .filter((item) => item.value > data.threshold)
-    .map((item) => ({ ...item, processed: Math.pow(item.value, 2) }));
-
-  return <div>{processedData.length} items processed</div>;
-}
-
-// With Memo - only re-renders when dependencies change
-function ExpensiveComponentWithMemo() {
-  return (
-    <Memo watch={() => dataStore.value}>
-      {(data) => {
-        console.log("Expensive computation running..."); // Only runs when data changes
-
-        const processedData = data.items
-          .filter((item) => item.value > data.threshold)
-          .map((item) => ({ ...item, processed: Math.pow(item.value, 2) }));
-
-        return <div>{processedData.length} items processed</div>;
-      }}
-    </Memo>
-  );
-}
-```
-
 ## Best Practices
 
 ✅ **Use for expensive computations** - Perfect for components with heavy calculations
@@ -233,6 +195,6 @@ function ExpensiveComponentWithMemo() {
 
 ## Related
 
-- [`<Watch>`](./Watch.md) - Render prop component without memoization
-- [`useComputed`](../hooks/useComputed.md) - Computed reactive values
-- [`useStoreValue`](../hooks/useStoreValue.md) - Direct store subscription
+- [`<Watch>`](./Watch) - Render prop component without memoization
+- [`useComputed`](../hooks/useComputed) - Computed reactive values
+- [`useStoreValue`](../hooks/useStoreValue) - Direct store subscription

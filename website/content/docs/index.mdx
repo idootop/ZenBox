@@ -1,6 +1,6 @@
 ---
 title: Introduction
-description: Introducing ZenBox, a simple, intuitive React state management library
+description: A simple, intuitive React state management library that combines the best of Vue and Zustand
 icon: BookOpen
 ---
 
@@ -10,11 +10,9 @@ icon: BookOpen
 
 ## What is ZenBox?
 
-ZenBox is a state management library for React. It is designed to be simple, lightweight, and easy to use.
+ZenBox is a modern React state management library that combines the simplicity of Zustand with the reactive patterns of Vue. It provides an intuitive API that feels natural to developers familiar with either framework.
 
-ZenBox is highly inspired by Vue and Zustand, but combines the best of both worlds in an API that feels natural and intuitive.
-
-Love Zustand & Vue? You'll ❤️ ZenBox!
+Love Zustand & Vue? Meet ZenBox ❤️
 
 ### 🐻 Zustand's Simplicity
 
@@ -24,21 +22,21 @@ const counter = createStore({ count: 0 });
 counter.setState((state) => ({ count: state.count + 1 }));
 ```
 
-### 💚 Vue-like DX
+### 💚 Vue-like Developer Experience
 
 ```ts
 const doubled = useComputed(() => counter.value.count * 2);
 
 useWatch(
   () => counter.value.count,
-  (current, prev) => console.log("Changed!", current, prev)
+  (current, prev) => console.log("Count changed from", prev, "to", current)
 );
 ```
 
-## Features
+## Key Features
 
-- 🚀 **Easy to Use** - Minimal learning curve
-- ⚡ **High Performance** - Fine-grained reactive updates
-- 💪 **TypeScript Support** - Full auto-inference out of the box
-- 🎯 **Flexible** - Supports both global and local state management
-- 📦 **Lightweight** - Under 100 lines of [core code](../blog/react-state-management-in-100-lines), < 3KB gzipped (without Immer)
+- 🚀 **Easy to Use** - Intuitive API for immediate productivity
+- ⚡ **High Performance** - Only re-renders what actually changed
+- 💪 **TypeScript First** - Full type inference out of the box, zero boilerplate
+- 🎯 **Flexible Architecture** - Works for both global and component-level state
+- 📦 **Lightweight** - [100 lines of core code](../blog/react-state-management-in-100-lines), under 3KB gzipped (without Immer)

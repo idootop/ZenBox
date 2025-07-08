@@ -1,56 +1,67 @@
 ---
-title: Memo / Watch
-description: Convenient components to memoize children and subscribe the state changes
+title: Memo / Watch Components
+description: Optimize rendering with memoized components and reactive UI patterns
 icon: Zap
 ---
 
-## Memo
+## Memo Component
 
-Like `React.memo`, you can use `Memo` to wrap the sub-tree and memoize it.
+Optimize expensive UI rendering by memoizing component subtrees until specific data changes.
 
-The sub-tree will only re-render when the watched value changes, useful for expensive UI rendering.
+### Memoize with Store
+
+Cache an entire component subtree and only re-render when the watched store changes:
 
 ```tsx
 <Memo watch={counterStore}>
   {() => {
-    // ✅ The whole sub-tree will be memoized, only re-render when the store changes
-    return <SubTree />;
+    // ✅ Entire subtree memoized - only re-renders when counterStore changes
+    return <ExpensiveSubTree />;
   }}
 </Memo>
 ```
 
-You can also watch any computed value and associate it with the sub-tree.
+Perfect for expensive components that depend on specific store data.
+
+### Memoize with Computed Values
+
+Watch computed values across multiple stores for fine-grained control:
 
 ```tsx
 <Memo
   watch={() => ({
     count: counterStore.value.count,
-    name: userStore.value.name,
+    userName: userStore.value.name,
   })}
 >
-  {({ count, name }) => <SubTree count={count} name={name} />}
+  {({ count, userName }) => <ExpensiveChart count={count} user={userName} />}
 </Memo>
 ```
 
-## Watch
+## Watch Component
 
-Similar to `Memo`, but it doesn't memoize the children, it will re-render when the state changes.
+Reactive UI that re-renders whenever watched data changes - no memoization.
 
-It's useful when you want to re-render the sub-tree when the state changes.
+### Watch Store Changes
 
 ```tsx
-<Watch watch={counterStore}>{(count) => <p>Count: {count}</p>}</Watch>
+<Watch watch={counterStore}>{(state) => <p>Count: {state.count}</p>}</Watch>
 ```
 
-You can also watch any computed value and associate it with the sub-tree.
+### Watch Computed Values
 
 ```tsx
 <Watch
   watch={() => ({
     count: counterStore.value.count,
-    name: userStore.value.name,
+    status: userStore.value.isOnline ? "online" : "offline",
   })}
 >
-  {({ count, name }) => <SubTree count={count} name={name} />}
+  {({ count, status }) => (
+    <div>
+      <span>Count: {count}</span>
+      <span>Status: {status}</span>
+    </div>
+  )}
 </Watch>
 ```

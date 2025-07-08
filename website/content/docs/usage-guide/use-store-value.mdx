@@ -1,6 +1,6 @@
 ---
 title: useStoreValue / useComputed
-description: Use store value in component
+description: Subscribe to stores and create computed values for reactive components
 icon: Sigma
 ---
 
@@ -13,16 +13,16 @@ It's similar to `store.value` but it will trigger the component re-render when t
 So you can use it to keep the component state in sync with the store.
 
 ```tsx
-// ✅ The component will AUTO re-render when the state changes
-function Counter1() {
+// ✅ Component re-renders when store changes
+function Counter() {
   const { count } = useStoreValue(counterStore);
   return <div>Current Count: {count}</div>;
 }
 
-// ❌ The component will NOT re-render when the state changes
-function Counter2() {
+// ❌ Component shows initial value only, no reactivity
+function StaticCounter() {
   const count = counterStore.value.count;
-  return <div>Initial Count: {count}</div>;
+  return <div>Static Count: {count}</div>;
 }
 ```
 
@@ -38,7 +38,7 @@ const { name, followers } = useStoreValue(userStore, {
 });
 ```
 
-Or `usePick` to select specific fields, which is a shortcut for `useStoreValue(store, { pick })`.
+Or use `usePick` to select specific fields, which is a shortcut for `useStoreValue(store, { pick })`.
 
 ```tsx
 const { name, followers } = usePick(userStore, "name", "followers");
@@ -50,20 +50,26 @@ The `useComputed` hook is similar to `useStoreValue`, but it will re-compute the
 
 And it will trigger the component re-render only when the computed value changes.
 
+Similar to the `computed` in Vue.
+
+### Single Store Computation
+
 ```tsx
 const counterStore = createStore({ count: 0 });
 
-function Counter3() {
+function Counter() {
   const isEven = useComputed(() => counterStore.value.count % 2 === 0);
 
   return <div>Is Even: {isEven ? "Yes" : "No"}</div>;
 }
 
-counterStore.setState({ count: 1 }); // ✅ Re-render (from even to odd)
-counterStore.setState({ count: 3 }); // ❌ Not re-render (isEven is still false)
+counterStore.setState({ count: 1 }); // ✅ Re-renders (even → odd)
+counterStore.setState({ count: 3 }); // ❌ No re-render (still odd)
 ```
 
-You can also use `useComputed` to compute the value from multiple store.
+### Multi-Store Computation
+
+Seamlessly combine data from multiple stores:
 
 ```tsx
 const store1 = createStore({
@@ -78,5 +84,3 @@ const value = useComputed(() => {
   return store1.value.count + (store2.value.isEven ? 1 : 0);
 });
 ```
-
-Similar to the `computed` in Vue.

@@ -1,28 +1,32 @@
 ---
 title: useStoreValue
-description: Subscribe to store changes and automatically trigger component re-renders
+description: Subscribe to store changes and trigger component re-renders automatically
 ---
 
-## Syntax
+## API Reference
+
+### Syntax
 
 ```tsx
 const state = useStoreValue(store, options?)
 ```
 
-## Parameters
+### Parameters
 
 - `store`: ZenBox store instance
 - `options` (optional):
-  - `pick`: Array of keys to watch selectively
-  - `deep`: Enable deep equality checking for nested objects
+  - `pick`: Array of keys for selective subscription
+  - `deep`: Enable deep equality checking for nested objects (default: false)
 
-## Returns
+### Returns
 
-Current store state or selected fields based on the `pick` option.
+Current store state or selected fields when using the `pick` option.
 
-## Quick Start
+## Examples
 
-### Subscribe to Entire Store
+### Full Store Subscription
+
+Subscribe to all store changes for complete reactivity:
 
 ```tsx
 import { createStore, useStoreValue } from "zenbox";
@@ -48,9 +52,11 @@ function UserProfile() {
 
 ### Selective Subscription
 
+Optimize performance by subscribing only to the fields you need:
+
 ```tsx
 function UserName() {
-  // Only re-render when 'name' changes
+  // Re-renders only when 'name' changes
   const { name } = useStoreValue(userStore, {
     pick: ["name"],
   });
@@ -59,15 +65,46 @@ function UserName() {
 }
 
 function UserContact() {
-  // Only re-render when 'name' or 'email' changes
+  // Re-renders only when 'name' or 'email' changes
   const { name, email } = useStoreValue(userStore, {
     pick: ["name", "email"],
   });
 
   return (
     <div>
-      <p>{name}</p>
-      <p>{email}</p>
+      <p>Name: {name}</p>
+      <p>Email: {email}</p>
+    </div>
+  );
+}
+```
+
+### Deep Comparison
+
+For complex nested objects that require deep comparison:
+
+```tsx
+const settingsStore = createStore({
+  theme: {
+    colors: { primary: "#blue", secondary: "#gray" },
+    typography: { fontSize: 16, fontFamily: "Arial" },
+  },
+  preferences: {
+    notifications: true,
+    autoSave: false,
+  },
+});
+
+function ThemeDisplay() {
+  // Deep diffing for nested object changes
+  const { theme } = useStoreValue(settingsStore, {
+    pick: ["theme"],
+    deep: true,
+  });
+
+  return (
+    <div style={{ color: theme.colors.primary }}>
+      Theme: {theme.colors.primary}
     </div>
   );
 }
@@ -75,22 +112,48 @@ function UserContact() {
 
 ## Best Practices
 
-1. **Use `pick` for performance** - only subscribe to fields you use
-2. **Prefer `usePick`** for simple field selection - more concise
-3. **Group related fields** together rather than separate hooks
-4. **Avoid deep watching unless necessary** - more expensive than shallow
+✅ **Use selective subscription for large stores**
 
-## Comparison with Other Hooks
+```tsx
+// Good: Only subscribe to needed fields
+const { name, status } = useStoreValue(largeStore, {
+  pick: ["name", "status"],
+});
+```
 
-| Hook            | Purpose                              | Re-renders |
-| --------------- | ------------------------------------ | ---------- |
-| `useStoreValue` | Subscribe to store changes           | ✅ Yes     |
-| `useWatch`      | Watch changes with callbacks         | ❌ No      |
-| `usePick`       | Shorthand for selective subscription | ✅ Yes     |
-| `useComputed`   | Create computed reactive values      | ✅ Yes     |
+❌ **Avoid full subscription when you only need specific fields**
 
-## Related
+```tsx
+// Inefficient: Subscribes to all changes
+const store = useStoreValue(largeStore);
+return <div>{store.name}</div>; // Only uses name
+```
 
-- [`usePick`](./usePick.md) - Convenient shorthand for field selection
-- [`useWatch`](./useWatch.md) - Watch changes without re-rendering
-- [`useComputed`](./useComputed.md) - Create computed reactive values
+✅ **Prefer shallow watching for performance**
+
+```tsx
+// Default shallow comparison is usually sufficient
+const user = useStoreValue(userStore);
+```
+
+❌ **Don't use deep watching unless necessary**
+
+```tsx
+// Expensive: Only use when you need deep object comparison
+const data = useStoreValue(store, { deep: true });
+```
+
+## Hook Comparison
+
+| Hook            | Purpose                      | Re-renders | Best For        |
+| --------------- | ---------------------------- | ---------- | --------------- |
+| `useStoreValue` | Full store subscription      | ✅ Yes     | All store data  |
+| `usePick`       | Selective field subscription | ✅ Yes     | Specific fields |
+| `useComputed`   | Derived reactive values      | ✅ Yes     | Calculated data |
+| `useWatch`      | Side effects on changes      | ❌ No      | Logging, APIs   |
+
+## Related Hooks
+
+- [`usePick`](./usePick) - Convenient shorthand for field selection
+- [`useComputed`](./useComputed) - Create derived reactive values
+- [`useWatch`](./useWatch) - Watch changes with side effects

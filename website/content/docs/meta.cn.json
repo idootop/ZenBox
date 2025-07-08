@@ -1,0 +1,22 @@
+{
+  "title": "ZenBox",
+  "description": "ZenBox 是一个专注于简洁性和开发体验的现代 React 状态管理库。",
+  "icon": "🧘",
+  "root": true,
+  "pages": [
+    "---开始使用---",
+    "index",
+    "quick-start",
+    "why-zenbox",
+    "---使用指南---",
+    "usage-guide/how-to-create-and-update-store",
+    "usage-guide/use-store-value",
+    "usage-guide/use-watch",
+    "usage-guide/memo-watch",
+    "usage-guide/provider-for-isolated-state",
+    "---API 参考---",
+    "core",
+    "hooks",
+    "components"
+  ]
+}

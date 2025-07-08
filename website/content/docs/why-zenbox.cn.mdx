@@ -1,0 +1,240 @@
+---
+title: 为什么选择 ZenBox？
+description: ZenBox 与其他 React 状态管理库的对比
+icon: CircleQuestionMark
+---
+
+## 设计动机
+
+React 生态系统提供了众多状态管理解决方案，但它们往往分为两类：过度复杂（如 Redux 的样板代码）或者认知负担过重（如 Valtio 的 proxy 模式和 `this` 绑定）。
+
+![Zustand x Vue](/images/zustand-vue.jpg)
+
+ZenBox 通过结合 Zustand 的简洁性和 Vue 的响应式模式来弥合这一差距，创造了一个既自然又强大的 API。
+
+**如果你喜欢 Zustand 和 Vue，你一定会喜欢 ZenBox！**
+
+## 核心对比
+
+### 自动类型推断
+
+**Zustand 方式：** 需要手动定义类型
+
+```tsx
+import { create } from "zustand";
+
+interface BearState {
+  bears: number;
+  increase: (by: number) => void;
+}
+
+const useBearStore = create<BearState>()((set) => ({
+  bears: 0,
+  increase: (by) => set((state) => ({ bears: state.bears + by })),
+}));
+```
+
+**✅ ZenBox 方式：** 从初始状态自动推断类型
+
+```tsx
+const store = createStore({
+  count: 0,
+  name: "ZenBox",
+  increment: () => {
+    store.setState((state) => {
+      state.count++;
+    });
+    return store.value.count;
+  },
+});
+
+store.value.count; // number
+store.value.name; // string
+store.value.increment(); // () => number
+```
+
+### 跨 Store 派生值
+
+**Zustand 方式：** 需要预先组合 store 以实现共享选择器
+
+```tsx
+interface BearSlice {
+  bears: number;
+  addBear: () => void;
+}
+
+interface FishSlice {
+  fishes: number;
+  addFish: () => void;
+}
+
+const createBearSlice = (set) => ({
+  bears: 0,
+  addBear: () => set((state) => ({ bears: state.bears + 1 })),
+});
+
+const createFishSlice = (set) => ({
+  fishes: 0,
+  addFish: () => set((state) => ({ fishes: state.fishes + 1 })),
+});
+
+const useBoundStore = create<BearSlice & FishSlice>()((...a) => ({
+  ...createBearSlice(...a),
+  ...createFishSlice(...a),
+}));
+
+const total = useBoundStore((state) => state.bears + state.fishes);
+```
+
+**✅ ZenBox 方式：** 自动跟踪的轻松跨 store 计算
+
+```tsx
+const bearStore = createStore({
+  bears: 0,
+});
+
+const fishStore = createStore({
+  fishes: 0,
+});
+
+// 简单如 1 + 1 = 2
+const total = useComputed(() => {
+  return bearStore.value.bears + fishStore.value.fishes;
+});
+```
+
+### 状态访问模式
+
+**Zustand 方式：** 手动传递 `get()` 和 `set()` 参数
+
+```tsx
+import { create } from "zustand";
+
+const useCountStore = create((set, get) => ({
+  count: 0,
+  increment: () => {
+    set({
+      ...get(),
+      count: get().count + 1,
+    });
+  },
+}));
+
+useCountStore.getState().count;
+useCountStore.getState().increment();
+```
+
+**✅ ZenBox 方式：** 统一的 `store.value` 接口处理所有操作
+
+```tsx
+// 读取状态
+const count = store.value.count;
+
+// 更新状态
+store.value = { count: count + 1 };
+
+// 调用操作
+store.value.increment();
+
+// 计算值
+const doubleCount = useComputed(() => store.value.count * 2);
+```
+
+### 内置 Immer 集成
+
+**Zustand 方式：** 手动中间件集成
+
+```tsx
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
+
+type State = {
+  count: number;
+};
+
+type Actions = {
+  increment: (qty: number) => void;
+  decrement: (qty: number) => void;
+};
+
+export const useCountStore = create<State & Actions>()(
+  immer((set) => ({
+    count: 0,
+    increment: (qty: number) =>
+      set((state) => {
+        state.count += qty;
+      }),
+    decrement: (qty: number) =>
+      set((state) => {
+        state.count -= qty;
+      }),
+  }))
+);
+```
+
+**✅ ZenBox 方式：** 开箱即用的 Immer 集成
+
+```tsx
+const store = createStore({
+  count: 0,
+  increment: (qty: number) => {
+    store.setState((state) => {
+      state.count += qty;
+    });
+  },
+});
+```
+
+### 优化重渲染
+
+**Zustand 方式：** 使用 `useShallow` 手动浅比较
+
+```tsx
+import { create } from "zustand";
+import { useShallow } from "zustand/react/shallow";
+
+const useMeals = create(() => ({
+  papaBear: "large porridge-pot",
+  mamaBear: "middle-size porridge pot",
+  littleBear: "A little, small, wee pot",
+}));
+
+export const BearNames = () => {
+  const names = useMeals(
+    useShallow((state) => Object.keys(state))
+  );
+
+  return <div>{names.join(", ")}</div>;
+};
+```
+
+**✅ ZenBox 方式：** 默认自动浅比较
+
+```tsx
+const names = useComputed(() => {
+  return Object.keys(bearStore.value);
+});
+```
+
+需要时可选择深比较：
+
+```tsx
+const names = useComputed(() => Object.keys(bearStore.value), { deep: true });
+```
+
+**性能提示：** 大多数情况下使用浅比较即可。深比较开销更大，仅在必要时使用。
+
+## 特性对比
+
+| 特性                       | ZenBox                              | Zustand                           |
+| -------------------------- | ----------------------------------- | --------------------------------- |
+| **学习曲线**               | ✅ 最小化（Vue 友好）               | ✅ 较低                           |
+| **Vue 风格响应式**         | ✅ `useComputed`/`useWatch`         | ❌ 需要手动处理                   |
+| **TypeScript 支持**        | ✅ 完整自动推断                     | ⚠️ 需要手动接口定义               |
+| **状态访问**               | ✅ 统一的 `store.value` 接口        | ❌ 手动 `get()`/`set()`           |
+| **跨 Store 计算**          | ✅ 自动依赖跟踪                     | ⚠️ 需要预先组合                   |
+| **组件作用域**             | ✅ 内置 Provider 模式               | ❌ 默认全局                       |
+| **Immer 集成**             | ✅ 内置支持                         | ⚠️ 需要中间件                     |
+| **持久化**                 | ❌ 无内置支持                       | ⚠️ 需要中间件                     |
+| **开发工具**               | ❌ 无内置支持                       | ⚠️ 需要中间件                     |
+| **打包大小**               | **< 3KB** 压缩后                    | **< 1KB** 压缩后                  |

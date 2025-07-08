@@ -1,29 +1,27 @@
 ---
 title: useComputed
-description: Create computed reactive values that automatically update when dependencies change
+description: Create reactive computed values that auto-update when dependencies change
 ---
 
-## Syntax
+## API Reference
+
+### Syntax
 
 ```tsx
 const computedValue = useComputed(compute, options?)
 ```
 
-## Parameters
+### Parameters
 
-- `compute`: Function or value to compute
+- `compute`: Function that returns a computed value
 - `options` (optional):
-  - `deep`: Enable deep equality checking for nested objects/arrays
+  - `deep`: Enable deep equality checking for nested objects/arrays (default: false)
 
-## Key Features
+## Examples
 
-- **Automatic dependency tracking**: Tracks which stores are accessed
-- **Triggers re-renders**: Causes component re-renders when dependencies change
-- **Multi-store support**: Can combine data from multiple stores
+### Simple Computed Values
 
-## Quick Start
-
-### Simple Computed Value
+Transform store data reactively with automatic dependency detection.
 
 ```tsx
 import { createStore, useComputed } from "zenbox";
@@ -35,13 +33,15 @@ const userStore = createStore({
 });
 
 function UserProfile() {
-  const fullName = useComputed(() => {
-    return `${userStore.value.firstName} ${userStore.value.lastName}`;
-  });
+  const fullName = useComputed(
+    () => `${userStore.value.firstName} ${userStore.value.lastName}`
+  );
 
   const ageGroup = useComputed(() => {
     const age = userStore.value.age;
-    return age < 18 ? "Minor" : age < 65 ? "Adult" : "Senior";
+    if (age < 18) return "Minor";
+    if (age < 65) return "Adult";
+    return "Senior";
   });
 
   return (
@@ -53,7 +53,9 @@ function UserProfile() {
 }
 ```
 
-### Multi-Store Computation
+### Cross-Store Composition
+
+Combine data from multiple stores effortlessly - dependencies are tracked automatically.
 
 ```tsx
 const cartStore = createStore({
@@ -69,11 +71,12 @@ const settingsStore = createStore({
 });
 
 function CartSummary() {
-  const subtotal = useComputed(() => {
-    return cartStore.value.items.reduce((sum, item) => {
-      return sum + item.price * item.quantity;
-    }, 0);
-  });
+  const subtotal = useComputed(() =>
+    cartStore.value.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    )
+  );
 
   const total = useComputed(() => {
     const discount = subtotal * settingsStore.value.discountPercent;
@@ -92,46 +95,39 @@ function CartSummary() {
 
 ## Best Practices
 
-✅ **Keep computations pure** - No side effects
+✅ **Keep computations pure** - No side effects, only data transformation
 
 ```tsx
-const good = useComputed(() => store.value.count * 2);
-```
-
-❌ **Don't perform side effects**
-
-```tsx
+// ❌ Bad: Side effect!
 const bad = useComputed(() => {
   localStorage.setItem("count", store.value.count); // Side effect!
   return store.value.count;
 });
+
+// ✅ Good: Only only data transformation
+const doubled = useComputed(() => store.value.count * 2);
 ```
 
-✅ **Be specific with dependencies**
+✅ **Access specific properties for optimal dependency tracking**
 
 ```tsx
-const specific = useComputed(() => userStore.value.name.toUpperCase());
+// ❌ Bad: Depends on entire user object
+const fullName = useComputed(() => userStore.value);
+
+// ✅ Good: Only depends on name property
+const userName = useComputed(() => userStore.value.name.toUpperCase());
 ```
 
-❌ **Avoid broad dependencies**
+## Hook Comparison
 
-```tsx
-const broad = useComputed(() => {
-  const user = userStore.value; // Depends on entire user object
-  return user.name.toUpperCase(); // Only needs name
-});
-```
+| Hook            | Purpose                   | Triggers Re-renders | Use Case                               |
+| --------------- | ------------------------- | ------------------- | -------------------------------------- |
+| `useComputed`   | Derived reactive values   | ✅ Yes              | Data transformation, calculated fields |
+| `useStoreValue` | Direct store subscription | ✅ Yes              | Raw store access                       |
+| `useWatch`      | Side effects on changes   | ❌ No               | Logging, analytics, external APIs      |
 
-## Comparison with Other Hooks
+## Related Hooks
 
-| Hook            | Purpose                   | Re-renders |
-| --------------- | ------------------------- | ---------- |
-| `useComputed`   | Computed reactive values  | ✅ Yes     |
-| `useStoreValue` | Direct store subscription | ✅ Yes     |
-| `useWatch`      | Side effects on changes   | ❌ No      |
-
-## Related
-
-- [`useStoreValue`](./useStoreValue.md) - Direct store subscription
-- [`useWatch`](./useWatch.md) - Watch changes with callbacks
-- [`useWatchEffect`](./useWatchEffect.md) - Reactive side effects
+- [`useStoreValue`](./useStoreValue) - Direct store subscription
+- [`useWatch`](./useWatch) - Watch changes with side effects
+- [`useWatchEffect`](./useWatchEffect) - Reactive side effects without cleanup

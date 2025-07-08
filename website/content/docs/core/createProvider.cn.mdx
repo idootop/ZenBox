@@ -1,0 +1,164 @@
+---
+title: createProvider
+description: 为组件作用域的 store 创建上下文提供者，适用于在组件树内共享的隔离状态
+---
+
+## 语法
+
+```tsx
+const [Provider, useStore, storeActions] = createProvider(initialState);
+```
+
+## 参数
+
+- `initialState`: store 的初始状态对象
+
+## 返回值
+
+一个包含以下内容的元组：
+
+- `Provider`: 为其子组件提供 store 的 React 组件
+- `useStore`: 在提供者树内访问 store 实例的 Hook
+- `storeActions`: 包含实用函数的对象（`getStore`、`getState`、`setState`）
+
+## 核心特性
+
+- **组件作用域状态**: 每个提供者创建自己的隔离 store 实例
+- **状态隔离**: 多个实例之间不会相互干扰
+- **灵活初始化**: 可以为每个提供者实例覆盖初始状态
+- **基于上下文**: 使用 React Context 进行高效更新
+
+## 快速开始
+
+### 简单提供者设置
+
+```tsx
+import { createProvider, useStoreValue } from "zenbox";
+
+// 为用户会话状态创建提供者
+const [SessionProvider, useSessionStore] = createProvider({
+  user: null,
+  isAuthenticated: false,
+  sessionId: null,
+  preferences: {
+    theme: "light",
+    language: "zh",
+  },
+});
+
+function UserProfile() {
+  // 从提供者上下文获取 store 实例
+  const store = useSessionStore();
+
+  // 订阅特定 store 值以实现响应式更新
+  const { user, isAuthenticated } = useStoreValue(store);
+
+  if (!isAuthenticated) {
+    return <div>请登录</div>;
+  }
+
+  return (
+    <div>
+      <h1>欢迎，{user.name}！</h1>
+      <p>会话 ID: {store.value.sessionId}</p>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <SessionProvider initialState={{ sessionId: "abc123" }}>
+      <UserProfile />
+    </SessionProvider>
+  );
+}
+```
+
+### 使用 Store 操作
+
+```tsx
+const [GameProvider, useGameStore, gameActions] = createProvider({
+  // 状态
+  score: 0,
+  level: 1,
+  lives: 3,
+  gameState: "playing" as "playing" | "paused" | "gameOver",
+
+  // 操作
+  increaseScore: (points) => {
+    gameActions.setState((state) => {
+      state.score += points;
+      // 每 1000 分升一级
+      if (state.score >= state.level * 1000) {
+        state.level += 1;
+      }
+    });
+  },
+  loseLife: () => {
+    gameActions.setState((state) => {
+      state.lives -= 1;
+      if (state.lives <= 0) {
+        state.gameState = "gameOver";
+      }
+    });
+  },
+  resetGame: () => {
+    gameActions.setState({
+      ...gameActions.getState(),
+      score: 0,
+      level: 1,
+      lives: 3,
+      gameState: "playing",
+    });
+  },
+});
+
+function GameComponent() {
+  const store = useGameStore();
+  const { score, level, lives, gameState } = useStoreValue(store);
+
+  return (
+    <div className="game">
+      <div className="game-hud">
+        <span>分数: {score}</span>
+        <span>等级: {level}</span>
+        <span>生命: {lives}</span>
+      </div>
+
+      {gameState === "gameOver" ? (
+        <div className="game-over">
+          <h2>游戏结束！</h2>
+          <button onClick={store.value.resetGame}>再玩一次</button>
+        </div>
+      ) : (
+        <div className="game-area">
+          <button onClick={() => store.value.increaseScore(100)}>
+            得分
+          </button>
+          <button onClick={store.value.loseLife}>失去生命</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <GameProvider>
+      <GameComponent />
+    </GameProvider>
+  );
+}
+```
+
+## 最佳实践
+
+1. **用于隔离状态** - 适用于需要自己状态的模态框、标签页、表单
+2. **使用有意义的默认值初始化** - 提供合理的初始状态
+3. **保持提供者专注** - 每个逻辑组件或功能一个提供者
+
+## 相关内容
+
+- [`createStore`](./createStore) - 创建全局 store
+- [`useStoreValue`](../hooks/useStoreValue) - 订阅 store 变化
+- [`usePick`](../hooks/usePick) - 从 store 中选择特定字段

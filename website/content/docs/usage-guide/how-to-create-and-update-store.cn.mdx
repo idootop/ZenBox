@@ -1,0 +1,161 @@
+---
+title: 创建和更新 Store
+description: Store 创建和状态管理的最佳实践
+icon: Box
+---
+
+## 带操作的 Store（推荐）
+
+将状态修改逻辑封装在 store 操作中，以获得更清洁、更易维护的代码：
+
+```tsx
+const counterStore = createStore({
+  count: 0,
+  increment() {
+    counterStore.setState((state) => {
+      state.count++;
+    });
+  },
+  async incrementAsync() {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    
+    // 访问当前状态
+    const currentCount = counterStore.value.count;
+    
+    // 调用其他 store 操作
+    counterStore.value.increment();
+  },
+});
+
+// 使用方式
+counterStore.value.increment();
+await counterStore.value.incrementAsync();
+```
+
+## 状态更新模式
+
+为以下示例定义一个复杂的带操作的 store：
+
+```tsx
+const userStore = createStore({
+  name: "张三",
+  followers: 0,
+  settings: {
+    language: "zh",
+    theme: {
+      primary: "blue",
+    },
+  },
+  updateSettings(newSettings) {
+    userStore.setState((state) => {
+      state.settings = newSettings;
+    });
+  },
+});
+```
+
+### 1. Immer 风格更新（推荐）
+
+使用草稿变更进行复杂的嵌套更新：
+
+```tsx
+userStore.setState((state) => {
+  state.followers++;
+  state.settings.theme.primary = "red";
+});
+```
+
+**何时使用：**
+- 更新嵌套状态属性
+- 带操作的 store（操作是状态的一部分）
+- 复杂状态转换
+
+这种方法消除了冗长的展开：
+
+```tsx
+// 避免这种冗长的模式
+userStore.setState({
+  ...userStore.value,
+  followers: userStore.value.followers + 1,
+  settings: {
+    ...userStore.value.settings,
+    theme: {
+      ...userStore.value.settings.theme,
+      primary: "red",
+    },
+  },
+});
+```
+
+### 2. 原生方式使用 `store.setState`
+
+```tsx
+const counterStore = createStore({ count: 0 });
+
+counterStore.setState({
+  count: counterStore.value.count + 1,
+});
+```
+
+这种方式对于简单状态更新更方便，但对于复杂状态更新较为麻烦，需要手动展开整个状态。
+
+对于带操作的 store 的示例：
+
+```tsx
+userStore.setState({
+  ...userStore.value, // 展开整个状态包括原始操作
+  followers: userStore.value.followers + 1, // 更新 followers
+});
+```
+
+### 3. 部分状态更新
+
+幸运的是，ZenBox 允许你这样更新部分状态：
+
+```tsx
+userStore.setState({
+  name: "李四",
+  followers: userStore.value.followers + 1,
+  age: 18, // 无效果，新属性会被忽略
+});
+```
+
+提供的新状态对象将与原始状态合并。
+
+真是救星！
+
+**注意：**
+
+- 只支持第一层状态的合并
+- 如果要更新嵌套状态，需要使用 Immer 方式的 `store.setState`
+
+### 4. 使用 `store.value = x` 更新状态
+
+或者你可以使用更直观的 `store.value = x` 方式更新状态。
+
+```tsx
+userStore.value = {
+  name: "李四",
+  followers: 100,
+  settings: {
+    language: "zh",
+    theme: {
+      primary: "red",
+    },
+  },
+};
+```
+
+与 `store.setState(x)` 相同，你也可以使用 `store.value = x` 更新部分状态。
+
+```tsx
+userStore.value = {
+  name: "李四",
+  followers: userStore.value.followers + 1,
+};
+```
+
+**注意：**
+
+- 虽然部分状态更新更简洁，但理解起来更容易混淆
+- 我们推荐使用 Immer 方式更新部分状态

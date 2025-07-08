@@ -1,6 +1,6 @@
 ---
 title: useWatch / useWatchEffect
-description: Subscribe the state changes of a store
+description: Watch store changes and perform side effects without triggering re-renders
 icon: Glasses
 ---
 
@@ -93,7 +93,7 @@ useWatch(
 
 ## useWatchEffect
 
-`useWatchEffect` is similar to `useWatch`, but the effect runs immediately when build the component.
+`useWatchEffect` is similar to `useWatch`, but the effect runs immediately when building the component.
 
 It will auto collect the dependencies and trigger the effect when the dependencies change.
 
@@ -105,7 +105,7 @@ useWatchEffect(() => {
 });
 ```
 
-And also support cleanup function.
+And also supports cleanup function.
 
 ```tsx
 useWatchEffect(() => {

@@ -1,0 +1,68 @@
+---
+title: usePick
+description: useStoreValue 选择性字段订阅的便捷简写
+---
+
+## 语法
+
+```tsx
+const selectedFields = usePick(store, ...keys);
+const selectedFields = usePickDeeply(store, ...keys); // 深度相等检查
+```
+
+## 参数
+
+- `store`: ZenBox store 实例
+- `...keys`: 要从 store 中选择的字段名
+
+## 返回值
+
+只包含从 store 中选定字段的对象。
+
+## 快速开始
+
+### 单字段选择
+
+```tsx
+import { createStore, usePick } from "zenbox";
+
+const userStore = createStore({
+  name: "张三",
+  age: 30,
+  email: "zhangsan@example.com",
+  avatar: "avatar.jpg",
+  isOnline: true,
+});
+
+function UserName() {
+  const { name } = usePick(userStore, "name");
+  return <h1>{name}</h1>; // 只有 'name' 变化时才重渲染
+}
+```
+
+### 多字段选择
+
+```tsx
+function UserContact() {
+  const { name, email } = usePick(userStore, "name", "email");
+
+  return (
+    <div>
+      <h2>{name}</h2>
+      <p>邮箱: {email}</p>
+    </div>
+  ); // 只有 'name' 或 'email' 变化时才重渲染
+}
+```
+
+## 最佳实践
+
+1. **保持字段列表最小** - 只选择你实际使用的字段
+2. **优先使用 `usePick` 而不是 `useStoreValue`** - 对于字段选择更简洁
+3. **将相关字段组合在一起** 而不是分离的 hooks
+
+## 相关内容
+
+- [`useStoreValue`](./useStoreValue) - 带选项的完整 store 订阅
+- [`useWatch`](./useWatch) - 无重渲染的变化监听
+- [`useComputed`](./useComputed) - 创建计算响应式值

@@ -1,0 +1,80 @@
+---
+title: 隔离状态的 Provider
+description: 为组件作用域的 store 创建上下文提供者
+icon: Network
+---
+
+## 为隔离状态创建 Provider
+
+你可以使用 `createProvider` 为在组件树内共享的 store 创建提供者。
+
+```tsx
+const [Provider, useFindStore, storeActions] = createProvider(initialState);
+```
+
+例如，你可以这样为带有 `操作` 的作用域 store 创建提供者：
+
+```tsx
+const [CounterStoreProvider, useFindCounterStore, storeActions] =
+  createProvider({
+    count: 0,
+    increment() {
+      // 使用 `getState` 获取当前状态
+      const state = storeActions.getState();
+
+      // 使用 `setState` 设置新状态
+      storeActions.setState({
+        ...state,
+        count: state.count + 1,
+      });
+    },
+  });
+```
+
+**注意：**
+
+- `storeActions` **只能**在初始状态的 `操作` 函数内使用
+- 你可以使用 `useFindStore` 从提供者获取 store 实例
+- 这与 Vue 的 `provide` 和 `inject` 模式非常相似
+
+## 用提供者包装你的组件树
+
+你可以向不同的 store 提供者传递不同的初始状态，它们彼此隔离。
+
+```tsx
+function App() {
+  return (
+    <Tabs>
+      <CounterStoreProvider initialState={{ count: 111 }}>
+        <Counter />
+      </CounterStoreProvider>
+      <CounterStoreProvider initialState={{ count: 222 }}>
+        <Counter />
+      </CounterStoreProvider>
+    </Tabs>
+  );
+}
+```
+
+## 从提供者获取 store 实例
+
+```tsx
+function Counter() {
+  // 首先，从提供者获取 store 实例
+  const counterStore = useFindCounterStore();
+
+  // 然后，像普通 store 一样使用 store 实例
+  const { count } = useStoreValue(counterStore);
+
+  return (
+    <>
+      <p>计数: {count}</p>
+      <button onClick={counterStore.value.increment}>递增</button>
+    </>
+  );
+}
+```
+
+你已经了解了如何使用 `createProvider` 为带有 `操作` 的作用域 store 创建提供者。
+
+就是这样。享受吧！
