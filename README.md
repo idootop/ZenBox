@@ -31,6 +31,23 @@ useWatch(
 - 🎯 **Flexible Architecture** - Works for both global and component-level state
 - 📦 **Lightweight** - [100 lines of core code](https://zenbox.del.wang/blog/react-state-management-in-100-lines), under 3KB gzipped (without Immer)
 
+## Getting Started
+
+We believe ZenBox will transform how you think about React state management.
+
+```shell
+npm install zenbox
+```
+
+**Ready to experience state management that feels like magic?** ✨
+
+## Community & Support
+
+- 📚 **Documentation**: [https://zenbox.del.wang](https://zenbox.del.wang)
+- 🐙 **GitHub**: [idootop/ZenBox](https://github.com/idootop/ZenBox)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/idootop/ZenBox/discussions)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/idootop/ZenBox/issues)
+
 ## ZenBox vs Zustand
 
 | Feature                  | ZenBox                             | Zustand                        |
@@ -43,19 +60,6 @@ useWatch(
 | **Store Scoping**        | ✅ Built-in Provider for isolation | ❌ Global by default           |
 | **Immer Integration**    | ✅ Built-in support                | ⚠️ Middleware required         |
 | **Bundle Size**          | **< 3KB** gzipped (without Immer)  | **< 1KB** gzipped              |
-
-## Getting Started
-
-```shell
-npm install zenbox
-```
-
-## Community & Support
-
-- 📚 **Documentation**: [https://zenbox.del.wang](https://zenbox.del.wang)
-- 🐙 **GitHub**: [idootop/ZenBox](https://github.com/idootop/ZenBox)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/idootop/ZenBox/discussions)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/idootop/ZenBox/issues)
 
 ## License
 
