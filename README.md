@@ -1,66 +1,61 @@
+![ZenBox](/website/public/banners/default.png)
 
+## What is ZenBox?
 
-<img alt="ZenBox" src="./assets/zenbox.webp" height='256' />
+ZenBox is a modern React state management library that combines the simplicity of Zustand with the reactive patterns of Vue. It provides an intuitive API that feels natural to developers familiar with either framework.
 
-## What's ZenBox?
-
-A lightweight, intuitive state management library that combines the reactivity of Vue with the simplicity of Zustand for React applications.
+Love Zustand & Vue? Meet ZenBox ❤️
 
 ### 🐻 Zustand's Simplicity
 
 ```ts
-const counter = createStore({ count: 0 }); // Full TypeScript inference
+const counter = createStore({ count: 0 }); // Auto-type inference
 ```
 
-### ⚡ Vue-like DX
+### 💚 Vue-like Developer Experience
 
 ```ts
 const doubled = useComputed(() => counter.value.count * 2);
 
 useWatch(
   () => counter.value.count,
-  (current, prev) => console.log("Changed!", current, prev)
+  (current, prev) => console.log("Count changed from", prev, "to", current)
 );
 ```
 
-## Getting Started
+## Why Choose ZenBox?
 
-> [!TIP]
-> ✨ Launching soon - stay tuned!
+- 🚀 **Easy to Use** - Intuitive API for immediate productivity
+- ⚡ **High Performance** - Only re-renders what actually changed
+- 💪 **TypeScript First** - Full type inference out of the box, zero boilerplate
+- 🎯 **Flexible Architecture** - Works for both global and component-level state
+- 📦 **Lightweight** - [100 lines of core code](https://zenbox.del.wang/blog/react-state-management-in-100-lines), under 3KB gzipped (without Immer)
+
+## ZenBox vs Zustand
+
+| Feature                  | ZenBox                             | Zustand                        |
+| ------------------------ | ---------------------------------- | ------------------------------ |
+| **Learning Curve**       | ✅ Minimal (Vue-friendly)          | ✅ Low                         |
+| **Vue-like Reactivity**  | ✅ `useComputed`/`useWatch`        | ❌ Manual handling             |
+| **TypeScript Support**   | ✅ Complete auto-inference         | ⚠️ Manual interface definition |
+| **State Access**         | ✅ Unified `store.value` interface | ❌ Manual `get()`/`set()`      |
+| **Cross-Store Computed** | ✅ Automatic dependency tracking   | ⚠️ Requires pre-combination    |
+| **Store Scoping**        | ✅ Built-in Provider for isolation | ❌ Global by default           |
+| **Immer Integration**    | ✅ Built-in support                | ⚠️ Middleware required         |
+| **Bundle Size**          | **< 3KB** gzipped (without Immer)  | **< 1KB** gzipped              |
+
+## Getting Started
 
 ```shell
 npm install zenbox
 ```
 
-## Documentation
+## Community & Support
 
-- [Core](./docs/core/) - Core API documentation
-- [Hooks](./docs/hooks/) - Detailed hook documentation
-- [Components](./docs/components/) - Component documentation
-
-## Why Choose ZenBox?
-
-**The state management library that feels like magic** ✨
-
-- 🎯 **Simple API** - Love Zustand & Vue? You’ll ❤️ ZenBox! Combines the best of both worlds in an API that feels natural and intuitive
-- ⚡ **Lightning Fast** - Smart selective subscriptions + efficient change detection = blazing performance with minimal re-renders
-- 🔮 **Vue-like Magic in React** - Get `useComputed` and `useWatch` reactivity that just works, no manual dependency tracking needed
-- 📦 **TypeScript Superpowers** - Full auto-inference out of the box. No interfaces, no generics, no headaches - just pure type safety
-- 🏗️ **Mutate Like a Human** - Write `state.count++` instead of `setState(prev => ({...prev, count: prev.count + 1}))`. Immer built-in!
-- 🪶 **Featherweight** - Under 100 lines of core code, < 10KB gzipped. Big power, tiny footprint
-
-### ZenBox vs Zustand
-
-| Feature                | ZenBox                               | Zustand                      |
-| ---------------------- | ------------------------------------ | ---------------------------- |
-| **Simple API**         | ✅ One-line store creation           | ✅ Simple                    |
-| **Vue-like DX**        | ✅ `useComputed`/`useWatch`          | ❌ Manual handling           |
-| **TypeScript Support** | ✅ Full auto-inference               | ⚠️ Manual interface required |
-| **State Mutation**     | ✅ Direct mutation (Vue-like)        | ❌ Manual `.get()`/`.set()`  |
-| **Computed Values**    | ✅ Cross-store, auto-tracked         | ⚠️ Pre-combined              |
-| **Store Scoping**      | ✅ Built-in Provider for local store | ❌ Global default            |
-| **Immer Support**      | ✅ Out of the box                    | ⚠️ Middleware required       |
-| **Learning Curve**     | ✅ Minimal (Vue-friendly)            | ✅ Low                       |
+- 📚 **Documentation**: [https://zenbox.del.wang](https://zenbox.del.wang)
+- 🐙 **GitHub**: [idootop/ZenBox](https://github.com/idootop/ZenBox)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/idootop/ZenBox/discussions)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/idootop/ZenBox/issues)
 
 ## License
 
