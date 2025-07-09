@@ -29,7 +29,7 @@ useWatch(
 - ⚡ **High Performance** - Only re-renders what actually changed
 - 💪 **TypeScript First** - Full type inference out of the box, zero boilerplate
 - 🎯 **Flexible Architecture** - Works for both global and component-level state
-- 📦 **Lightweight** - [100 lines of core code](https://zenbox.del.wang/blog/react-state-management-in-100-lines), under 3KB gzipped (without Immer)
+- 📦 **Lightweight** - [100 lines of core code](https://zenbox.del.wang/en/blog/react-state-management-in-100-lines), under 3KB gzipped (without Immer)
 
 ## Getting Started
 

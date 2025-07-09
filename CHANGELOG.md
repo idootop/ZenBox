@@ -5,11 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2025-07-07
+## [1.0.0] - 2025-07-14
 
 ### 🎉 Initial Release
 
-We're thrilled to announce the first stable release of ZenBox! This marks a major milestone in bringing Vue-like reactivity to React with Zustand's simplicity.
+We're thrilled to announce the first stable release of ZenBox! 
+
+This marks a major milestone in bringing Vue-like reactivity to React with Zustand's simplicity.
 
 ### ✨ Features
 
@@ -32,18 +34,6 @@ We're thrilled to announce the first stable release of ZenBox! This marks a majo
 - **Cross-store computations** - Computed values can depend on multiple stores
 - **TypeScript auto-inference** - Zero configuration type safety
 
-### 🏗️ Architecture
-
-- **Immutable updates** - Leverages Immer for safe state mutations
-- **Subscription model** - Efficient observer pattern implementation
-- **Provider pattern** - Clean context-based store scoping
-
-### 🚀 Performance
-
-- **Lightweight core** - Under 100 lines of core code
-- **Smart re-renders** - Efficient change detection and selective updates
-- **Bundle size** - < 3KB gzipped (core), < 10KB gzipped with Immer
-
 ### 📦 Package
 
 - **ES modules** - Modern module format with tree-shaking support
@@ -56,16 +46,3 @@ We're thrilled to announce the first stable release of ZenBox! This marks a majo
 - **React** - 18.0.0 or higher
 - **TypeScript** - 4.5.0 or higher (optional)
 - **Node.js** - 16.0.0 or higher
-
-### 🔧 Developer Experience
-
-- **Zero configuration** - Works out of the box
-- **Intuitive API** - Familiar patterns from Vue and Zustand
-- **Excellent TypeScript support** - Full auto-inference without manual interfaces
-
-### 📚 Documentation
-
-- **Complete API reference** - Comprehensive documentation for all features
-- **Migration guides** - Easy transition from Zustand, Redux, and Context API
-- **Best practices** - Guidelines for optimal usage patterns
-- **Examples** - Real-world usage examples and patterns
