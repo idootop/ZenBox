@@ -12,11 +12,16 @@ import { notFound } from 'next/navigation';
 export default async function Page(props: {
   params: Promise<{ lang: string; slug?: string[] }>;
 }) {
-  const params = await props.params;
-  const page = source.getPage(params.slug, params.lang);
+  const { slug, lang } = await props.params;
+  const page = source.getPage(slug, lang);
   if (!page) notFound();
 
   const MDX = page.data.body;
+
+  let path = page.url.replace(`/${lang}/docs`, '/website/content/docs');
+  if (path === '/website/content/docs') {
+    path = '/website/content/docs/index';
+  }
 
   return (
     <DocsPage
@@ -25,9 +30,7 @@ export default async function Page(props: {
         owner: 'idootop',
         repo: 'ZenBox',
         sha: 'main',
-        path:
-          page.url.replace(`/${params.lang}/docs`, '/website/content/docs') +
-          '.mdx',
+        path: path + (lang === 'cn' ? '.cn.mdx' : '.mdx'),
       }}
       lastUpdate={page.data.lastModified}
       toc={page.data.toc}

@@ -28,8 +28,8 @@ export function HomePage({ lang }: HomePageProps) {
       copyTooltip: copied ? 'Copied' : 'Copy to clipboard',
     },
     cn: {
-      heading: '像 Vue 一样写 React',
-      subheading: '像 Zustand 一样管理状态',
+      heading: '像 Zustand 一样简单',
+      subheading: '像 Vue 一样爽',
       getStarted: '开始使用',
       copyTooltip: copied ? '已复制' : '复制到剪贴板',
     },
@@ -40,6 +40,16 @@ export function HomePage({ lang }: HomePageProps) {
   return (
     <main className="home-container relative min-h-[calc(100dvh-2*56px)] overflow-hidden">
       <div className="absolute inset-0 bg-[linear-gradient(var(--color-grid-border)_1px,transparent_1px),linear-gradient(90deg,var(--color-grid-border)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+
+      {lang === 'cn' && (
+        <div className="center absolute inset-0">
+          <span className="text-center font-extrabold text-[160px] text-primary leading-none opacity-5 sm:text-[200px] md:text-[256px]">
+            React <br />
+            <span className="whitespace-nowrap">状态</span>
+            <span className="whitespace-nowrap">管理</span>
+          </span>
+        </div>
+      )}
 
       <div className="relative flex min-h-[calc(100dvh-2*56px)] flex-col items-center justify-center gap-8 p-4 text-center">
         <div className="max-w-4xl space-y-4">
@@ -57,7 +67,7 @@ export function HomePage({ lang }: HomePageProps) {
             className="relative w-full flex-1 cursor-pointer"
             onClick={handleCopy}
           >
-            <div className="rounded-[100px] border border-gray-300 px-4 py-3 text-left font-mono text-gray-500 backdrop-blur-sm hover:bg-black/5 dark:border-gray-700 dark:bg-black/50 dark:hover:bg-white/5 dark:hover:text-green-500">
+            <div className="rounded-full border border-gray-300 px-4 py-3 text-left font-mono text-gray-500 backdrop-blur-sm hover:bg-black/5 dark:border-gray-700 dark:bg-black/50 dark:hover:bg-white/5 dark:hover:text-green-500">
               <span>$ </span>
               <span>npm install zenbox</span>
               <button
@@ -98,7 +108,7 @@ export function HomePage({ lang }: HomePageProps) {
           </div>
 
           <Link
-            className="whitespace-nowrap rounded-[100px] bg-black px-6 py-3 font-semibold text-white transition-all hover:scale-105 hover:bg-black/80 active:scale-95 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+            className="whitespace-nowrap rounded-full bg-black px-6 py-3 font-semibold text-white transition-all hover:scale-105 hover:bg-black/80 active:scale-95 dark:bg-white dark:text-black dark:hover:bg-gray-200"
             href={`/${lang}/docs`}
           >
             {currentText.getStarted}
