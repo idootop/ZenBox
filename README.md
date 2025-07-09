@@ -1,4 +1,4 @@
-![ZenBox](/website/public/banners/default.png)
+![ZenBox](/website/public/banners/top.png)
 
 ## What is ZenBox?
 
