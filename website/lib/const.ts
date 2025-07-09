@@ -8,6 +8,6 @@ export const kTitter = '@del_wang_404';
 
 export function getSiteDescription(lang: string = 'en') {
   return lang === 'cn'
-    ? 'ZenBox 是一个现代的 React 状态管理库，专注于简单性和开发者体验。'
-    : 'ZenBox is a modern React state management library focused on simplicity and developer experience.';
+    ? '像 Vue 一样写 React 💚，像 Zustand 一样管理状态 🐻'
+    : 'Code React like Vue 💚, manage state like Zustand 🐻';
 }
