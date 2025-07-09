@@ -1,9 +1,11 @@
 ---
 title: Watch
-description: 基于监听数据源响应式渲染内容的渲染属性组件
+description: 响应式渲染组件，基于监听的数据源响应式渲染内容
 ---
 
-## 语法
+## API 参考
+
+### 语法
 
 ```tsx
 <Watch watch={watchSource} deep={boolean?}>
@@ -11,13 +13,13 @@ description: 基于监听数据源响应式渲染内容的渲染属性组件
 </Watch>
 ```
 
-## 属性
+### 属性
 
 - `watch`: 要监听的数据源（store、函数或任何值）
-- `deep` (可选): 为嵌套对象启用深度相等检查
+- `deep` (可选): 启用深度相等检查以处理嵌套对象
 - `children`: 接收监听值的渲染函数
 
-## 快速开始
+## 示例
 
 ### 监听 Store 变化
 
@@ -39,7 +41,7 @@ function CounterDisplay() {
       </Watch>
 
       <button onClick={() => counterStore.setState((s) => s.count++)}>
-        递增
+        增加
       </button>
     </div>
   );
@@ -83,7 +85,7 @@ const cartStore = createStore({
 });
 
 const settingsStore = createStore({
-  currency: "CNY",
+  currency: "￥",
   taxRate: 0.08,
 });
 
@@ -107,7 +109,7 @@ function CartSummary() {
         return (
           <div>
             <h3>购物车摘要</h3>
-            <p>项目: {items.length}</p>
+            <p>商品数量: {items.length}</p>
             <p>
               小计: {subtotal.toFixed(2)} {currency}
             </p>
@@ -138,7 +140,7 @@ function UserProfile() {
   return (
     <Watch watch={() => appStore.value}>
       {({ user, isLoading, error }) => {
-        if (isLoading) return <div>加载用户资料中...</div>;
+        if (isLoading) return <div>正在加载用户资料...</div>;
         if (error) return <div>错误: {error.message}</div>;
         if (!user) return <div>请登录</div>;
 
@@ -156,12 +158,12 @@ function UserProfile() {
 
 ## 最佳实践
 
-1. **用于复杂渲染逻辑** - 适用于基于多个条件的条件渲染
-2. **保持 watch 函数纯净** - 不要在 watch 函数中执行副作用
-3. **明确依赖** - 只访问你实际需要的数据
+1. **用于复杂渲染逻辑** - 适合基于多个条件的条件渲染
+2. **保持监听函数纯净** - 不要在监听函数中执行副作用
+3. **明确依赖项** - 只访问实际需要的数据
 
-## 相关内容
+## 相关文档
 
-- [`<Memo>`](./Memo) - 记忆化渲染组件
-- [`useComputed`](../hooks/useComputed) - 计算响应式值
-- [`useStoreValue`](../hooks/useStoreValue) - 直接 store 订阅
+- [`<Memo>`](./Memo) - 缓存渲染组件
+- [`useComputed`](../hooks/useComputed) - 响应式更新的计算值
+- [`useStoreValue`](../hooks/useStoreValue) - 同步 store 最新状态

@@ -4,21 +4,28 @@ description: ZenBox 与其他 React 状态管理库的对比
 icon: CircleQuestionMark
 ---
 
-## 设计动机
+## 背景
 
-React 生态系统提供了众多状态管理解决方案，但它们往往分为两类：过度复杂（如 Redux 的样板代码）或者认知负担过重（如 Valtio 的 proxy 模式和 `this` 绑定）。
+React 生态下已经有很多状态管理解决方案了，但大多数往往：
+
+- 使用繁琐（如 Redux 的样板代码）
+- API 设计复杂，需要学习新的使用范式（如 Recoil）
+- 需要额外的心智负担（如 Valtio 的 proxy 里 `this` 的使用）
+- ……
+
+要是能有一种状态管理库，用起来既像 Zustand 一样简单，又像 Vue 一样符合直觉，就好了。
 
 ![Zustand x Vue](/images/zustand-vue.jpg)
 
-ZenBox 通过结合 Zustand 的简洁性和 Vue 的响应式模式来弥合这一差距，创造了一个既自然又强大的 API。
+ZenBox 就是这样一个状态管理库：它结合了 Vue 和 Zustand 的优点，用起来既简单又符合直觉，**非常爽！**
 
 **如果你喜欢 Zustand 和 Vue，你一定会喜欢 ZenBox！**
 
-## 核心对比
+## 核心功能对比
 
 ### 自动类型推断
 
-**Zustand 方式：** 需要手动定义类型
+**Zustand:** 需要手动定义类型
 
 ```tsx
 import { create } from "zustand";
@@ -34,7 +41,7 @@ const useBearStore = create<BearState>()((set) => ({
 }));
 ```
 
-**✅ ZenBox 方式：** 从初始状态自动推断类型
+**✅ ZenBox:** 可以从初始状态自动推导类型，无需手写 interface
 
 ```tsx
 const store = createStore({
@@ -50,33 +57,26 @@ const store = createStore({
 
 store.value.count; // number
 store.value.name; // string
+
+// 甚至可以自动推导出函数返回值类型
 store.value.increment(); // () => number
 ```
 
-### 跨 Store 派生值
+### 跨 Store 计算值
 
-**Zustand 方式：** 需要预先组合 store 以实现共享选择器
+**Zustand:** 不支持，需要预先组合 store 以实现共享选择器和按需渲染
 
 ```tsx
 interface BearSlice {
   bears: number;
-  addBear: () => void;
 }
 
 interface FishSlice {
   fishes: number;
-  addFish: () => void;
 }
 
-const createBearSlice = (set) => ({
-  bears: 0,
-  addBear: () => set((state) => ({ bears: state.bears + 1 })),
-});
-
-const createFishSlice = (set) => ({
-  fishes: 0,
-  addFish: () => set((state) => ({ fishes: state.fishes + 1 })),
-});
+const createBearSlice = () => ({ bears: 0 });
+const createFishSlice = () => ({ fishes: 0 });
 
 const useBoundStore = create<BearSlice & FishSlice>()((...a) => ({
   ...createBearSlice(...a),
@@ -86,18 +86,13 @@ const useBoundStore = create<BearSlice & FishSlice>()((...a) => ({
 const total = useBoundStore((state) => state.bears + state.fishes);
 ```
 
-**✅ ZenBox 方式：** 自动跟踪的轻松跨 store 计算
+**✅ ZenBox:** 支持跨 Store 计算值，自动追踪依赖，按需 re-render
 
 ```tsx
-const bearStore = createStore({
-  bears: 0,
-});
+const bearStore = createStore({ bears: 0 });
+const fishStore = createStore({ fishes: 0 });
 
-const fishStore = createStore({
-  fishes: 0,
-});
-
-// 简单如 1 + 1 = 2
+// 像 1 + 1 = 2 一样简单
 const total = useComputed(() => {
   return bearStore.value.bears + fishStore.value.fishes;
 });
@@ -105,7 +100,7 @@ const total = useComputed(() => {
 
 ### 状态访问模式
 
-**Zustand 方式：** 手动传递 `get()` 和 `set()` 参数
+**Zustand:** 手动传递 `get()` 和 `set()` 参数，不支持自动类型推导
 
 ```tsx
 import { create } from "zustand";
@@ -124,7 +119,53 @@ useCountStore.getState().count;
 useCountStore.getState().increment();
 ```
 
-**✅ ZenBox 方式：** 统一的 `store.value` 接口处理所有操作
+**Jotai:** 通过参数传递 `get` 和 `set` 函数，可读性较差，增加心智负担
+
+```tsx
+const count1 = atom(1);
+const count2 = atom(2);
+const count3 = atom(3);
+
+const sum = atom((get) => get(count1) + get(count2) + get(count3));
+
+// 函数式写法需要更多样板代码
+const atoms = [count1, count2, count3, ...otherAtoms];
+const sum = atom((get) => atoms.map(get).reduce((acc, count) => acc + count));
+
+const decrementCountAtom = atom(
+  (get) => get(countAtom),
+  (get, set, _arg) => set(countAtom, get(countAtom) - 1)
+);
+```
+
+**Valtio:** 在 Proxy 里使用 `this` 和 getter 需要非常小心，容易出错
+
+```tsx
+const state = proxy({
+  count: 1,
+  get doubled() {
+    return this.count * 2;
+  },
+  user: {
+    name: "John",
+  },
+  greetings: {
+    get greetingEn() {
+      return "Hello " + this.user.name; // 错误 - `this` 指向 `state.greetings`
+    },
+  },
+});
+
+// 快照里的 getter 调用正常
+const snap = snapshot(state);
+console.log(snap.doubled); // 2
+
+// 但状态变化不会更新快照
+state.count = 10;
+console.log(snap.doubled); // 仍然是 2
+```
+
+**✅ ZenBox:** 可以使用统一的 `store.value` 接口处理所有操作，心智负担最小
 
 ```tsx
 // 读取状态
@@ -133,16 +174,16 @@ const count = store.value.count;
 // 更新状态
 store.value = { count: count + 1 };
 
-// 调用操作
+// 调用方法
 store.value.increment();
 
 // 计算值
 const doubleCount = useComputed(() => store.value.count * 2);
 ```
 
-### 内置 Immer 集成
+### Immer 集成
 
-**Zustand 方式：** 手动中间件集成
+**Zustand:** 需要手动设置 Immer 中间件
 
 ```tsx
 import { create } from "zustand";
@@ -172,7 +213,7 @@ export const useCountStore = create<State & Actions>()(
 );
 ```
 
-**✅ ZenBox 方式：** 开箱即用的 Immer 集成
+**✅ ZenBox:** 开箱即用，无需手动配置
 
 ```tsx
 const store = createStore({
@@ -185,9 +226,9 @@ const store = createStore({
 });
 ```
 
-### 优化重渲染
+### 按需渲染
 
-**Zustand 方式：** 使用 `useShallow` 手动浅比较
+**Zustand:** 需要手动使用 `useShallow` 进行浅比较，以减少重复渲染
 
 ```tsx
 import { create } from "zustand";
@@ -200,41 +241,37 @@ const useMeals = create(() => ({
 }));
 
 export const BearNames = () => {
-  const names = useMeals(
-    useShallow((state) => Object.keys(state))
-  );
+  const names = useMeals(useShallow((state) => Object.keys(state)));
 
   return <div>{names.join(", ")}</div>;
 };
 ```
 
-**✅ ZenBox 方式：** 默认自动浅比较
+**✅ ZenBox:** 默认使用浅比较（和 React 的 `useMemo` 一样）
 
 ```tsx
-const names = useComputed(() => {
-  return Object.keys(bearStore.value);
-});
+const names = useComputed(() => Object.keys(bearStore.value));
 ```
 
-需要时可选择深比较：
+需要时也可选择深比较：
 
 ```tsx
 const names = useComputed(() => Object.keys(bearStore.value), { deep: true });
 ```
 
-**性能提示：** 大多数情况下使用浅比较即可。深比较开销更大，仅在必要时使用。
+**性能提示:** 大多数情况下使用浅比较即可。深比较开销更大，仅在必要时使用。
 
 ## 特性对比
 
-| 特性                       | ZenBox                              | Zustand                           |
-| -------------------------- | ----------------------------------- | --------------------------------- |
-| **学习曲线**               | ✅ 最小化（Vue 友好）               | ✅ 较低                           |
-| **Vue 风格响应式**         | ✅ `useComputed`/`useWatch`         | ❌ 需要手动处理                   |
-| **TypeScript 支持**        | ✅ 完整自动推断                     | ⚠️ 需要手动接口定义               |
-| **状态访问**               | ✅ 统一的 `store.value` 接口        | ❌ 手动 `get()`/`set()`           |
-| **跨 Store 计算**          | ✅ 自动依赖跟踪                     | ⚠️ 需要预先组合                   |
-| **组件作用域**             | ✅ 内置 Provider 模式               | ❌ 默认全局                       |
-| **Immer 集成**             | ✅ 内置支持                         | ⚠️ 需要中间件                     |
-| **持久化**                 | ❌ 无内置支持                       | ⚠️ 需要中间件                     |
-| **开发工具**               | ❌ 无内置支持                       | ⚠️ 需要中间件                     |
-| **打包大小**               | **< 3KB** 压缩后                    | **< 1KB** 压缩后                  |
+| 特性                | ZenBox                         | Zustand                 |
+| ------------------- | ------------------------------ | ----------------------- |
+| **学习曲线**        | ✅ 最小化（Vue 友好）          | ✅ 较低                 |
+| **Vue 风格响应式**  | ✅ `useComputed`/`useWatch`    | ❌ 需要手动处理         |
+| **TypeScript 支持** | ✅ 完整自动推断                | ⚠️ 需要手动接口定义     |
+| **状态访问**        | ✅ 统一的 `store.value` 接口   | ❌ 手动 `get()`/`set()` |
+| **跨 Store 计算**   | ✅ 自动依赖跟踪                | ⚠️ 需要预先组合         |
+| **组件作用域**      | ✅ 内置 Provider 支持状态隔离  | ❌ 默认全局状态         |
+| **Immer 集成**      | ✅ 内置支持                    | ⚠️ 需要中间件           |
+| **持久化**          | ❌ 无内置支持                  | ⚠️ 需要中间件           |
+| **开发工具**        | ❌ 无内置支持                  | ⚠️ 需要中间件           |
+| **打包大小**        | **< 3KB** 压缩后（不含 Immer） | **< 1KB** 压缩后        |

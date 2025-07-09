@@ -1,120 +1,204 @@
 ---
 title: useWatchEffect
-description: 自动跟踪的响应式副作用
+description: 自动跟踪的响应式副作用，立即运行并自动清理
 ---
 
-## 语法
+## 为什么选择 useWatchEffect？
+
+当你需要响应式副作用，但又不想手动指定依赖项时的完美选择。
+
+可以将其视为"更智能的 `useEffect`"，它知道自己依赖于哪些 store。
+
+## API 参考
+
+### 语法
 
 ```tsx
 useWatchEffect(effect);
 ```
 
-## 参数
+### 参数
 
-- `effect`: 包含副作用逻辑的函数。可以返回一个清理函数。
+- `effect`: 包含副作用逻辑的函数（可返回清理函数）
 
-## 核心特性
+### 返回值
 
-- **自动依赖跟踪**: 无需手动指定依赖
-- **立即执行**: 组件挂载时立即运行
-- **清理支持**: 返回清理函数以正确管理资源
-- **无重渲染**: 只执行副作用，不触发组件重渲染
+- `undefined`: 无返回值
 
-## 快速开始
+## 示例
 
-### 简单副作用
+### 简单响应式副作用
 
 ```tsx
-import { createStore, useWatchEffect } from "zenbox";
-
 const userStore = createStore({
   name: "张三",
   isOnline: false,
 });
 
-function UserStatusTracker() {
+function DocumentTitleUpdater() {
   useWatchEffect(() => {
-    // 自动跟踪 userStore.value 访问
+    // 自动跟踪 userStore 访问
     document.title = `${userStore.value.name} - ${
       userStore.value.isOnline ? "在线" : "离线"
     }`;
   });
 
-  return <div>状态跟踪器已激活</div>;
+  return <div>标题更新器已激活</div>;
 }
 ```
 
-### 带清理功能
+**无需依赖数组** - ZenBox 自动检测此副作用依赖于 `userStore`。
+
+### 自动保存与清理
 
 ```tsx
-const settingsStore = createStore({
+const documentStore = createStore({
+  content: "",
   autoSave: true,
   saveInterval: 30000,
 });
 
 function AutoSaveEffect() {
   useWatchEffect(() => {
-    if (!settingsStore.value.autoSave) return;
+    // 条件逻辑与提前返回
+    if (!documentStore.value.autoSave) return;
 
-    console.log(
-      `设置自动保存，间隔 ${settingsStore.value.saveInterval}ms`
-    );
+    console.log(`设置自动保存，间隔 ${documentStore.value.saveInterval}ms`);
 
     const interval = setInterval(() => {
-      console.log("自动保存中...");
-      // 执行保存操作
-    }, settingsStore.value.saveInterval);
+      console.log("自动保存内容...");
+      api.saveDocument(documentStore.value.content);
+    }, documentStore.value.saveInterval);
 
-    // 清理函数
+    // 清理函数在下次副作用运行前或卸载时自动执行
     return () => {
       console.log("清理自动保存间隔");
       clearInterval(interval);
     };
   });
 
-  return <div>自动保存效果已激活</div>;
+  return <div>自动保存管理器已激活</div>;
 }
+```
+
+**智能依赖跟踪**：当 `autoSave`、`saveInterval` 或 `content` 变化时，副作用会自动重新运行。
+
+### 分析跟踪器
+
+```tsx
+const analyticsStore = createStore({
+  userId: null,
+  sessionId: null,
+  pageViews: 0,
+  events: [],
+});
+
+function AnalyticsTracker() {
+  useWatchEffect(() => {
+    const { userId, sessionId, pageViews } = analyticsStore.value;
+
+    if (!userId || !sessionId) return;
+
+    // 跟踪页面访问计数
+    if (pageViews > 0) {
+      analytics.track("page_view_count", {
+        userId,
+        sessionId,
+        count: pageViews,
+        timestamp: Date.now(),
+      });
+    }
+
+    // 设置用户标识
+    analytics.identify(userId, {
+      sessionId,
+      lastActive: Date.now(),
+    });
+
+    console.log(
+      `分析: 跟踪用户 ${userId}, 会话 ${sessionId}, ${pageViews} 次访问`
+    );
+  });
+
+  return null;
+}
+```
+
+## useWatchEffect vs useWatch
+
+| 特性         | useWatchEffect | useWatch          |
+| ------------ | -------------- | ----------------- |
+| **依赖跟踪** | ✅ 自动        | ❌ 手动           |
+| **初始执行** | ✅ 立即        | ❌ 默认仅在变化时 |
+| **配置**     | ✅ 零配置      | ⚠️ 需要源参数     |
+| **最适用于** | 一般副作用     | 特定数据监听      |
+
+**useWatchEffect** - 当需要"响应式 useEffect"时：
+
+```tsx
+// 自动依赖跟踪
+useWatchEffect(() => {
+  if (userStore.value.isLoggedIn) {
+    initializeUserSession(userStore.value.id);
+  }
+});
+```
+
+**useWatch** - 当需要精确控制时：
+
+```tsx
+// 手动依赖指定
+useWatch(
+  () => userStore.value.loginAttempts,
+  (attempts) => {
+    if (attempts > 3) {
+      lockAccount();
+    }
+  }
+);
 ```
 
 ## 最佳实践
 
-✅ **保持效果专注** - 每个效果应该处理一个特定关注点
+✅ **保持副作用专注和纯净**
 
 ```tsx
-// 好 - 专注的效果
+// Good：单一职责
 useWatchEffect(() => {
-  document.title = `${userStore.value.name} - 应用`;
+  document.title = `${appStore.value.title} - MyApp`;
 });
 ```
 
-✅ **返回清理函数** - 始终清理资源
+✅ **使用提前返回处理条件逻辑**
 
 ```tsx
-// 好 - 带清理
+// Good：清晰的条件逻辑
 useWatchEffect(() => {
-  const interval = setInterval(() => {}, 1000);
-  return () => clearInterval(interval);
+  if (!settingsStore.value.enableNotifications) return;
+
+  setupNotificationService();
+  return () => teardownNotificationService();
 });
 ```
 
-✅ **处理条件逻辑** - 使用提前返回
+✅ **始终为资源返回清理函数**
 
 ```tsx
-// 好 - 条件逻辑
+// Good：正确的资源管理
 useWatchEffect(() => {
-  if (!settingsStore.value.enabled) return;
-  // ... 效果的其余部分
+  const timer = setInterval(updateClock, 1000);
+  return () => clearInterval(timer);
 });
 ```
 
-❌ **不要在效果内修改响应式状态**
+❌ **不要在副作用内修改响应式状态**
 
 ```tsx
-// 坏 - 创建无限循环
+// Bad：创建无限循环
 useWatchEffect(() => {
   const count = counterStore.value.count;
   counterStore.setState((state) => {
-    state.count = count + 1; // 这会再次触发效果！
+    state.count = count + 1; // 这会再次触发副作用，导致无限循环
   });
 });
 ```
@@ -122,24 +206,24 @@ useWatchEffect(() => {
 ❌ **不要用于组件渲染状态**
 
 ```tsx
-// 坏 - 使用 useStoreValue 代替
-const [displayValue, setDisplayValue] = useState("");
+// Bad：不必要的间接状态
+const [localState, setLocalState] = useState("");
 useWatchEffect(() => {
-  setDisplayValue(store.value.data); // 不必要的 setState
+  setLocalState(store.value.data); // 应该使用 useStoreValue 替代
 });
 ```
 
-## 与其他 Hooks 的对比
+## Hook 比较
 
-| Hook             | 依赖跟踪 | 立即执行 | 重渲染 | 使用场景             |
-| ---------------- | -------- | -------- | ------ | -------------------- |
-| `useWatchEffect` | ✅ 自动  | ✅ 是    | ❌ 否  | 自动跟踪副作用       |
-| `useWatch`       | ❌ 手动  | ❌ 否    | ❌ 否  | 手动依赖监听         |
-| `useEffect`      | ❌ 手动  | ✅ 是    | ❌ 否  | React 特定副作用     |
-| `useStoreValue`  | ❌ 手动  | ✅ 是    | ✅ 是  | 组件状态同步         |
+| Hook             | 依赖跟踪    | 立即执行 | 重新渲染 | 使用场景         |
+| ---------------- | ----------- | -------- | -------- | ---------------- |
+| `useWatchEffect` | ✅ 自动     | ✅ 是    | ❌ 否    | 一般响应式副作用 |
+| `useWatch`       | ❌ 手动     | ❌ 否    | ❌ 否    | 特定数据监听     |
+| `useEffect`      | ❌ 手动依赖 | ✅ 是    | ❌ 否    | React 特定副作用 |
+| `useStoreValue`  | ❌ 手动     | ✅ 是    | ✅ 是    | 组件状态同步     |
 
-## 相关内容
+## 相关 Hook
 
-- [`useWatch`](./useWatch) - 带回调的手动依赖监听
-- [`useStoreValue`](./useStoreValue) - 带重渲染的变化订阅
-- [`useComputed`](./useComputed) - 创建计算响应式值
+- [`useWatch`](./useWatch) - 监听状态变化并执行副作用
+- [`useStoreValue`](./useStoreValue) - 同步 store 最新状态
+- [`useComputed`](./useComputed) - 响应式更新的计算值

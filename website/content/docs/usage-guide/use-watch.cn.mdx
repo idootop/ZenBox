@@ -1,18 +1,16 @@
 ---
 title: useWatch / useWatchEffect
-description: 订阅 store 的状态变化
+description: 订阅 store 状态变化和执行副作用，不会触发组件重新渲染
 icon: Glasses
 ---
 
 ## useWatch
 
-`useWatch` 是一个 React Hook，允许你订阅 store 的状态变化。
+`useWatch` 是一个 React Hook，允许你订阅 store 的状态变化，并执行副作用。
 
-它类似于 `useStoreValue`，但**不会**在状态变化时触发组件重新渲染。
+它类似于 `useStoreValue`，但**不会**在状态变化时触发组件重新渲染，非常适合执行副作用。
 
-当你想在状态变化时做某些事情，但不想重新渲染组件时很有用。
-
-例如，你可以用它来记录状态变化。
+例如，你可以用它来记录状态变化：
 
 ```tsx
 useWatch(
@@ -23,25 +21,25 @@ useWatch(
 );
 ```
 
-默认情况下，它会在状态变化时触发效果。
+默认情况下，它会在状态变化时触发副作用，而非立即执行。
 
-### immediate
+### 立即执行
 
-如果你想立即触发效果，可以使用 `immediate: true` 选项。
+如果你想立即触发副作用，可以使用 `immediate: true` 选项。
 
 ```tsx
 useWatch(
   () => counterStore.value.count,
   (current, prev) => {
-    console.log("立即", current, prev);
+    console.log("立即执行副作用", current, prev);
   },
   { immediate: true }
 );
 ```
 
-### once
+### 只运行一次
 
-如果你只想触发一次效果，可以使用 `once: true` 选项。
+如果你只想触发一次副作用，可以使用 `once: true` 选项。
 
 ```tsx
 useWatch(
@@ -53,9 +51,9 @@ useWatch(
 );
 ```
 
-### cleanup
+### 清理函数
 
-你也可以返回一个函数来清理效果。当组件卸载或下一个效果运行前，这很有用。
+你也可以返回一个函数来清理副作用。清理函数会在组件卸载或下一个副作用运行前执行。
 
 ```tsx
 useWatch(
@@ -74,7 +72,7 @@ useWatch(
 );
 ```
 
-### multiple stores
+### 监听多个 store
 
 你也可以同时监听多个 store。
 
@@ -89,13 +87,13 @@ useWatch(
 
 **注意：**
 
-- 如果你想监听 store 数组，可以使用 `[x, y, z] as const` 来推断类型。
+- 如果你想监听 store 数组，可以使用 `[x, y, z] as const` 来自动推断 TypeScript 类型。
 
 ## useWatchEffect
 
-`useWatchEffect` 类似于 `useWatch`，但效果在构建组件时立即运行。
+`useWatchEffect` 类似于 `useWatch`，但副作用会在构建组件时立即运行。
 
-它会自动收集依赖并在依赖变化时触发效果。
+它会自动收集依赖并在依赖变化时触发副作用。
 
 ```tsx
 useWatchEffect(() => {

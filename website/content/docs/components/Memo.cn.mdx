@@ -1,9 +1,11 @@
 ---
 title: Memo
-description: 缓存子组件并仅在监听依赖变化时重渲染的记忆化渲染组件。适用于优化昂贵的计算
+description: 缓存渲染组件，仅在监听的依赖项变化时重新渲染。
 ---
 
-## 语法
+## API 参考
+
+### 语法
 
 ```tsx
 <Memo watch={watchSource} deep={boolean?}>
@@ -11,20 +13,13 @@ description: 缓存子组件并仅在监听依赖变化时重渲染的记忆化�
 </Memo>
 ```
 
-## 属性
+### 属性
 
 - `watch`: 要监听的数据源（store、函数或任何值）
-- `deep` (可选): 为嵌套对象启用深度相等检查
+- `deep` (可选): 启用深度相等检查以处理嵌套对象
 - `children`: 接收监听值的渲染函数
 
-## 核心特性
-
-- **记忆化**: 缓存渲染输出，在依赖未变化时复用
-- **性能优化**: 防止昂贵组件的不必要重渲染
-- **自动依赖跟踪**: 跟踪 watch 函数中访问的 store
-- **内存高效**: 只存储最后一次渲染结果
-
-## 快速开始
+## 示例
 
 ### 昂贵组件优化
 
@@ -35,7 +30,7 @@ const dataStore = createStore({
   items: Array.from({ length: 1000 }, (_, i) => ({
     id: i,
     value: Math.random(),
-    name: `项目 ${i}`,
+    name: `Item ${i}`,
   })),
   threshold: 0.5,
 });
@@ -52,9 +47,9 @@ function ExpensiveVisualization() {
         })}
       >
         {({ items, threshold }) => {
-          console.log("渲染昂贵的可视化..."); // 只有依赖变化时才记录
+          console.log("渲染昂贵可视化..."); // 仅在依赖项变化时输出
 
-          // 昂贵的计算
+          // 昂贵计算
           const processedItems = items
             .filter((item) => item.value > threshold)
             .map((item) => ({
@@ -65,7 +60,7 @@ function ExpensiveVisualization() {
 
           return (
             <div className="expensive-chart">
-              <h3>处理项目 ({processedItems.length})</h3>
+              <h3>处理后的项目 ({processedItems.length})</h3>
               {processedItems.slice(0, 20).map((item) => (
                 <div key={item.id} className="chart-item">
                   {item.name}: {item.processed.toFixed(4)}
@@ -80,18 +75,18 @@ function ExpensiveVisualization() {
 }
 ```
 
-### 多 Store 记忆化
+### 多 Store 缓存渲染
 
 ```tsx
 const cartStore = createStore({
   items: [
-    { id: 1, name: "笔记本电脑", price: 999, quantity: 1, category: "电子产品" },
+    { id: 1, name: "电脑", price: 999, quantity: 1, category: "电子产品" },
     { id: 2, name: "鼠标", price: 25, quantity: 2, category: "电子产品" },
   ],
 });
 
 const settingsStore = createStore({
-  currency: "CNY",
+  currency: "￥",
   taxRate: 0.08,
   discountPercent: 0.1,
 });
@@ -105,7 +100,7 @@ function CartSummary() {
       })}
     >
       {({ items, settings }) => {
-        console.log("渲染复杂购物车摘要..."); // 只有依赖变化时
+        console.log("渲染复杂购物车摘要..."); // 仅在依赖项变化时输出
 
         // 复杂计算
         const subtotal = items.reduce(
@@ -153,45 +148,12 @@ function CartSummary() {
 }
 ```
 
-## 性能对比
-
-```tsx
-// 不使用 Memo - 每次父组件更新时都重渲染
-function ExpensiveComponentWithoutMemo() {
-  const data = useStoreValue(dataStore);
-  console.log("昂贵计算运行中..."); // 每次渲染都运行
-
-  const processedData = data.items
-    .filter((item) => item.value > data.threshold)
-    .map((item) => ({ ...item, processed: Math.pow(item.value, 2) }));
-
-  return <div>处理了 {processedData.length} 个项目</div>;
-}
-
-// 使用 Memo - 只有依赖变化时才重渲染
-function ExpensiveComponentWithMemo() {
-  return (
-    <Memo watch={() => dataStore.value}>
-      {(data) => {
-        console.log("昂贵计算运行中..."); // 只有数据变化时才运行
-
-        const processedData = data.items
-          .filter((item) => item.value > data.threshold)
-          .map((item) => ({ ...item, processed: Math.pow(item.value, 2) }));
-
-        return <div>处理了 {processedData.length} 个项目</div>;
-      }}
-    </Memo>
-  );
-}
-```
-
 ## 最佳实践
 
-✅ **用于昂贵计算** - 适用于有重计算的组件
+✅ **用于昂贵计算** - 适合包含大量计算的组件
 
 ```tsx
-// 好 - 受益于记忆化的昂贵计算
+// Good - 昂贵计算受益于缓存
 <Memo watch={() => dataStore.value}>
   {(data) => {
     const expensiveResult = heavyComputation(data);
@@ -203,16 +165,16 @@ function ExpensiveComponentWithMemo() {
 ❌ **不要用于频繁变化的数据**
 
 ```tsx
-// 坏 - 计数器变化频繁，记忆化无用
+// Bad - 计数器频繁变化，使用缓存帮助不大
 <Memo watch={() => counterStore.value.count}>
   {(count) => <div>{count}</div>}
 </Memo>
 ```
 
-✅ **明确依赖** - 只监听影响渲染输出的数据
+✅ **明确依赖项** - 只监听影响渲染输出的数据
 
 ```tsx
-// 好 - 特定依赖
+// Good - 明确依赖项
 <Memo
   watch={() => ({ items: store.value.items, threshold: store.value.threshold })}
 >
@@ -222,17 +184,17 @@ function ExpensiveComponentWithMemo() {
 </Memo>
 ```
 
-## 何时使用 Memo 与其他选项
+## 何时使用 Memo vs 其他选项
 
-| 使用场景           | 推荐方法                     | 原因                           |
-| ------------------ | ---------------------------- | ------------------------------ |
-| 昂贵计算           | `<Memo>`                     | 缓存防止重复计算               |
-| 简单 store 访问    | `usePick` 或 `useStoreValue` | 简单情况下开销更少             |
-| 副作用             | `useWatch` 或 `useWatchEffect` | Memo 用于渲染，不是副作用      |
-| 始终变化的数据     | 常规组件                     | 如果数据频繁变化，记忆化无帮助 |
+| 使用场景        | 推荐方式                       | 原因                        |
+| --------------- | ------------------------------ | --------------------------- |
+| 昂贵计算        | `<Memo>`                       | 缓存避免重复计算            |
+| 简单 store 访问 | `usePick` 或 `useStoreValue`   | 简单情况下开销更少          |
+| 副作用          | `useWatch` 或 `useWatchEffect` | Memo 用于渲染，不适合副作用 |
+| 频繁变化的数据  | 普通组件                       | 数据频繁变化时缓存无效      |
 
-## 相关内容
+## 相关文档
 
-- [`<Watch>`](./Watch) - 无记忆化的渲染属性组件
-- [`useComputed`](../hooks/useComputed) - 计算响应式值
-- [`useStoreValue`](../hooks/useStoreValue) - 直接 store 订阅
+- [`<Watch>`](./Watch) - 无缓存的响应式渲染组件
+- [`useComputed`](../hooks/useComputed) - 响应式更新的计算值
+- [`useStoreValue`](../hooks/useStoreValue) - 同步 store 最新状态

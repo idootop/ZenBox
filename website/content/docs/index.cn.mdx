@@ -1,42 +1,42 @@
 ---
-title: 介绍
-description: ZenBox 是一个现代化的 React 状态管理库，结合了 Zustand 的简洁性和 Vue 的响应式模式
+title: 简介
+description: 一个轻量的 React 状态管理库，结合了 Zustand 的简洁和 Vue 的响应式写法
 icon: BookOpen
 ---
 
-> 像 Vue 一样编写 React 💚，像 Zustand 一样管理状态 🐻
+> 像 Vue 一样写 React 💚，像 Zustand 一样管理状态 🐻
 
 ![ZenBox](/banners/default.png)
 
 ## 什么是 ZenBox？
 
-ZenBox 是一个现代化的 React 状态管理库，它将 Zustand 的简洁性与 Vue 的响应式模式完美结合。为熟悉这两个框架的开发者提供了直观自然的 API 体验。
+ZenBox 是一个现代化的 React 状态管理库，它将 Zustand 的简洁与 Vue 的响应式写法完美结合。
 
-**完美适合热爱 Zustand 和 Vue 的开发者！**
+用起来既简单又符合直觉，**让你写 React 像写 Vue 一样爽！**
 
-### 🐻 Zustand 的简洁性
+**如果你喜欢 Zustand 和 Vue，你一定会喜欢 ZenBox！**
+
+### 🐻 像 Zustand 一样简单
 
 ```ts
-const counter = createStore({ count: 0 });
-
-counter.setState((state) => ({ count: state.count + 1 }));
+const counter = createStore({ count: 0 }); // 自动类型推导，无需手写 interface
 ```
 
-### 💚 Vue 风格的响应式
+### 💚 像 Vue 一样熟悉的写法
 
 ```ts
 const doubled = useComputed(() => counter.value.count * 2);
 
 useWatch(
   () => counter.value.count,
-  (current, prev) => console.log("变化了！", current, prev)
+  (current, prev) => console.log("从", prev, "变为", current)
 );
 ```
 
 ## 核心特性
 
-- 🚀 **零学习成本** - 直观的 API，立即上手
-- ⚡ **高性能** - 细粒度响应式更新，自动优化
-- 💪 **完整 TypeScript 支持** - 开箱即用的完整类型推断
-- 🎯 **灵活架构** - 支持全局和组件级作用域状态
-- 📦 **轻量级** - 压缩后小于 3KB，[100 行核心代码](../blog/react-state-management-in-100-lines)
+- 🚀 **简单** - 像 Vue 一样简单，上手即用
+- ⚡ **高效** - 自动依赖追踪，按需 re-render
+- 💪 **安全** - 自动类型推导，无需手写 interface
+- 🎯 **灵活** - 支持全局和组件级状态隔离，多 Store 联合计算
+- 📦 **轻量** - [100 行核心代码](../blog/react-state-management-in-100-lines)，压缩后小于 3KB（不含 Immer）

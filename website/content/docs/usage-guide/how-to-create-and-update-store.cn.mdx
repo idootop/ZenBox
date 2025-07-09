@@ -1,40 +1,42 @@
 ---
 title: 创建和更新 Store
-description: Store 创建和状态管理的最佳实践
+description: 创建和更新 Store 的最佳实践
 icon: Box
 ---
 
-## 带操作的 Store（推荐）
+## 封装 Store 操作（推荐）
 
-将状态修改逻辑封装在 store 操作中，以获得更清洁、更易维护的代码：
+推荐将状态修改逻辑封装在 store 里集中管理，使状态修改逻辑与组件分离，代码更清晰、易于维护。
 
 ```tsx
 const counterStore = createStore({
   count: 0,
   increment() {
+    // 使用 store 实例直接修改状态
     counterStore.setState((state) => {
       state.count++;
     });
   },
+  // 支持异步操作
   async incrementAsync() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // 访问当前状态
+
+    // 使用 store.value 访问当前状态
     const currentCount = counterStore.value.count;
-    
-    // 调用其他 store 操作
+
+    // 也可以直接调用 store 下的其他方法
     counterStore.value.increment();
   },
 });
 
-// 使用方式
+// 在组件里或任何地方都可以通过 store.value 直接调用 store 下的方法
 counterStore.value.increment();
 await counterStore.value.incrementAsync();
 ```
 
 ## 状态更新模式
 
-为以下示例定义一个复杂的带操作的 store：
+首先，我们定义一个复杂的带方法的 store：
 
 ```tsx
 const userStore = createStore({
@@ -56,7 +58,7 @@ const userStore = createStore({
 
 ### 1. Immer 风格更新（推荐）
 
-使用草稿变更进行复杂的嵌套更新：
+支持使用 Immer 风格进行嵌套对象的复杂更新，非常直观：
 
 ```tsx
 userStore.setState((state) => {
@@ -65,15 +67,9 @@ userStore.setState((state) => {
 });
 ```
 
-**何时使用：**
-- 更新嵌套状态属性
-- 带操作的 store（操作是状态的一部分）
-- 复杂状态转换
-
-这种方法消除了冗长的展开：
+这样你就不用通过 `store.value` 访问当前状态，然后写成这样：
 
 ```tsx
-// 避免这种冗长的模式
 userStore.setState({
   ...userStore.value,
   followers: userStore.value.followers + 1,
@@ -87,7 +83,7 @@ userStore.setState({
 });
 ```
 
-### 2. 原生方式使用 `store.setState`
+### 2. 使用 `store.setState` 直接赋值
 
 ```tsx
 const counterStore = createStore({ count: 0 });
@@ -97,41 +93,37 @@ counterStore.setState({
 });
 ```
 
-这种方式对于简单状态更新更方便，但对于复杂状态更新较为麻烦，需要手动展开整个状态。
+这种方式对于简单状态更新很方便，但对于复杂状态更新较为麻烦，需要手动展开整个状态。
 
-对于带操作的 store 的示例：
+比如，更新一个带方法的 store：
 
 ```tsx
 userStore.setState({
-  ...userStore.value, // 展开整个状态包括原始操作
+  ...userStore.value, // 展开原来的状态，包含 store 里的方法
   followers: userStore.value.followers + 1, // 更新 followers
 });
 ```
 
-### 3. 部分状态更新
+### 3. 更新部分状态
 
-幸运的是，ZenBox 允许你这样更新部分状态：
+幸运的是，ZenBox 允许你这样更新部分状态，非常方便：
 
 ```tsx
 userStore.setState({
   name: "李四",
   followers: userStore.value.followers + 1,
-  age: 18, // 无效果，新属性会被忽略
+  age: 18, // 注意：新属性会被忽略，不会 merge 到当前的状态里
 });
 ```
 
-提供的新状态对象将与原始状态合并。
-
-真是救星！
-
 **注意：**
 
-- 只支持第一层状态的合并
-- 如果要更新嵌套状态，需要使用 Immer 方式的 `store.setState`
+- 只支持第一层属性的合并
+- 如果要更新嵌套状态，推荐使用 Immer 风格更新
 
-### 4. 使用 `store.value = x` 更新状态
+### 4. 直接赋值
 
-或者你可以使用更直观的 `store.value = x` 方式更新状态。
+或者你也可以使用更直观的 `store.value = x` 方式更新状态。
 
 ```tsx
 userStore.value = {
@@ -146,7 +138,7 @@ userStore.value = {
 };
 ```
 
-与 `store.setState(x)` 相同，你也可以使用 `store.value = x` 更新部分状态。
+与 `store.setState(x)` 相同，支持更新部分状态。
 
 ```tsx
 userStore.value = {
@@ -157,5 +149,5 @@ userStore.value = {
 
 **注意：**
 
-- 虽然部分状态更新更简洁，但理解起来更容易混淆
-- 我们推荐使用 Immer 方式更新部分状态
+- 虽然部分状态更新更简洁，但理解起来更容易误解
+- 推荐使用 Immer 风格更新部分状态，更直观

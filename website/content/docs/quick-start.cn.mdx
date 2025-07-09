@@ -1,6 +1,6 @@
 ---
 title: 快速开始
-description: 几分钟内快速上手 ZenBox
+description: 3 分钟快速上手 ZenBox
 icon: Rocket
 ---
 
@@ -21,6 +21,9 @@ npm install zenbox
 使用 `createStore` 创建带有初始状态的 store：
 
 ```tsx
+import { createStore } from "zenbox";
+
+// 自动类型推导，无需手写 interface
 const counterStore = createStore({ count: 0 });
 ```
 
@@ -42,7 +45,7 @@ const count = counterStore.value.count;
 
 ### 更新状态
 
-使用 `store.setState` 更新状态（内置 Immer）：
+使用 `store.setState` 更新状态（支持 Immer 的写法）：
 
 ```tsx
 counterStore.setState((state) => {
@@ -59,6 +62,8 @@ counterStore.setState((state) => {
 使用 `useStoreValue` 订阅状态变化：
 
 ```tsx
+import { useStoreValue } from "zenbox";
+
 function Counter() {
   const { count } = useStoreValue(counterStore);
 
@@ -70,8 +75,8 @@ function Counter() {
 
   return (
     <div>
-      <p>计数: {count}</p>
-      <button onClick={increment}>递增</button>
+      <p>Count: {count}</p>
+      <button onClick={increment}>增加</button>
     </div>
   );
 }
@@ -81,7 +86,7 @@ function Counter() {
 
 <div className="fd-step">
 
-### Vue 风格的响应式
+### 像 Vue 一样的写法
 
 使用 Vue 风格的 hooks 进行响应式编程：
 
@@ -89,20 +94,20 @@ function Counter() {
 function DoubleCount() {
   const doubleCount = useComputed(() => counterStore.value.count * 2);
 
-  return <p>双倍计数: {doubleCount}</p>;
+  return <p>doubleCount: {doubleCount}</p>;
 }
 
 function CountWatcher() {
   useWatch(
     () => counterStore.value.count,
     (current, prev) => {
-      console.log("计数从", prev, "变为", current);
+      console.log("从", prev, "变为", current);
     }
   );
 
   useWatchEffect(() => {
     if (counterStore.value.count > 10) {
-      console.log("计数超过 10！");
+      console.log("count 超过 10");
     }
   });
 
@@ -114,4 +119,4 @@ function CountWatcher() {
 
 </div>
 
-**下一步：** 查看[使用指南](./usage-guide/how-to-create-and-update-store)了解高级模式和最佳实践。
+**下一步：** 查看[使用指南](./usage-guide/how-to-create-and-update-store)了解更多用法和最佳实践。

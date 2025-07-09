@@ -17,7 +17,7 @@ Perfect for state that should be **isolated per component instance**:
 ### Syntax
 
 ```tsx
-const [Provider, useStore, storeActions] = createProvider(initialState);
+const [Provider, useFindStore, storeActions] = createProvider(initialState);
 ```
 
 ### Parameters
@@ -29,7 +29,7 @@ const [Provider, useStore, storeActions] = createProvider(initialState);
 A tuple containing:
 
 - `Provider`: React component that provides isolated store instance to children
-- `useStore`: Hook to access the store instance within provider tree
+- `useFindStore`: Hook to access the store instance within provider tree
 - `storeActions`: Utility object with `getStore`, `getState`, `setState` methods
 
 ## Examples
@@ -172,16 +172,9 @@ function App() {
 function App() {
   return (
     <SessionProvider>
-      <div className="app">
-        {/* Each modal has isolated state */}
-        <Modal defaultTitle="Settings" />
-        <Modal defaultTitle="User Profile" />
-
-        {/* Each game instance is independent */}
-        <GameProvider>
-          <GameComponent />
-        </GameProvider>
-      </div>
+      <GameProvider>
+        <GameComponent />
+      </GameProvider>
     </SessionProvider>
   );
 }

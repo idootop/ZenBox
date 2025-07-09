@@ -34,7 +34,7 @@ interface Listener<T, V = T> {
   onChange: (current: V, prev: V) => void;
 }
 
-const identity = <T,>(state: T) => state;
+const identity = <T>(state: T) => state;
 
 export class XStore<T extends Record<string, any>> {
   constructor(private _state: T) {}
@@ -52,7 +52,7 @@ export class XStore<T extends Record<string, any>> {
       listener.prev = current;
     }
   };
-  subscribe = <V = T,>(options: {
+  subscribe = <V = T>(options: {
     onChange: (current: V, prev: V) => void;
     select?: (state: T) => V;
     equal?: (a: V, b: V) => boolean;
@@ -145,16 +145,12 @@ const Counter = () => {
       };
     },
   });
-
+  
   const increment = () => {
-    // Get the current state
+    // Get current state value
     const count = counterStore.value.count;
-
-    // Update the state
-    counterStore.setState({
-      ...counterStore.value,
-      count: count + 1,
-    });
+    // Update state value
+    counterStore.setState({ count: count + 1 });
   };
 
   return (

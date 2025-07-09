@@ -1,28 +1,32 @@
 ---
 title: useStoreValue
-description: 订阅 store 变化并自动触发组件重渲染
+description: 订阅 store 变化并自动触发组件重新渲染
 ---
 
-## 语法
+## API 参考
+
+### 语法
 
 ```tsx
 const state = useStoreValue(store, options?)
 ```
 
-## 参数
+### 参数
 
 - `store`: ZenBox store 实例
 - `options` (可选):
-  - `pick`: 要选择性监听的键数组
-  - `deep`: 为嵌套对象启用深度相等检查
+  - `pick`: 用于选择性订阅的属性名称数组
+  - `deep`: 启用深度比较以处理嵌套对象（默认：false）
 
-## 返回值
+### 返回值
 
-根据 `pick` 选项返回当前 store 状态或选定字段。
+当前 store 状态，或使用 `pick` 选项时返回选定的属性。
 
-## 快速开始
+## 示例
 
-### 订阅整个 Store
+### 完整 Store 订阅
+
+订阅所有 store 状态变化以实现完整响应式更新：
 
 ```tsx
 import { createStore, useStoreValue } from "zenbox";
@@ -34,6 +38,7 @@ const userStore = createStore({
 });
 
 function UserProfile() {
+  // useStore 的任意属性发生变化，都会触发重新渲染
   const user = useStoreValue(userStore);
 
   return (
@@ -48,9 +53,11 @@ function UserProfile() {
 
 ### 选择性订阅
 
+仅订阅所需属性以优化性能：
+
 ```tsx
 function UserName() {
-  // 只有 'name' 变化时才重渲染
+  // 仅在 'name' 变化时重新渲染
   const { name } = useStoreValue(userStore, {
     pick: ["name"],
   });
@@ -59,15 +66,45 @@ function UserName() {
 }
 
 function UserContact() {
-  // 只有 'name' 或 'email' 变化时才重渲染
+  // 仅在 'name' 或 'email' 变化时重新渲染
   const { name, email } = useStoreValue(userStore, {
     pick: ["name", "email"],
   });
 
   return (
     <div>
-      <p>{name}</p>
-      <p>{email}</p>
+      <p>姓名: {name}</p>
+      <p>邮箱: {email}</p>
+    </div>
+  );
+}
+```
+
+### 深度比较
+
+对于需要深度比较的复杂嵌套对象：
+
+```tsx
+const settingsStore = createStore({
+  theme: {
+    colors: { primary: "#blue", secondary: "#gray" },
+    typography: { fontSize: 16, fontFamily: "Arial" },
+  },
+  preferences: {
+    notifications: true,
+    autoSave: false,
+  },
+});
+
+function ThemeDisplay() {
+  const { theme } = useStoreValue(settingsStore, {
+    pick: ["theme"],
+    deep: true, // 启用深度比较，避免不必要的重新渲染
+  });
+
+  return (
+    <div style={{ color: theme.colors.primary }}>
+      主题: {theme.colors.primary}
     </div>
   );
 }
@@ -75,22 +112,48 @@ function UserContact() {
 
 ## 最佳实践
 
-1. **使用 `pick` 提升性能** - 只订阅你使用的字段
-2. **优先使用 `usePick`** - 对于简单字段选择更简洁
-3. **将相关字段组合在一起** 而不是使用分离的 hooks
-4. **除非必要避免深度监听** - 比浅层监听开销更大
+✅ **大型 store 使用选择性订阅**
 
-## 与其他 Hooks 的对比
+```tsx
+// Good：仅订阅所需属性
+const { name, status } = useStoreValue(largeStore, {
+  pick: ["name", "status"],
+});
+```
 
-| Hook            | 用途                         | 重渲染 |
-| --------------- | ---------------------------- | ------ |
-| `useStoreValue` | 订阅 store 变化              | ✅ 是  |
-| `useWatch`      | 使用回调监听变化             | ❌ 否  |
-| `usePick`       | 选择性订阅的简写             | ✅ 是  |
-| `useComputed`   | 创建计算的响应式值           | ✅ 是  |
+❌ **仅需要特定属性时避免完整订阅**
 
-## 相关内容
+```tsx
+// 低效：订阅所有状态变化
+const store = useStoreValue(largeStore);
+return <div>{store.name}</div>; // 仅使用 name，但订阅了所有状态
+```
 
-- [`usePick`](./usePick) - 字段选择的便捷简写
-- [`useWatch`](./useWatch) - 无重渲染的变化监听
-- [`useComputed`](./useComputed) - 创建计算的响应式值
+✅ **性能优先使用浅层监听**
+
+```tsx
+// 默认的浅层比较能够满足大多数情况
+const user = useStoreValue(userStore);
+```
+
+❌ **非必要时不要使用深度监听**
+
+```tsx
+// 昂贵：仅在需要深度对象比较时使用
+const data = useStoreValue(store, { deep: true });
+```
+
+## Hook 比较
+
+| Hook            | 用途                     | 重新渲染 | 最适用于        |
+| --------------- | ------------------------ | -------- | --------------- |
+| `useStoreValue` | 完整 store 订阅          | ✅ 是    | 所有 store 状态 |
+| `usePick`       | 选择性属性订阅           | ✅ 是    | 特定属性        |
+| `useComputed`   | 响应式更新的计算值       | ✅ 是    | 计算数据        |
+| `useWatch`      | 监听状态变化并执行副作用 | ❌ 否    | 日志、API       |
+
+## 相关 Hook
+
+- [`usePick`](./usePick) - 按需订阅 store 指定状态变化
+- [`useComputed`](./useComputed) - 响应式更新的计算值
+- [`useWatch`](./useWatch) - 监听状态变化并执行副作用

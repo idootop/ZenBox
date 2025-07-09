@@ -1,18 +1,26 @@
 ---
-title: 隔离状态的 Provider
-description: 为组件作用域的 store 创建上下文提供者
+title: Provider 与状态隔离
+description: 为组件作用域的 store 创建上下文 Provider
 icon: Network
 ---
 
-## 为隔离状态创建 Provider
+## 为什么使用 Provider？
 
-你可以使用 `createProvider` 为在组件树内共享的 store 创建提供者。
+Provider 可以用来创建组件隔离的 store 实例，非常适合独立状态的组件。
+
+比如弹窗、Tabs 或任何多次出现的组件。
+
+## 创建 Provider
+
+你可以使用 `createProvider` 创建 Provider。
+
+它返回一个 Provider 组件、一个获取 store 实例的 hook 和获取当前 store 的操作方法。
 
 ```tsx
 const [Provider, useFindStore, storeActions] = createProvider(initialState);
 ```
 
-例如，你可以这样为带有 `操作` 的作用域 store 创建提供者：
+举个例子：
 
 ```tsx
 const [CounterStoreProvider, useFindCounterStore, storeActions] =
@@ -33,22 +41,23 @@ const [CounterStoreProvider, useFindCounterStore, storeActions] =
 
 **注意：**
 
-- `storeActions` **只能**在初始状态的 `操作` 函数内使用
-- 你可以使用 `useFindStore` 从提供者获取 store 实例
-- 这与 Vue 的 `provide` 和 `inject` 模式非常相似
+- `storeActions` **只能**在初始状态里的方法中访问，不要导出给外部使用
+- 你可以使用 `useFindStore` 从 Provider 获取 store 实例
+- 这与 Vue 的 `provide` / `inject` 模式非常相似
 
-## 用提供者包装你的组件树
+## 初始化 Provider
 
-你可以向不同的 store 提供者传递不同的初始状态，它们彼此隔离。
+你可以向不同的 Provider 传递不同的初始值（可选），它们彼此隔离。
 
 ```tsx
 function App() {
   return (
     <Tabs>
-      <CounterStoreProvider initialState={{ count: 111 }}>
+      <CounterStoreProvider initialState={{ count: 100 }}>
         <Counter />
       </CounterStoreProvider>
-      <CounterStoreProvider initialState={{ count: 222 }}>
+
+      <CounterStoreProvider initialState={{ count: 200 }}>
         <Counter />
       </CounterStoreProvider>
     </Tabs>
@@ -56,25 +65,21 @@ function App() {
 }
 ```
 
-## 从提供者获取 store 实例
+## 使用 Provider 中的 Store 实例
 
 ```tsx
 function Counter() {
-  // 首先，从提供者获取 store 实例
+  // 首先，从 Provider 获取 store 实例
   const counterStore = useFindCounterStore();
 
-  // 然后，像普通 store 一样使用 store 实例
+  // 然后，像普通 store 一样使用即可
   const { count } = useStoreValue(counterStore);
 
   return (
     <>
       <p>计数: {count}</p>
-      <button onClick={counterStore.value.increment}>递增</button>
+      <button onClick={counterStore.value.increment}>增加</button>
     </>
   );
 }
 ```
-
-你已经了解了如何使用 `createProvider` 为带有 `操作` 的作用域 store 创建提供者。
-
-就是这样。享受吧！

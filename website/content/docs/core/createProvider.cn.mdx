@@ -1,42 +1,45 @@
 ---
 title: createProvider
-description: 为组件作用域的 store 创建上下文提供者，适用于在组件树内共享的隔离状态
+description: 创建组件隔离的 store，适用于局部状态管理
 ---
 
-## 语法
+## 何时使用 Provider
+
+适用于需要**按组件实例隔离**的状态：
+
+- 模态框或对话框状态
+- 不应持久化的表单状态
+- 不应全局化的功能特定状态
+
+## API 参考
+
+### 语法
 
 ```tsx
-const [Provider, useStore, storeActions] = createProvider(initialState);
+const [Provider, useFindStore, storeActions] = createProvider(initialState);
 ```
 
-## 参数
+### 参数
 
-- `initialState`: store 的初始状态对象
+- `initialState`: 定义 store 初始状态和操作的对象
 
-## 返回值
+### 返回值
 
-一个包含以下内容的元组：
+包含以下内容的元组：
 
-- `Provider`: 为其子组件提供 store 的 React 组件
-- `useStore`: 在提供者树内访问 store 实例的 Hook
-- `storeActions`: 包含实用函数的对象（`getStore`、`getState`、`setState`）
+- `Provider`: 为子组件提供隔离 store 实例的 React 组件
+- `useFindStore`: 在 provider 树中访问 store 实例的 hook
+- `storeActions`: 包含 `getStore`、`getState`、`setState` 方法的工具对象
 
-## 核心特性
+## 示例
 
-- **组件作用域状态**: 每个提供者创建自己的隔离 store 实例
-- **状态隔离**: 多个实例之间不会相互干扰
-- **灵活初始化**: 可以为每个提供者实例覆盖初始状态
-- **基于上下文**: 使用 React Context 进行高效更新
-
-## 快速开始
-
-### 简单提供者设置
+### 简单隔离状态
 
 ```tsx
 import { createProvider, useStoreValue } from "zenbox";
 
-// 为用户会话状态创建提供者
-const [SessionProvider, useSessionStore] = createProvider({
+// 为每个 provider 创建隔离的会话状态
+const [SessionProvider, useFindSessionStore] = createProvider({
   user: null,
   isAuthenticated: false,
   sessionId: null,
@@ -47,10 +50,7 @@ const [SessionProvider, useSessionStore] = createProvider({
 });
 
 function UserProfile() {
-  // 从提供者上下文获取 store 实例
-  const store = useSessionStore();
-
-  // 订阅特定 store 值以实现响应式更新
+  const store = useFindSessionStore();
   const { user, isAuthenticated } = useStoreValue(store);
 
   if (!isAuthenticated) {
@@ -60,7 +60,7 @@ function UserProfile() {
   return (
     <div>
       <h1>欢迎，{user.name}！</h1>
-      <p>会话 ID: {store.value.sessionId}</p>
+      <p>会话ID: {store.value.sessionId}</p>
     </div>
   );
 }
@@ -74,10 +74,10 @@ function App() {
 }
 ```
 
-### 使用 Store 操作
+### 带操作的 Provider
 
 ```tsx
-const [GameProvider, useGameStore, gameActions] = createProvider({
+const [GameProvider, useFindGameStore, gameActions] = createProvider({
   // 状态
   score: 0,
   level: 1,
@@ -85,16 +85,17 @@ const [GameProvider, useGameStore, gameActions] = createProvider({
   gameState: "playing" as "playing" | "paused" | "gameOver",
 
   // 操作
-  increaseScore: (points) => {
+  increaseScore(points) {
     gameActions.setState((state) => {
       state.score += points;
-      // 每 1000 分升一级
+      // 每1000分自动升级
       if (state.score >= state.level * 1000) {
         state.level += 1;
       }
     });
   },
-  loseLife: () => {
+
+  loseLife() {
     gameActions.setState((state) => {
       state.lives -= 1;
       if (state.lives <= 0) {
@@ -102,38 +103,38 @@ const [GameProvider, useGameStore, gameActions] = createProvider({
       }
     });
   },
-  resetGame: () => {
-    gameActions.setState({
-      ...gameActions.getState(),
-      score: 0,
-      level: 1,
-      lives: 3,
-      gameState: "playing",
+
+  resetGame() {
+    gameActions.setState((state) => {
+      state.score = 0;
+      state.level = 1;
+      state.lives = 3;
+      state.gameState = "playing";
     });
   },
 });
 
 function GameComponent() {
-  const store = useGameStore();
+  const store = useFindGameStore();
   const { score, level, lives, gameState } = useStoreValue(store);
 
   return (
     <div className="game">
-      <div className="game-hud">
-        <span>分数: {score}</span>
+      <div className="hud">
+        <span>得分: {score}</span>
         <span>等级: {level}</span>
         <span>生命: {lives}</span>
       </div>
 
       {gameState === "gameOver" ? (
         <div className="game-over">
-          <h2>游戏结束！</h2>
-          <button onClick={store.value.resetGame}>再玩一次</button>
+          <h2>游戏结束！最终得分: {score}</h2>
+          <button onClick={store.value.resetGame}>重新开始</button>
         </div>
       ) : (
         <div className="game-area">
           <button onClick={() => store.value.increaseScore(100)}>
-            得分
+            +100 分
           </button>
           <button onClick={store.value.loseLife}>失去生命</button>
         </div>
@@ -142,23 +143,95 @@ function GameComponent() {
   );
 }
 
+// 多个独立的游戏实例
 function App() {
   return (
-    <GameProvider>
-      <GameComponent />
-    </GameProvider>
+    <div className="app">
+      <h1>游戏竞技场</h1>
+
+      <div className="games">
+        <GameProvider>
+          <h2>玩家 1</h2>
+          <GameComponent />
+        </GameProvider>
+
+        <GameProvider>
+          <h2>玩家 2</h2>
+          <GameComponent />
+        </GameProvider>
+      </div>
+    </div>
   );
 }
 ```
 
+### 嵌套 Provider
+
+```tsx
+function App() {
+  return (
+    <SessionProvider>
+      <GameProvider>
+        <GameComponent />
+      </GameProvider>
+    </SessionProvider>
+  );
+}
+```
+
+## Provider vs 全局 Store
+
+| 特性         | createProvider     | createStore        |
+| ------------ | ------------------ | ------------------ |
+| **作用域**   | 组件树             | 全局应用           |
+| **隔离性**   | ✅ 完全隔离        | ❌ 应用间共享      |
+| **上下文**   | ✅ React Context   | ❌ 直接访问        |
+| **多实例**   | ✅ 独立            | ❌ 单一实例        |
+| **适用于** | 模态框、表单、组件 | 应用状态、用户数据 |
+
 ## 最佳实践
 
-1. **用于隔离状态** - 适用于需要自己状态的模态框、标签页、表单
-2. **使用有意义的默认值初始化** - 提供合理的初始状态
-3. **保持提供者专注** - 每个逻辑组件或功能一个提供者
+✅ **用于真正隔离的状态**
 
-## 相关内容
+```tsx
+// Good：弹窗状态不应在实例间共享
+const [ModalProvider, useModal] = createProvider({
+  isOpen: false,
+  step: 1,
+});
+```
 
-- [`createStore`](./createStore) - 创建全局 store
-- [`useStoreValue`](../hooks/useStoreValue) - 订阅 store 变化
-- [`usePick`](../hooks/usePick) - 从 store 中选择特定字段
+✅ **使用有意义的默认值初始化**
+
+```tsx
+<GameProvider initialState={{
+  difficulty: "hard",
+  playerName: "匿名"
+}}>
+```
+
+✅ **保持 provider 专注**
+
+```tsx
+// Good：单一职责
+const [FormProvider, useForm] = createProvider({
+  values: {},
+  errors: {},
+  isSubmitting: false,
+});
+```
+
+❌ **不要用于全局状态**
+
+```tsx
+// Bad：用户认证应该是全局的，无需使用 provider 隔离
+const [AuthProvider] = createProvider({
+  currentUser: null,
+});
+```
+
+## 相关 API
+
+- [`createStore`](./createStore) - 全局 store 创建
+- [`useStoreValue`](../hooks/useStoreValue) - 同步 store 最新状态
+- [`useComputed`](../hooks/useComputed) - 响应式更新的计算值

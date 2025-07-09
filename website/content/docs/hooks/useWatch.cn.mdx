@@ -1,51 +1,110 @@
 ---
 title: useWatch
-description: 监听响应式数据源，当变化发生时执行回调。**不会**触发组件重渲染
+description: 在响应式数据变化时执行副作用，不会触发组件重新渲染
 ---
 
-## 语法
+## API 参考
+
+### 语法
 
 ```tsx
 const currentValue = useWatch(watchSource, callback, options?)
 ```
 
-## 参数
+### 参数
 
-- `watchSource`: 要监听的 Store 实例、计算函数或源数组
-- `callback`: 监听数据变化时执行的函数。可以返回一个清理函数
+- `watchSource`: 要监听的 store 实例、计算函数或源数组
+- `callback`: 监听数据变化时执行的函数（可返回清理函数）
 - `options` (可选):
-  - `immediate`: 立即执行回调，使用当前值
-  - `once`: 只执行一次回调，然后停止监听
-  - `deep`: 对嵌套对象使用深度相等检查
+  - `immediate`: 立即使用当前值执行回调（默认：false）
+  - `once`: 仅执行一次回调，然后停止监听（默认：false）
+  - `deep`: 启用深度比较以处理嵌套对象（默认：false）
 
-## 快速开始
+### 返回值
+
+- `currentValue`: 监听源的最新状态值
+
+## 配置选项
+
+### 立即执行
+
+```tsx
+useWatch(
+  () => userStore.value.preferences,
+  (preferences) => {
+    applyUserPreferences(preferences);
+  },
+  { immediate: true } // 构建组件时立即执行回调
+);
+```
+
+### 只执行一次
+
+```tsx
+useWatch(
+  () => userStore.value.isLoggedIn,
+  (isLoggedIn) => {
+    if (isLoggedIn) {
+      console.log("检测到首次登录！");
+      showWelcomeMessage();
+    }
+  },
+  { once: true } // 仅触发一次
+);
+```
+
+### 深度比较
+
+```tsx
+const configStore = createStore({
+  api: {
+    endpoints: { users: "/api/users", orders: "/api/orders" },
+    timeout: 5000,
+  },
+});
+
+useWatch(
+  () => configStore.value.api,
+  (apiConfig, prevApiConfig) => {
+    console.log("API 配置已更改");
+    reinitializeApiClient(apiConfig);
+  },
+  { deep: true } // 深度比较，以避免不必要的副作用执行
+);
+```
+
+## 示例
 
 ### 监听 Store 变化
 
-```tsx
-import { createStore, useWatch } from "zenbox";
+跟踪 store 变化用于日志、分析或外部 API 调用：
 
+```tsx
 const counterStore = createStore({ count: 0 });
 
 function Counter() {
-  // 监听 store 变化而不重渲染
+  // 仅监听变化，不触发重新渲染
   useWatch(counterStore, (current, prev) => {
-    console.log("计数器变化:", current.count, "之前是:", prev.count);
+    console.log(`计数: ${prev.count} → ${current.count}`);
+
+    // 跟踪分析，比如埋点
+    analytics.track("counter_changed", {
+      from: prev.count,
+      to: current.count,
+    });
   });
 
   return (
-    <button
-      onClick={() => {
-        counterStore.setState((s) => s.count++);
-      }}
-    >
-      递增
+    <button onClick={() => counterStore.setState((s) => s.count++)}>
+      增加
     </button>
   );
 }
 ```
 
 ### 监听计算值
+
+监控计算值的业务逻辑：
 
 ```tsx
 const userStore = createStore({
@@ -54,188 +113,170 @@ const userStore = createStore({
   age: 30,
 });
 
-function UserWatcher() {
-  // 监听计算值
+function UserTracker() {
+  // 监听全名变化
   useWatch(
     () => `${userStore.value.firstName}${userStore.value.lastName}`,
     (fullName, prevFullName) => {
-      console.log(`姓名从 "${prevFullName}" 改为 "${fullName}"`);
-    }
-  );
-
-  // 监听年龄变化的特定逻辑
-  useWatch(
-    () => userStore.value.age,
-    (age, prevAge) => {
-      if (age >= 18 && prevAge < 18) {
-        console.log("用户成年了！");
+      if (prevFullName) {
+        console.log(`姓名更新: "${prevFullName}" → "${fullName}"`);
+        api.updateUserProfile({ fullName });
       }
     }
   );
 
-  return <div>监听用户变化...</div>;
+  // 监听年龄里程碑
+  useWatch(
+    () => userStore.value.age,
+    (age, prevAge) => {
+      if (age >= 18 && prevAge < 18) {
+        console.log("用户已成年！");
+        unlockAdultFeatures();
+      }
+    }
+  );
+
+  return <div>正在跟踪用户变化...</div>;
 }
 ```
 
 ### 监听多个源
 
+同时监听多个 store 的变化：
+
 ```tsx
 const userStore = createStore({ name: "张三", role: "user" });
 const settingsStore = createStore({ theme: "light", language: "zh" });
 
-function MultiSourceWatcher() {
+function AppWatcher() {
   useWatch(
-    () => [userStore, settingsStore],
+    () => [userStore.value, settingsStore.value] as const,
     ([user, settings], [prevUser, prevSettings]) => {
-      if (user.role !== prevUser.role) {
-        console.log(`角色变化: ${prevUser.role} → ${user.role}`);
+      // 基于角色的逻辑
+      if (user.role !== prevUser?.role) {
+        console.log(`角色变化: ${prevUser?.role} → ${user.role}`);
+        redirectBasedOnRole(user.role);
       }
 
-      if (settings.theme !== prevSettings.theme) {
-        console.log(`主题变化: ${prevSettings.theme} → ${settings.theme}`);
+      // 主题持久化
+      if (settings.theme !== prevSettings?.theme) {
+        console.log(`主题: ${prevSettings?.theme} → ${settings.theme}`);
         document.body.className = settings.theme;
+        localStorage.setItem("theme", settings.theme);
       }
     }
   );
 
-  return <div>监听多个 store...</div>;
+  return <div>监控应用状态...</div>;
 }
 ```
 
-### 带清理功能
+### 清理函数
 
-回调函数可以可选地返回一个清理函数，该函数将在下次回调运行之前或组件卸载时执行：
-
-```tsx
-useWatch(
-  () => store.value.userId,
-  (userId, prevUserId) => {
-    // 设置副作用
-    const subscription = subscribeToUser(userId);
-
-    // 返回清理函数
-    return () => {
-      subscription.unsubscribe();
-    };
-  }
-);
-```
-
-## 选项
-
-### 立即执行
+常用于管理订阅、定时器和外部资源等场景：
 
 ```tsx
-useWatch(
-  () => userStore.value.name,
-  (name) => console.log("当前姓名:", name),
-  { immediate: true } // 立即执行，使用当前值
-);
-```
+function WebSocketManager() {
+  useWatch(
+    () => userStore.value.connectionId,
+    (connectionId, prevConnectionId) => {
+      if (!connectionId) return;
 
-### 一次性监听器
+      console.log(`连接到: ${connectionId}`);
+      const ws = new WebSocket(`ws://api.com/${connectionId}`);
 
-```tsx
-useWatch(
-  () => userStore.value.isLoggedIn,
-  (isLoggedIn) => {
-    if (isLoggedIn) {
-      console.log("用户首次登录！");
+      ws.onopen = () => console.log("已连接");
+      ws.onmessage = (event) => handleMessage(event.data);
+      ws.onerror = (error) => console.error("WebSocket 错误:", error);
+
+      // 清理函数 - 在下次变化或卸载时自动调用
+      return () => {
+        console.log(`断开连接: ${connectionId}`);
+        ws.close();
+      };
     }
-  },
-  { once: true } // 只执行一次
-);
-```
+  );
 
-### 深度相等检查
-
-`deep` 选项使用深度相等比较来确定监听值是否真正发生了变化。这可以防止当嵌套对象被重新创建但包含相同值时不必要的回调执行。
-
-```tsx
-const appStore = createStore({
-  user: {
-    profile: { name: "张三", avatar: "avatar.jpg" },
-  },
-});
-
-useWatch(
-  () => appStore.value.user,
-  (user, prevUser) => {
-    console.log("用户对象引用变化，但内容不同");
-  },
-  { deep: true }
-);
-
-// 示例：这不会触发回调，因为深层内容相同
-appStore.setState((state) => {
-  // 创建具有相同内容的新对象
-  state.user = {
-    profile: { name: "张三", avatar: "avatar.jpg" },
-  };
-});
-
-// 示例：这会触发回调，因为深层内容不同
-appStore.setState((state) => {
-  state.user.profile.name = "李四";
-});
+  return <div>WebSocket 管理器已激活</div>;
+}
 ```
 
 ## 最佳实践
 
-✅ **仅用于副作用** - 不用于影响渲染的组件状态
+✅ **仅用于副作用**
 
 ```tsx
-// 好 - 副作用
+// Good：外部副作用
 useWatch(
   () => store.value.theme,
   (theme) => {
     document.body.className = theme;
+    localStorage.setItem("theme", theme);
   }
 );
 ```
 
-❌ **不要用于渲染状态**
+❌ **不要用于组件状态**
 
 ```tsx
-// 坏 - 使用 useStoreValue 代替
+// Bad：不必要的间接状态
 const [displayValue, setDisplayValue] = useState("");
 useWatch(
   () => store.value.data,
-  (data) => setDisplayValue(data)
+  (data) => {
+    setDisplayValue(data); // 应该使用 useStoreValue 替代
+  }
 );
 ```
 
-✅ **明确监听器**
+✅ **明确监听指定属性变化**
 
 ```tsx
-// 好 - 特定字段
+// Good：监听特定属性
 useWatch(
-  () => userStore.value.name,
-  (name) => updateTitle(name)
+  () => userStore.value.email,
+  (email) => {
+    validateEmail(email);
+  }
 );
 ```
 
-❌ **避免监听大对象**
+❌ **避免监听所有状态**
 
 ```tsx
-// 坏 - 任何变化都会触发
+// Bad：任何 store 变化都会触发
 useWatch(
   () => largeStore.value,
-  (store) => console.log("变化了")
+  (store) => {
+    console.log("某些内容变化了"); // 太宽泛了
+  }
 );
 ```
 
-## 与其他 Hooks 的对比
+✅ **始终清理资源**
 
-| Hook             | 用途                     | 重渲染 | 使用场景                     |
-| ---------------- | ------------------------ | ------ | ---------------------------- |
-| `useWatch`       | 变化时执行回调           | ❌ 否  | 副作用、日志记录、API 调用   |
-| `useWatchEffect` | 响应式副作用             | ❌ 否  | 自动跟踪依赖                 |
-| `useStoreValue`  | 订阅 store 变化          | ✅ 是  | 组件状态同步                 |
-| `useComputed`    | 计算响应式值             | ✅ 是  | 用于渲染的派生状态           |
+```tsx
+// Good：正确清理
+useWatch(
+  () => store.value.intervalMs,
+  (ms) => {
+    const interval = setInterval(doSomething, ms);
+    return () => clearInterval(interval);
+  }
+);
+```
 
-## 相关内容
+## Hook 比较
 
-- [`useStoreValue`](./useStoreValue) - 带重渲染的变化订阅
-- [`useWatchEffect`](./useWatchEffect) - 自动跟踪的响应式副作用
-- [`useComputed`](./useComputed) - 创建计算响应式值
+| Hook             | 用途                       | 重新渲染 | 自动跟踪 | 最适用于   |
+| ---------------- | -------------------------- | -------- | -------- | ---------- |
+| `useWatch`       | 监听状态变化并执行副作用   | ❌ 否    | ❌ 否    | 特定副作用 |
+| `useWatchEffect` | 自动追踪依赖的响应式副作用 | ❌ 否    | ✅ 是    | 一般副作用 |
+| `useStoreValue`  | 同步 store 最新状态        | ✅ 是    | ❌ 否    | UI 状态    |
+| `useComputed`    | 响应式更新的计算值         | ✅ 是    | ✅ 是    | 计算数据   |
+
+## 相关 Hook
+
+- [`useWatchEffect`](./useWatchEffect) - 自动跟踪响应式副作用
+- [`useStoreValue`](./useStoreValue) - 同步 store 最新状态
+- [`useComputed`](./useComputed) - 响应式更新的计算值

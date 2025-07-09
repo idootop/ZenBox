@@ -1,49 +1,72 @@
 ---
 title: usePick
-description: useStoreValue 选择性字段订阅的便捷简写
+description: 按需订阅 store 指定状态变化
 ---
 
-## 语法
+## 为什么使用 usePick？
+
+专为**性能优化**而设计 - 仅在实际使用的特定属性发生变化时才重新渲染。
+
+### 性能比较
+
+```tsx
+const userStore = createStore({
+  name: "张三",
+  age: 30,
+  email: "zhangsan@example.com",
+  avatar: "avatar.jpg",
+  preferences: { theme: "dark", language: "zh" },
+  lastLogin: new Date(),
+});
+
+// ❌ Bad：任何 store 状态变化都会触发重新渲染
+function UserName() {
+  const user = useStoreValue(userStore);
+  return <h1>{user.name}</h1>; // 仅使用 name，但订阅了所有状态
+}
+
+// ✅ Good：仅在 name 变化时重新渲染
+function OptimizedUserName() {
+  const { name } = usePick(userStore, "name");
+  return <h1>{name}</h1>; // 只订阅需要的属性
+}
+```
+
+## API 参考
+
+### 语法
 
 ```tsx
 const selectedFields = usePick(store, ...keys);
 const selectedFields = usePickDeeply(store, ...keys); // 深度相等检查
 ```
 
-## 参数
+### 参数
 
 - `store`: ZenBox store 实例
-- `...keys`: 要从 store 中选择的字段名
+- `...keys`: 要从 store 中选择的属性名称
 
-## 返回值
+### 返回值
 
-只包含从 store 中选定字段的对象。
+仅包含从 store 中选择的属性的对象。
 
-## 快速开始
+## 示例
 
-### 单字段选择
+### 单个属性
 
 ```tsx
-import { createStore, usePick } from "zenbox";
-
-const userStore = createStore({
-  name: "张三",
-  age: 30,
-  email: "zhangsan@example.com",
-  avatar: "avatar.jpg",
-  isOnline: true,
-});
-
 function UserName() {
+  // 仅在 name 变化时重新渲染
   const { name } = usePick(userStore, "name");
-  return <h1>{name}</h1>; // 只有 'name' 变化时才重渲染
+  return <h1>{name}</h1>;
 }
 ```
 
-### 多字段选择
+### 多个属性
 
 ```tsx
 function UserContact() {
+  // 仅在 name 或 email 变化时重新渲染
   const { name, email } = usePick(userStore, "name", "email");
 
   return (
@@ -51,18 +74,80 @@ function UserContact() {
       <h2>{name}</h2>
       <p>邮箱: {email}</p>
     </div>
-  ); // 只有 'name' 或 'email' 变化时才重渲染
+  );
 }
 ```
 
+### 深度比较
+
+对于需要深度比较的嵌套对象：
+
+```tsx
+const settingsStore = createStore({
+  theme: {
+    colors: { primary: "#blue", secondary: "#gray" },
+    fonts: { heading: "Arial", body: "Helvetica" },
+  },
+  notifications: {
+    email: true,
+    push: false,
+  },
+});
+
+function ThemeSettings() {
+  // 启用深度比较，避免不必要的重新渲染
+  const { theme } = usePickDeeply(settingsStore, "theme");
+
+  return (
+    <div
+      style={{
+        color: theme.colors.primary,
+        fontFamily: theme.fonts.heading,
+      }}
+    >
+      当前主题配置
+    </div>
+  );
+}
+```
+
+## usePick vs useStoreValue
+
+| 方法                     | 代码                                                | 性能                    |
+| ------------------------ | --------------------------------------------------- | ----------------------- |
+| **usePick**              | `usePick(store, "name", "email")`                   | ✅ 最佳 - 仅特定属性    |
+| **useStoreValue + pick** | `useStoreValue(store, { pick: ["name", "email"] })` | ✅ 相同性能，更冗长     |
+| **useStoreValue**        | `useStoreValue(store)`                              | ❌ 任何变化都会重新渲染 |
+
 ## 最佳实践
 
-1. **保持字段列表最小** - 只选择你实际使用的字段
-2. **优先使用 `usePick` 而不是 `useStoreValue`** - 对于字段选择更简洁
-3. **将相关字段组合在一起** 而不是分离的 hooks
+✅ **明确属性选择**
 
-## 相关内容
+```tsx
+// ❌ Bad：不选择任何属性（等同于 useStoreValue）
+const { name } = usePick(userStore);
 
-- [`useStoreValue`](./useStoreValue) - 带选项的完整 store 订阅
-- [`useWatch`](./useWatch) - 无重渲染的变化监听
-- [`useComputed`](./useComputed) - 创建计算响应式值
+// ❌ Bad：选择太多属性
+const { name } = usePick(userStore, "name", "age", "email", "avatar");
+
+// ✅ Good：仅选择所需属性
+const { name, status } = usePick(userStore, "name", "status");
+```
+
+✅ **将相关属性分组**
+
+```tsx
+// ❌ Bad：过于细粒度
+const { name } = usePick(userStore, "name");
+const { email } = usePick(userStore, "email");
+const { age } = usePick(userStore, "age");
+
+// ✅ Good：分组相关属性
+const { name, email, age } = usePick(userStore, "name", "email", "age");
+```
+
+## 相关 Hook
+
+- [`useStoreValue`](./useStoreValue) - 同步 store 最新状态
+- [`useComputed`](./useComputed) - 响应式更新的计算值
+- [`useWatch`](./useWatch) - 监听状态变化并执行副作用

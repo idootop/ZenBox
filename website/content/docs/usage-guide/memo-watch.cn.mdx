@@ -1,56 +1,61 @@
 ---
 title: Memo / Watch
-description: 用于记忆化子组件和订阅状态变化的便捷组件
+description: 优化 UI 渲染和订阅状态变化
 icon: Zap
 ---
 
-## Memo
+## Memo 组件
 
-类似 `React.memo`，你可以使用 `Memo` 包装子树并记忆化它。
+类似 `React.memo`，你可以使用 `Memo` 包裹子树并将构建结果缓存起来。
 
-只有当监听的值发生变化时，子树才会重新渲染，对于昂贵的 UI 渲染很有用。
+只有当监听的值发生变化时，子树才会重新渲染，对于计算代价较高的组件渲染性能优化很有用。
 
 ```tsx
 <Memo watch={counterStore}>
   {() => {
-    // ✅ 整个子树将被记忆化，只有当 store 变化时才重新渲染
-    return <SubTree />;
+    // ✅ 整个子树将被缓存，只有当 store 变化时才重新渲染
+    return <ExpensiveSubTree />;
   }}
 </Memo>
 ```
 
-你也可以监听任何计算值并将其与子树关联。
+你也可以监听任何计算值并将其传递给子树使用。
 
 ```tsx
 <Memo
   watch={() => ({
     count: counterStore.value.count,
-    name: userStore.value.name,
+    userName: userStore.value.name,
   })}
 >
-  {({ count, name }) => <SubTree count={count} name={name} />}
+  {({ count, userName }) => <ExpensiveChart count={count} user={userName} />}
 </Memo>
 ```
 
-## Watch
+## Watch 组件
 
-类似 `Memo`，但它不记忆化子组件，会在状态变化时重新渲染。
+类似 `Memo` 组件，但它不缓存子组件，会在状态变化时重新渲染。
 
-当你想在状态变化时重新渲染子树时很有用。
+当你想在指定状态变化时，重新渲染子树很有用。
 
 ```tsx
 <Watch watch={counterStore}>{(count) => <p>计数: {count}</p>}</Watch>
 ```
 
-你也可以监听任何计算值并将其与子树关联。
+你也可以监听任何计算值并将其传递给子树使用。
 
 ```tsx
 <Watch
   watch={() => ({
     count: counterStore.value.count,
-    name: userStore.value.name,
+    status: userStore.value.isOnline ? "在线" : "离线",
   })}
 >
-  {({ count, name }) => <SubTree count={count} name={name} />}
+  {({ count, status }) => (
+    <div>
+      <span>计数: {count}</span>
+      <span>状态: {status}</span>
+    </div>
+  )}
 </Watch>
 ```

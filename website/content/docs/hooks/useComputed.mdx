@@ -112,7 +112,7 @@ const doubled = useComputed(() => store.value.count * 2);
 
 ```tsx
 // ❌ Bad: Depends on entire user object
-const fullName = useComputed(() => userStore.value);
+const { name } = useComputed(() => userStore.value);
 
 // ✅ Good: Only depends on name property
 const userName = useComputed(() => userStore.value.name.toUpperCase());

@@ -1,29 +1,27 @@
 ---
 title: useComputed
-description: 创建在依赖变化时自动更新的计算响应式值
+description: 创建响应式计算值，在依赖项变化时自动更新
 ---
 
-## 语法
+## API 参考
+
+### 语法
 
 ```tsx
 const computedValue = useComputed(compute, options?)
 ```
 
-## 参数
+### 参数
 
-- `compute`: 要计算的函数或值
+- `compute`: 返回计算值的函数
 - `options` (可选):
-  - `deep`: 为嵌套对象/数组启用深度相等检查
+  - `deep`: 启用深度相等检查以处理嵌套对象/数组（默认：false）
 
-## 核心特性
-
-- **自动依赖跟踪**: 跟踪访问的 store
-- **触发重渲染**: 依赖变化时引起组件重渲染
-- **多 Store 支持**: 可以组合来自多个 store 的数据
-
-## 快速开始
+## 示例
 
 ### 简单计算值
+
+响应式转换 store 数据，自动检测依赖项。
 
 ```tsx
 import { createStore, useComputed } from "zenbox";
@@ -35,25 +33,30 @@ const userStore = createStore({
 });
 
 function UserProfile() {
-  const fullName = useComputed(() => {
-    return `${userStore.value.firstName}${userStore.value.lastName}`;
-  });
+  // 在 userStore 的任意属性发生变化时，自动重新计算，仅在 fullName 变化时才会触发重新渲染
+  const fullName = useComputed(
+    () => `${userStore.value.firstName}${userStore.value.lastName}`
+  );
 
   const ageGroup = useComputed(() => {
     const age = userStore.value.age;
-    return age < 18 ? "未成年" : age < 65 ? "成年人" : "老年人";
+    if (age < 18) return "未成年";
+    if (age < 65) return "成年";
+    return "老年";
   });
 
   return (
     <div>
       <h1>{fullName}</h1>
-      <p>年龄组: {ageGroup}</p>
+      <p>年龄段: {ageGroup}</p>
     </div>
   );
 }
 ```
 
-### 多 Store 计算
+### 跨 Store 组合
+
+轻松组合多个 store 的数据 - 依赖项自动跟踪。
 
 ```tsx
 const cartStore = createStore({
@@ -69,11 +72,12 @@ const settingsStore = createStore({
 });
 
 function CartSummary() {
-  const subtotal = useComputed(() => {
-    return cartStore.value.items.reduce((sum, item) => {
-      return sum + item.price * item.quantity;
-    }, 0);
-  });
+  const subtotal = useComputed(() =>
+    cartStore.value.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    )
+  );
 
   const total = useComputed(() => {
     const discount = subtotal * settingsStore.value.discountPercent;
@@ -92,46 +96,39 @@ function CartSummary() {
 
 ## 最佳实践
 
-✅ **保持计算纯净** - 无副作用
+✅ **保持计算纯净** - 无副作用，仅进行数据转换
 
 ```tsx
-const good = useComputed(() => store.value.count * 2);
-```
-
-❌ **不要执行副作用**
-
-```tsx
+// ❌ Bad：有副作用
 const bad = useComputed(() => {
   localStorage.setItem("count", store.value.count); // 副作用！
   return store.value.count;
 });
+
+// ✅ Good：仅进行数据转换
+const doubled = useComputed(() => store.value.count * 2);
 ```
 
-✅ **明确依赖**
+✅ **只依赖需要的属性**
 
 ```tsx
-const specific = useComputed(() => userStore.value.name.toUpperCase());
+// ❌ Bad：依赖整个用户对象
+const { name } = useComputed(() => userStore.value);
+
+// ✅ Good：仅依赖名称属性
+const userName = useComputed(() => userStore.value.name.toUpperCase());
 ```
 
-❌ **避免广泛依赖**
+## Hook 比较
 
-```tsx
-const broad = useComputed(() => {
-  const user = userStore.value; // 依赖整个用户对象
-  return user.name.toUpperCase(); // 只需要 name
-});
-```
+| Hook            | 用途             | 触发重新渲染 | 使用场景             |
+| --------------- | ---------------- | ------------ | -------------------- |
+| `useComputed`   | 派生响应式值     | ✅ 是        | 数据转换、计算属性   |
+| `useStoreValue` | 直接订阅状态变化 | ✅ 是        | 原始 store 访问      |
+| `useWatch`      | 变化时的副作用   | ❌ 否        | 日志、分析、外部 API |
 
-## 与其他 Hooks 的对比
+## 相关 Hook
 
-| Hook            | 用途               | 重渲染 |
-| --------------- | ------------------ | ------ |
-| `useComputed`   | 计算响应式值       | ✅ 是  |
-| `useStoreValue` | 直接 store 订阅    | ✅ 是  |
-| `useWatch`      | 变化时的副作用     | ❌ 否  |
-
-## 相关内容
-
-- [`useStoreValue`](./useStoreValue) - 直接 store 订阅
-- [`useWatch`](./useWatch) - 使用回调监听变化
-- [`useWatchEffect`](./useWatchEffect) - 响应式副作用
+- [`useStoreValue`](./useStoreValue) - 同步 store 最新状态
+- [`useWatch`](./useWatch) - 监听状态变化并执行副作用
+- [`useWatchEffect`](./useWatchEffect) - 自动追踪依赖的响应式副作用
