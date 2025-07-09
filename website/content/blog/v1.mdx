@@ -1,34 +1,199 @@
 ---
-title: ZenBox v1.0.0
-description: Release ZenBox v1.0.0
-date: 2025-07-07
+title: "Introducing ZenBox v1.0.0"
+description: "🎉 We're thrilled to announce the release of ZenBox v1.0.0!"
+date: 2025-07-14
 ---
 
-The ZenBox v1.0.0 is a major release that introduces a new way to manage state in React.
+After months of development and refinement, we're finally ready to share ZenBox with the world. This isn't just another state management library - it's a paradigm shift that brings the best of Vue's reactivity model to React with the simplicity that Zustand developers love.
 
-## Quick Start
+## ✨ What Makes ZenBox Special?
+
+ZenBox was born from a simple question: "What if managing React state could feel as natural as Vue's reactivity?"
+
+We wanted to create something that would make developers smile every time they used it.
+
+### 🎯 The Perfect Fusion
+
+**Love Zustand's simplicity?** ✅ We kept that.  
+**Miss Vue's reactivity in React?** ✅ We brought that.  
+**Want TypeScript that just works?** ✅ We built that.
+
+## 🚀 Getting Started
 
 ```npm
 npm install zenbox
 ```
 
-## Example
+### Basic Example
 
 ```tsx
 import { createStore, useStoreValue } from "zenbox";
 
+// Create a store with full TypeScript inference
 const counterStore = createStore({ count: 0 });
 
-const Counter = () => {
+function Counter() {
   const count = useStoreValue(counterStore);
-  return <div>{count}</div>;
-};
+
+  const increment = () => {
+    counterStore.setState((state) => {
+      state.count++;
+    });
+  };
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>Increment</button>
+    </div>
+  );
+}
 ```
 
-## Features
+### Vue-like Reactivity
 
-- 🚀 **Easy to Use** - Minimal learning curve
-- 💪 **TypeScript Support** - Complete type safety
-- ⚡ **High Performance** - Fine-grained reactive updates
-- 🎯 **Flexible** - Supports both global and local state management
-- 🔄 **Immutable Updates** - Built-in Immer support
+```tsx
+function AdvancedCounter() {
+  // Computed values that auto-update
+  const doubled = useComputed(() => counterStore.value.count * 2);
+
+  // Watch for changes with cleanup
+  useWatch(
+    () => counterStore.value.count,
+    (current, prev) => {
+      console.log(`Count changed from ${prev} to ${current}`);
+
+      // Return cleanup function
+      return () => console.log("Cleanup!");
+    }
+  );
+
+  return <div>Doubled: {doubled}</div>;
+}
+```
+
+## 🌟 Key Features
+
+### 🏗️ **Direct State Mutation (Immer Built-in)**
+
+Write natural code that feels intuitive:
+
+```tsx
+// ✅ ZenBox - Natural and readable
+counterStore.setState((state) => {
+  state.count++;
+  state.lastUpdated = Date.now();
+});
+
+// ❌ Traditional React - Verbose and error-prone
+setCounter((prev) => ({
+  ...prev,
+  count: prev.count + 1,
+  lastUpdated: Date.now(),
+}));
+```
+
+### 🔮 **Smart Computed Values**
+
+Cross-store computations that just work:
+
+```tsx
+const userStore = createStore({ name: "Alice" });
+const settingsStore = createStore({ theme: "dark" });
+
+// Computed value automatically tracks dependencies
+const greeting = useComputed(
+  () => `Hello ${userStore.value.name}! Theme: ${settingsStore.value.theme}`
+);
+```
+
+### 💪 **TypeScript Superpowers**
+
+Zero configuration, maximum type safety:
+
+```tsx
+// Full auto-inference - no interfaces needed!
+const store = createStore({
+  user: { name: "Alice", age: 30 },
+  settings: { theme: "dark" as "light" | "dark", notifications: true },
+});
+
+// TypeScript knows the exact shape
+store.value.user.name; // ✅ string
+store.value.settings.theme; // ✅ "light" | "dark"
+```
+
+### 🎪 **Local Store Scoping**
+
+Perfect for component-level state:
+
+```tsx
+function TodoList() {
+  return (
+    <TodoStoreProvider initialState={{ todos: ["hello world"] }}>
+      <TodoInput />
+      <TodoItems />
+    </TodoStoreProvider>
+  );
+}
+```
+
+## 📊 Performance & Bundle Size
+
+- **Lightweight core** - Under 100 lines of core code
+- **Smart re-renders** - Efficient change detection and selective updates
+- **Bundle size** - < 3KB gzipped (core), < 10KB gzipped with Immer
+
+## 🔥 Migration Guide
+
+### From Zustand
+
+```tsx
+// Zustand
+const useStore = create((set) => ({
+  count: 0,
+  increment: () => set((state) => ({ count: state.count + 1 })),
+}));
+
+// ZenBox
+const store = createStore({
+  count: 0,
+  increment() {
+    store.setState((state) => {
+      state.count++;
+    });
+  },
+});
+```
+
+### From Redux/Context
+
+```tsx
+// Redux/Context
+const [state, dispatch] = useReducer(reducer, initialState);
+
+// ZenBox
+const store = createStore(initialState);
+// Direct mutations with setState!
+```
+
+## 💝 Community & Support
+
+- 📚 **Documentation**: [https://zenbox.del.wang](https://zenbox.del.wang)
+- 🐙 **GitHub**: [idootop/ZenBox](https://github.com/idootop/ZenBox)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/idootop/ZenBox/discussions)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/idootop/ZenBox/issues)
+
+## 🎊 Try ZenBox Today!
+
+We believe ZenBox will transform how you think about React state management.
+
+```npm
+npm install zenbox
+```
+
+**Ready to experience state management that feels like magic?** ✨
+
+---
+
+_Built with ❤️ by [Del Wang](https://del.wang) and the ZenBox community_

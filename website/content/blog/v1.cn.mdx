@@ -1,0 +1,195 @@
+---
+title: "ZenBox v1.0.0 发布"
+description: "🎉 我们非常激动地宣布 ZenBox v1.0.0 正式发布！"
+date: 2025-07-14
+---
+
+经过数月的开发和完善，我们终于准备好与世界分享 ZenBox。
+
+## ✨ ZenBox 的特别之处
+
+ZenBox 源于一个简单的问题："如果管理 React 状态能像 Vue 的响应式一样自然会怎样？"
+
+**我们想要创造一些能让开发者每次使用时都感到愉悦的东西。**
+
+这不仅仅是另一个状态管理库，而是一种范式的转变：
+
+将 Vue 响应式模型的最佳特性带到 React 中，同时保持 Zustand 开发者喜爱的简洁性。
+
+## 🚀 快速开始
+
+```npm
+npm install zenbox
+```
+
+### 基础示例
+
+```tsx
+import { createStore, useStoreValue } from "zenbox";
+
+// 自动推导类型，无需手写 interface
+const counterStore = createStore({ count: 0 });
+
+function Counter() {
+  const count = useStoreValue(counterStore);
+
+  const increment = () => {
+    counterStore.setState((state) => {
+      state.count++;
+    });
+  };
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>Increment</button>
+    </div>
+  );
+}
+```
+
+### Vue 般的开发体验
+
+```tsx
+function AdvancedCounter() {
+  // 自动更新的计算值
+  const doubled = useComputed(() => counterStore.value.count * 2);
+
+  // 监听变化并处理清理
+  useWatch(
+    () => counterStore.value.count,
+    (current, prev) => {
+      console.log(`计数从 ${prev} 变为 ${current}`);
+
+      // 返回清理函数
+      return () => console.log("清理完成！");
+    }
+  );
+
+  return <div>Double: {doubled}</div>;
+}
+```
+
+## 🌟 核心特性
+
+### 🏗️ **Immer 风格的状态更新**
+
+```tsx
+// ✅ ZenBox - 自然且易读
+counterStore.setState((state) => {
+  state.count++;
+  state.lastUpdated = Date.now();
+});
+
+// ❌ 传统 React - 冗长且容易出错
+setCounter((prev) => ({
+  ...prev,
+  count: prev.count + 1,
+  lastUpdated: Date.now(),
+}));
+```
+
+### 🔮 **智能计算值**
+
+跨 store 计算，开箱即用：
+
+```tsx
+const userStore = createStore({ name: "Alice" });
+const settingsStore = createStore({ theme: "dark" });
+
+// 计算值自动追踪依赖
+const greeting = useComputed(
+  () => `你好 ${userStore.value.name}！主题: ${settingsStore.value.theme}`
+);
+```
+
+### 💪 **TypeScript 超能力**
+
+零配置，最大类型安全：
+
+```tsx
+// 完全自动推断 - 无需接口！
+const store = createStore({
+  user: { name: "Alice", age: 30 },
+  settings: { theme: "dark" as "light" | "dark", notifications: true },
+});
+
+// TypeScript 知道确切的类型
+store.value.user.name; // ✅ string
+store.value.settings.theme; // ✅ "light" | "dark"
+```
+
+### 🎪 **局部 Store 作用域**
+
+完美的组件级状态管理：
+
+```tsx
+function TodoList() {
+  return (
+    <TodoStoreProvider initialState={{ todos: ["hello world"] }}>
+      <TodoInput />
+      <TodoItems />
+    </TodoStoreProvider>
+  );
+}
+```
+
+## 📊 性能与包大小
+
+- **轻量核心**: 不到 100 行代码
+- **按需更新**: 只有使用状态变更的组件才会重新渲染
+- **包大小**: < 3KB gzipped (核心), < 10KB gzipped (含 Immer)
+
+## 🔥 迁移指南
+
+### 从 Zustand 迁移
+
+```tsx
+// Zustand
+const useStore = create((set) => ({
+  count: 0,
+  increment: () => set((state) => ({ count: state.count + 1 })),
+}));
+
+// ZenBox
+const store = createStore({
+  count: 0,
+  increment() {
+    store.setState((state) => {
+      state.count++;
+    });
+  },
+});
+```
+
+### 从 Redux/Context 迁移
+
+```tsx
+// Redux/Context
+const [state, dispatch] = useReducer(reducer, initialState);
+
+// ZenBox
+const store = createStore(initialState);
+// 使用 setState 直接更新！
+```
+
+## 💝 社区与支持
+
+- 📚 **文档**: [https://zenbox.del.wang](https://zenbox.del.wang)
+- 🐙 **GitHub**: [idootop/ZenBox](https://github.com/idootop/ZenBox)
+- 💬 **讨论**: [GitHub Discussions](https://github.com/idootop/ZenBox/discussions)
+- 🐛 **问题反馈**: [GitHub Issues](https://github.com/idootop/ZenBox/issues)
+
+## 🎊 今天就试试 ZenBox！
+
+我们相信 ZenBox 将改变你对 React 状态管理的看法。
+
+```npm
+npm install zenbox
+```
+
+**准备好体验像魔法一样的状态管理了吗？** ✨
+
+---
+
+_由 [Del Wang](https://del.wang) 和 ZenBox 社区用 ❤️ 创造_
