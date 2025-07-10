@@ -80,9 +80,9 @@ You can also watch multiple stores at the same time.
 
 ```tsx
 useWatch(
-  () => [counterStore, userStore] as const, // ✅ use `as const` to infer the type
+  () => [counterStore.value, userStore.value] as const, // ✅ use `as const` to infer the type
   ([counter, user]) => {
-    console.log("counter and user changed", counter.value, user.value);
+    console.log("counter and user changed", counter.count, user.name);
   }
 );
 ```

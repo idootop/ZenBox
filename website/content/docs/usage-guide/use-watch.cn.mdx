@@ -78,9 +78,9 @@ useWatch(
 
 ```tsx
 useWatch(
-  () => [counterStore, userStore] as const, // ✅ 使用 `as const` 推断类型
+  () => [counterStore.value, userStore.value] as const, // ✅ 使用 `as const` 推断类型
   ([counter, user]) => {
-    console.log("counter 和 user 变化了", counter.value, user.value);
+    console.log("counter 和 user 变化了", counter.count, user.name);
   }
 );
 ```
