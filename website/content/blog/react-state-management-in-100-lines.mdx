@@ -45,7 +45,7 @@ export class XStore<T extends Record<string, any>> {
   setState = (newState: T | ((prev: Readonly<T>) => T)) => {
     this._state =
       typeof newState === "function" ? newState(this._state) : newState;
-    for (const listener of this._writeListeners) {
+    for (const listener of this._listeners) {
       const current = listener.select(this._state);
       if (listener.equal(listener.prev, current)) continue; // no changes
       listener.onChange(current, listener.prev);
@@ -69,25 +69,25 @@ export function useWatch<
   V = { [K in keyof S]: S[K]["value"] }
 >(options: {
   stores: S;
-  select?: (...store: { [K in keyof S]: S[K]["value"] }) => V;
+  select?: (...states: { [K in keyof S]: S[K]["value"] }) => V;
   onChange: (current: V, prev: V) => void | VoidFunction;
   equal?: (a: V, b: V) => boolean;
 }): V {
   const { stores, onChange, select = identity, equal = shallowEqual } = options;
 
   const refs = useRef({
-    cleanup: null as null | void | VoidFunction,
-    prev: select(...(stores.map((store) => store.value) as any)),
+    cleanup: null as null | VoidFunction,
+    prev: select(...stores.map((store) => store.value)),
     ...{ stores, onChange, select, equal },
   });
   refs.current = { ...refs.current, stores, onChange, select, equal };
 
   const check = useCallback(() => {
     const { prev, select, equal, onChange, cleanup, stores } = refs.current;
-    const current = select(...(stores.map((store) => store.value) as any));
-    if (equal(prev as V, current as V)) return; // no changes
+    const current = select(...stores.map((store) => store.value));
+    if (equal(prev, current)) return; // no changes
     cleanup?.(); // cleanup previous effect
-    refs.current.cleanup = onChange(current as V, prev as V);
+    refs.current.cleanup = onChange(current, prev) || null;
     refs.current.prev = current;
   }, []);
 
@@ -103,7 +103,7 @@ export function useWatch<
     };
   }, [...stores]);
 
-  return refs.current.prev as V;
+  return refs.current.prev;
 }
 
 export function useComputed<
@@ -111,7 +111,7 @@ export function useComputed<
   V = { [K in keyof S]: S[K]["value"] }
 >(options: {
   stores: S;
-  select?: (...store: { [K in keyof S]: S[K]["value"] }) => V;
+  select?: (...states: { [K in keyof S]: S[K]["value"] }) => V;
   equal?: (a: V, b: V) => boolean;
 }) {
   const { stores, select, equal } = options;
@@ -126,14 +126,12 @@ export function useComputed<
 Small but mighty. XStore packs all the core React state management features into just 100 lines:
 
 ```tsx
-import { XStore } from "xstore";
-
 const counterStore = new XStore({ count: 0 });
 
 const Counter = () => {
   const doubleCount = useComputed({
     stores: [counterStore],
-    select: (store) => store.value.count * 2,
+    select: (state) => state.count * 2,
   });
 
   useWatch({
@@ -145,7 +143,7 @@ const Counter = () => {
       };
     },
   });
-  
+
   const increment = () => {
     // Get current state value
     const count = counterStore.value.count;
