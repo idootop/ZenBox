@@ -1,12 +1,12 @@
 import type { ZenBox } from '../core.js';
 import type { Prettify } from '../utils.js';
-import { useStoreValue } from './useStoreValue.js';
+import { useStore } from './useStore.js';
 
 export function usePick<
   S extends ZenBox<any>,
   const K extends (keyof S['value'])[],
 >(store: S, ...picks: K) {
-  return useStoreValue(store, {
+  return useStore(store, {
     deep: false,
     pick: picks.length === 0 ? undefined : picks,
   }) as unknown as K extends []
@@ -18,7 +18,7 @@ export function usePickDeeply<
   S extends ZenBox<any>,
   const K extends (keyof S['value'])[],
 >(store: S, ...picks: K) {
-  return useStoreValue(store, {
+  return useStore(store, {
     deep: true,
     pick: picks.length === 0 ? undefined : picks,
   }) as unknown as K extends []

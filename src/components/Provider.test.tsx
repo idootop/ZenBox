@@ -3,7 +3,7 @@ import { act, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { useComputed } from '../hooks/useComputed.js';
-import { useStoreValue } from '../hooks/useStoreValue.js';
+import { useStore } from '../hooks/useStore.js';
 import { createProvider } from './Provider.js';
 
 describe('createProvider', () => {
@@ -69,7 +69,7 @@ describe('createProvider', () => {
 
     function TestChild() {
       const store = useFindStore();
-      const state = useStoreValue(store);
+      const state = useStore(store);
       return (
         <div>
           <div data-testid="count">{state.count}</div>
@@ -157,7 +157,7 @@ describe('createProvider', () => {
 
     function TestChild() {
       const store = useFindStore();
-      const state = useStoreValue(store);
+      const state = useStore(store);
       return (
         <div>
           <div data-testid="user">{JSON.stringify(state.user)}</div>
@@ -204,7 +204,7 @@ describe('createProvider', () => {
 
     function TestChild() {
       const store = useFindStore();
-      const { value } = useStoreValue(store);
+      const { value } = useStore(store);
       const doubledValue = useComputed(() => store.value.value * 2);
       const tripledValue = useComputed(() => store.value.triple());
       return (

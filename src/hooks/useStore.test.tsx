@@ -2,14 +2,27 @@ import { act, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { createStore } from '../core.js';
-import { useStoreValue } from './useStoreValue.js';
+import { useStore } from './useStore.js';
 
 function TestComponent({ store, options }: { store: any; options?: any }) {
-  const state = useStoreValue(store, options);
+  const state = useStore(store, options);
   return <div data-testid="state">{JSON.stringify(state)}</div>;
 }
 
-describe('useStoreValue', () => {
+function TestComponentWithSelector({
+  store,
+  selector,
+  options,
+}: {
+  store: any;
+  selector: (state: any) => any;
+  options?: any;
+}) {
+  const state = useStore(store, selector, options);
+  return <div data-testid="state">{JSON.stringify(state)}</div>;
+}
+
+describe('useStore', () => {
   it('should return current store state', () => {
     const store = createStore({ count: 42, name: 'Alice' });
 
@@ -95,5 +108,54 @@ describe('useStoreValue', () => {
     render(<TestComponent options={{ pick: [] }} store={store} />);
 
     expect(screen.getByTestId('state').textContent).toBe('{}');
+  });
+
+  describe('selector function', () => {
+    it('should work with selector function', () => {
+      const store = createStore({ count: 42, name: 'Alice', age: 25 });
+
+      render(
+        <TestComponentWithSelector
+          selector={(state) => state.count * 2}
+          store={store}
+        />,
+      );
+
+      expect(screen.getByTestId('state').textContent).toBe('84');
+    });
+
+    it('should not update when non-selected state changes', () => {
+      const store = createStore({ count: 0, name: 'Alice', age: 25 });
+      let renderCount = 0;
+
+      function CountingComponent() {
+        renderCount++;
+        const count = useStore(store, (state) => state.count);
+        return <div data-testid="state">{count}</div>;
+      }
+
+      render(<CountingComponent />);
+
+      expect(screen.getByTestId('state').textContent).toBe('0');
+      expect(renderCount).toBe(1);
+
+      act(() => {
+        store.setState((state) => {
+          state.name = 'Bob'; // should not trigger re-render
+        });
+      });
+
+      expect(screen.getByTestId('state').textContent).toBe('0');
+      expect(renderCount).toBe(1); // should not re-render
+
+      act(() => {
+        store.setState((state) => {
+          state.count = 1; // should trigger re-render
+        });
+      });
+
+      expect(screen.getByTestId('state').textContent).toBe('1');
+      expect(renderCount).toBe(2); // should re-render
+    });
   });
 });
