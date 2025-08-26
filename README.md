@@ -2,7 +2,7 @@
 
 ## What is ZenBox?
 
-ZenBox is a modern React state management library that combines the simplicity of Zustand with the reactive patterns of Vue. It provides an intuitive API that feels natural to developers familiar with either framework.
+ZenBox is a modern React state management library that combines the simplicity of Zustand with the reactive patterns of Vue.
 
 Love Zustand & Vue? Meet ZenBox ❤️
 
@@ -33,20 +33,17 @@ useWatch(
 
 ## Getting Started
 
-We believe ZenBox will transform how you think about React state management.
+👉 Visit [https://zenbox.del.wang](https://zenbox.del.wang) to view the full documentation.
 
 ```shell
 npm install zenbox
 ```
 
-**Ready to experience state management that feels like magic?** ✨
-
 ## Community & Support
 
-- 📚 **Documentation**: [https://zenbox.del.wang](https://zenbox.del.wang)
 - 🐙 **GitHub**: [idootop/ZenBox](https://github.com/idootop/ZenBox)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/idootop/ZenBox/discussions)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/idootop/ZenBox/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/idootop/ZenBox/discussions)
 
 ## ZenBox vs Zustand
 
