@@ -77,6 +77,8 @@ export function useStore<
 }
 
 /**
- * @deprecated Please use useStore instead, will be removed in v2.0
+ * @deprecated Please use `useStore` instead, will be removed in v2.0
+ *
+ * @link https://zenbox.del.wang/en/docs/hooks/useStore
  */
 export const useStoreValue = useStore;
