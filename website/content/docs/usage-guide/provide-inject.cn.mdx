@@ -1,0 +1,25 @@
+---
+title: useProvide / useInject
+description: 父子组件之间状态传递
+icon: Speech
+---
+
+就像 Vue 里的 `provide` 和 `inject`，ZenBox 也提供了 `useProvide` 和 `useInject`，方便父组件传递状态给子组件。
+
+```tsx
+function App() {
+  useProvide("count", 0); // 提供状态给子组件
+  return <Child />;
+}
+
+function Child() {
+  const count = useInject<number>("count"); // 读取状态值
+  return <div>Count: {count}</div>;
+}
+```
+
+## 注意
+
+- `useProvide` 会在组件卸载时自动清除状态。
+- `useInject` 读取的是 `useProvide` 提供的最新值，并非响应式。
+- `useProvide` 和 `useInject` 读写的是全局状态，并不是按组件树查找/隔离的。

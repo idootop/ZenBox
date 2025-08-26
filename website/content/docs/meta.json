@@ -12,6 +12,7 @@
     "usage-guide/use-watch",
     "usage-guide/memo-watch",
     "usage-guide/provider-for-isolated-state",
+    "usage-guide/provide-inject",
     "---API reference---",
     "core",
     "hooks",

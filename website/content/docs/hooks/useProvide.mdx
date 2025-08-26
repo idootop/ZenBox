@@ -1,0 +1,36 @@
+---
+title: useProvide
+description: Provide state to child components
+---
+
+## API Reference
+
+### Syntax
+
+```tsx
+useProvide("count", 0);
+```
+
+### Parameters
+
+- `key`: Global state key to provide to child components
+- `value`: State value
+
+## Example
+
+```tsx
+function App() {
+  useProvide("count", 0); // Provide state to child components
+  return <Child />;
+}
+
+function Child() {
+  const count = useInject<number>("count"); // Inject state
+  return <div>Count: {count}</div>;
+}
+```
+
+## Notes
+
+- `useProvide` automatically cleans up state on component unmount, no manual cleanup required.
+- `useProvide` and `useInject` operate on global state, not isolated by component tree.

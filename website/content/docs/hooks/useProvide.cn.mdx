@@ -1,0 +1,36 @@
+---
+title: useProvide
+description: 提供状态给子组件
+---
+
+## API 参考
+
+### 语法
+
+```tsx
+useProvide("count", 0);
+```
+
+### 参数
+
+- `key`: 要提供给子组件的全局状态的 key
+- `value`: 状态的值
+
+## 示例
+
+```tsx
+function App() {
+  useProvide("count", 0); // 提供状态给子组件
+  return <Child />;
+}
+
+function Child() {
+  const count = useInject<number>("count"); // 读取状态值
+  return <div>Count: {count}</div>;
+}
+```
+
+## 注意
+
+- `useProvide` 会在组件卸载时自动清理状态，无需手动清理。
+- `useProvide` 和 `useInject` 读写的是全局状态，并不是按组件树隔离的。

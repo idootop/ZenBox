@@ -5,11 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-08-26
+
+### ✨ Features
+
+- **`useBox`** - Introduces a Vue-like `ref` API for easy local store creation
+- **`useProvide` / `useInject`** - Implements Vue's `provide` / `inject` pattern for dependency injection, allowing parent components to provide values to descendants without prop drilling
+
+### 🔄 Breaking Changes
+
+- **`useStoreValue` → `useStore`** - Renamed for consistency
+
 ## [1.0.0] - 2025-07-14
 
 ### 🎉 Initial Release
 
-We're thrilled to announce the first stable release of ZenBox! 
+We're thrilled to announce the first stable release of ZenBox!
 
 This marks a major milestone in bringing Vue-like reactivity to React with Zustand's simplicity.
 

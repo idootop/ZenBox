@@ -1,0 +1,39 @@
+---
+title: useInject
+description: Read state provided by parent components
+---
+
+## API Reference
+
+### Syntax
+
+```tsx
+const count = useInject<number>("count");
+```
+
+### Parameters
+
+- `key`: Global state key to read
+
+### Returns
+
+- `value`: Latest state value, throws error if not found
+
+## Example
+
+```tsx
+function App() {
+  useProvide("count", 0); // Provide state to child components
+  return <Child />;
+}
+
+function Child() {
+  const count = useInject<number>("count"); // Inject state
+  return <div>Count: {count}</div>;
+}
+```
+
+## Notes
+
+- `useInject` reads the latest value provided by `useProvide`, not reactive.
+- `useProvide` and `useInject` operate on global state, not isolated by component tree.

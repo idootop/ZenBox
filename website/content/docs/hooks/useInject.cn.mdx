@@ -1,0 +1,39 @@
+---
+title: useInject
+description: 读取父组件提供的状态
+---
+
+## API 参考
+
+### 语法
+
+```tsx
+const count = useInject<number>("count");
+```
+
+### 参数
+
+- `key`: 要读取的全局状态的 key
+
+### 返回值
+
+- `value`: 最新的状态值，如果不存在则会抛出错误
+
+## 示例
+
+```tsx
+function App() {
+  useProvide("count", 0); // 提供状态给子组件
+  return <Child />;
+}
+
+function Child() {
+  const count = useInject<number>("count"); // 读取状态值
+  return <div>Count: {count}</div>;
+}
+```
+
+## 注意
+
+- `useInject` 读取的是 `useProvide` 提供的最新值，并非响应式。
+- `useProvide` 和 `useInject` 读写的是全局状态，并不是按组件树隔离的。

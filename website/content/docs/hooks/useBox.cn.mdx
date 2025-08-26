@@ -1,0 +1,48 @@
+---
+title: useBox
+description: 方便创建本地 Store
+---
+
+## API 参考
+
+### 语法
+
+```tsx
+const store = useBox({ name: "张三", age: 30 });
+```
+
+### 参数
+
+- `initialState`: 初始状态
+
+### 返回值
+
+使用 `initialState` 创建的 store 实例
+
+## 示例
+
+对于局部状态较为分散的组件，可以使用 `useBox` 创建一个本地 store 统一管理，避免状态分散。
+
+```tsx
+// ❌ Before
+const App = () => {
+  const [a, setA] = useState(0);
+  const [b, setB] = useState(0);
+  const [c, setC] = useState(0);
+
+  const onAchange = (val) => setA(val);
+  const onBchange = (val) => setB(val);
+  const onCchange = (val) => setC(val);
+
+  return <></>;
+};
+
+// ✅ After
+const App = () => {
+  const store = useBox({ a: 0, b: 0, c: 0 });
+
+  const onChange = (a, b, c) => store.setState({ a, b, c });
+
+  return <></>;
+};
+```

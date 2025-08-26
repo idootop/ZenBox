@@ -1,0 +1,25 @@
+---
+title: useProvide / useInject
+description: Pass state between parent and child components
+icon: Speech
+---
+
+Like Vue's `provide` and `inject`, ZenBox provides `useProvide` and `useInject` for convenient state passing from parent to child components.
+
+```tsx
+function Parent() {
+  useProvide("count", 0); // Provide state to child components
+  return <Child />;
+}
+
+function Child() {
+  const count = useInject<number>("count"); // Inject state
+  return <div>Count: {count}</div>;
+}
+```
+
+**Notes:**
+
+- `useProvide` automatically cleans up state on component unmount.
+- `useInject` reads the latest value provided by `useProvide`, but not reactive.
+- `useProvide` and `useInject` operate on global state, not isolated by component tree.

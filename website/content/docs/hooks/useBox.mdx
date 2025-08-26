@@ -1,0 +1,48 @@
+---
+title: useBox
+description: Create local store easily
+---
+
+## API Reference
+
+### Syntax
+
+```tsx
+const store = useBox({ name: "John", age: 30 });
+```
+
+### Parameters
+
+- `initialState`: Initial state
+
+### Returns
+
+Store instance created with `initialState`
+
+## Example
+
+For components with scattered local state, you can use `useBox` to create a local store for unified management, avoiding state fragmentation.
+
+```tsx
+// ❌ Before
+const App = () => {
+  const [a, setA] = useState(0);
+  const [b, setB] = useState(0);
+  const [c, setC] = useState(0);
+
+  const onAchange = (val) => setA(val);
+  const onBchange = (val) => setB(val);
+  const onCchange = (val) => setC(val);
+
+  return <></>;
+};
+
+// ✅ After
+const App = () => {
+  const store = useBox({ a: 0, b: 0, c: 0 });
+
+  const onChange = (a, b, c) => store.setState({ a, b, c });
+
+  return <></>;
+};
+```
