@@ -76,6 +76,34 @@ export class ZenBox<S extends State> {
   }
 }
 
+/**
+ * Create a new ZenBox store.
+ *
+ * @link https://zenbox.del.wang/en/docs/core/createStore
+ *
+ * @example
+ *
+ * ```tsx
+ * const counterStore = createStore({
+ *   count: 0,
+ *   increment: () => {
+ *     counterStore.setState((state) => {
+ *       state.count++;
+ *     });
+ *   },
+ * });
+ *
+ * function App() {
+ *   const { count, increment } = useStore(counterStore);
+ *   return (
+ *     <div>
+ *       <div>count: {count}</div>
+ *       <button onClick={increment}>Increment</button>
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
 export function createStore<S extends State>(initialState: S) {
   return new ZenBox(initialState);
 }

@@ -51,8 +51,9 @@ const [SessionProvider, useFindSessionStore] = createProvider({
 });
 
 function UserProfile() {
-  const store = useFindSessionStore();
-  const { user, isAuthenticated } = useStore(store);
+  const store = useFindSessionStore(); // First, find the store
+  
+  const { user, isAuthenticated } = useStore(store); // Then, use the store
 
   if (!isAuthenticated) {
     return <div>Please log in</div>;

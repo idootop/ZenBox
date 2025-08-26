@@ -50,8 +50,9 @@ const [SessionProvider, useFindSessionStore] = createProvider({
 });
 
 function UserProfile() {
-  const store = useFindSessionStore();
-  const { user, isAuthenticated } = useStore(store);
+  const store = useFindSessionStore(); // 首先找到 store
+
+  const { user, isAuthenticated } = useStore(store); // 然后使用 store
 
   if (!isAuthenticated) {
     return <div>请登录</div>;

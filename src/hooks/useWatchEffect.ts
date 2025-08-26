@@ -3,6 +3,24 @@ import { useCallback, useRef } from 'react';
 import { ZenBox } from '../core.js';
 import { useCleanup } from './useCleanup.js';
 
+/**
+ * Watch a value and call a callback when it changes.
+ *
+ * @link https://zenbox.del.wang/en/docs/hooks/useWatchEffect
+ *
+ * @example
+ *
+ * ```tsx
+ * const counterStore = createStore({ count: 0 });
+ *
+ * function App() {
+ *   useWatchEffect(() => {
+ *     console.log(counterStore.value.count); // 0, 1, 2, ...
+ *   });
+ *   return <div>count: {counterStore.value.count}</div>;
+ * }
+ * ```
+ */
 export function useWatchEffect(watch: () => void | VoidFunction): void {
   const refs = useRef({
     watch,

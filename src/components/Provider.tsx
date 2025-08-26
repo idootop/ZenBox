@@ -9,6 +9,43 @@ import { createStore, type State, type StateSetter, ZenBox } from '../core.js';
 import { useCleanup } from '../hooks/useCleanup.js';
 import { mergeState } from '../utils.js';
 
+/**
+ * Create isolated, component-scoped stores with React Context integration.
+ *
+ * @link https://zenbox.del.wang/en/docs/core/createProvider
+ *
+ * @example
+ *
+ * ```tsx
+ * const [SessionProvider, useFindSessionStore, actions] = createProvider({
+ *  sessionId: null,
+ *  isAuthenticated: false,
+ *  logout: () => {
+ *    actions.setState({ sessionId: null, isAuthenticated: false });
+ *  },
+ * });
+ *
+ * function UserProfile() {
+ *   const store = useFindSessionStore(); // First, find the store
+ *
+ *   const { sessionId, isAuthenticated } = useStore(store); // Then, use the store
+ *
+ *   if (!isAuthenticated) {
+ *     return <div>Please log in</div>;
+ *   }
+ *
+ *   return <h1>Welcome, {sessionId}!</h1>;
+ * }
+ *
+ * function App() {
+ *   return (
+ *     <SessionProvider initialState={{ sessionId: "abc123" }}>
+ *       <UserProfile />
+ *     </SessionProvider>
+ *   );
+ * }
+ * ```
+ */
 export function createProvider<T extends State>(initialState: T) {
   let currentStore: ZenBox<T> | null = null;
 

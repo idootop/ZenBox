@@ -11,6 +11,24 @@ interface WatchOptions {
   immediate?: boolean;
 }
 
+/**
+ * Watch a value and call a callback when it changes.
+ *
+ * @link https://zenbox.del.wang/en/docs/hooks/useWatch
+ *
+ * @example
+ *
+ * ```tsx
+ * const counterStore = createStore({ count: 0 });
+ *
+ * function App() {
+ *   useWatch(counterStore, (state) => {
+ *     console.log(state.count); // 0, 1, 2, ...
+ *   });
+ *   return <div>count: {counterStore.value.count}</div>;
+ * }
+ * ```
+ */
 export function useWatch<T>(
   _watch: T | (() => T),
   onChange: (
