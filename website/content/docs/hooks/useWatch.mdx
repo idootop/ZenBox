@@ -219,7 +219,7 @@ useWatch(
 ❌ **Don't use for component state**
 
 ```tsx
-// Bad: Use useStoreValue instead
+// Bad: Use useStore instead
 const [displayValue, setDisplayValue] = useState("");
 useWatch(
   () => store.value.data,
@@ -272,11 +272,11 @@ useWatch(
 | ---------------- | -------------------------- | ---------- | ------------- | --------------------- |
 | `useWatch`       | Manual dependency watching | ❌ No      | ❌ No         | Specific side effects |
 | `useWatchEffect` | Auto-tracked side effects  | ❌ No      | ✅ Yes        | General side effects  |
-| `useStoreValue`  | Component state sync       | ✅ Yes     | ❌ No         | UI state              |
+| `useStore`       | Component state sync       | ✅ Yes     | ❌ No         | UI state              |
 | `useComputed`    | Derived reactive values    | ✅ Yes     | ✅ Yes        | Calculated data       |
 
 ## Related Hooks
 
 - [`useWatchEffect`](./useWatchEffect) - Auto-tracked side effects
-- [`useStoreValue`](./useStoreValue) - Component state synchronization
+- [`useStore`](./useStore) - Component state synchronization
 - [`useComputed`](./useComputed) - Derived reactive values

@@ -59,13 +59,13 @@ counterStore.setState((state) => {
 
 ### Connect to Components
 
-Use `useStoreValue` for automatic re-renders on state changes.
+Use `useStore` for automatic re-renders on state changes.
 
 ```tsx
-import { useStoreValue } from "zenbox";
+import { useStore } from "zenbox";
 
 function Counter() {
-  const { count } = useStoreValue(counterStore);
+  const { count } = useStore(counterStore);
 
   function increment() {
     counterStore.setState((state) => {

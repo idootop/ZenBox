@@ -1,5 +1,5 @@
 ---
-title: useStoreValue
+title: useStore
 description: Subscribe to store changes and trigger component re-renders automatically
 ---
 
@@ -8,7 +8,7 @@ description: Subscribe to store changes and trigger component re-renders automat
 ### Syntax
 
 ```tsx
-const state = useStoreValue(store, options?)
+const state = useStore(store, options?)
 ```
 
 ### Parameters
@@ -29,7 +29,7 @@ Current store state or selected fields when using the `pick` option.
 Subscribe to all store changes for complete reactivity:
 
 ```tsx
-import { createStore, useStoreValue } from "zenbox";
+import { createStore, useStore } from "zenbox";
 
 const userStore = createStore({
   name: "John",
@@ -38,7 +38,7 @@ const userStore = createStore({
 });
 
 function UserProfile() {
-  const user = useStoreValue(userStore);
+  const user = useStore(userStore);
 
   return (
     <div>
@@ -57,17 +57,18 @@ Optimize performance by subscribing only to the fields you need:
 ```tsx
 function UserName() {
   // Re-renders only when 'name' changes
-  const { name } = useStoreValue(userStore, {
-    pick: ["name"],
-  });
+  const { name } = useStore(
+    userStore,
+    (state) => state.name // use `selector` to subscribe to specific fields
+  );
 
   return <h1>{name}</h1>;
 }
 
 function UserContact() {
   // Re-renders only when 'name' or 'email' changes
-  const { name, email } = useStoreValue(userStore, {
-    pick: ["name", "email"],
+  const { name, email } = useStore(userStore, {
+    pick: ["name", "email"], // use `pick` to subscribe to specific fields
   });
 
   return (
@@ -97,7 +98,7 @@ const settingsStore = createStore({
 
 function ThemeDisplay() {
   // Deep diffing for nested object changes
-  const { theme } = useStoreValue(settingsStore, {
+  const { theme } = useStore(settingsStore, {
     pick: ["theme"],
     deep: true,
   });
@@ -116,7 +117,7 @@ function ThemeDisplay() {
 
 ```tsx
 // Good: Only subscribe to needed fields
-const { name, status } = useStoreValue(largeStore, {
+const { name, status } = useStore(largeStore, {
   pick: ["name", "status"],
 });
 ```
@@ -125,7 +126,7 @@ const { name, status } = useStoreValue(largeStore, {
 
 ```tsx
 // Inefficient: Subscribes to all changes
-const store = useStoreValue(largeStore);
+const store = useStore(largeStore);
 return <div>{store.name}</div>; // Only uses name
 ```
 
@@ -133,24 +134,24 @@ return <div>{store.name}</div>; // Only uses name
 
 ```tsx
 // Default shallow comparison is usually sufficient
-const user = useStoreValue(userStore);
+const user = useStore(userStore);
 ```
 
 ❌ **Don't use deep watching unless necessary**
 
 ```tsx
 // Expensive: Only use when you need deep object comparison
-const data = useStoreValue(store, { deep: true });
+const data = useStore(store, { deep: true });
 ```
 
 ## Hook Comparison
 
-| Hook            | Purpose                      | Re-renders | Best For        |
-| --------------- | ---------------------------- | ---------- | --------------- |
-| `useStoreValue` | Full store subscription      | ✅ Yes     | All store data  |
-| `usePick`       | Selective field subscription | ✅ Yes     | Specific fields |
-| `useComputed`   | Derived reactive values      | ✅ Yes     | Calculated data |
-| `useWatch`      | Side effects on changes      | ❌ No      | Logging, APIs   |
+| Hook          | Purpose                      | Re-renders | Best For        |
+| ------------- | ---------------------------- | ---------- | --------------- |
+| `useStore`    | Full store subscription      | ✅ Yes     | All store data  |
+| `usePick`     | Selective field subscription | ✅ Yes     | Specific fields |
+| `useComputed` | Derived reactive values      | ✅ Yes     | Calculated data |
+| `useWatch`    | Side effects on changes      | ❌ No      | Logging, APIs   |
 
 ## Related Hooks
 

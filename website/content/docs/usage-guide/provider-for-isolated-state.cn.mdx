@@ -73,7 +73,7 @@ function Counter() {
   const counterStore = useFindCounterStore();
 
   // 然后，像普通 store 一样使用即可
-  const { count } = useStoreValue(counterStore);
+  const { count } = useStore(counterStore);
 
   return (
     <>

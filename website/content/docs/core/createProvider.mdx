@@ -37,7 +37,7 @@ A tuple containing:
 ### Simple Isolated State
 
 ```tsx
-import { createProvider, useStoreValue } from "zenbox";
+import { createProvider, useStore } from "zenbox";
 
 // Create isolated session state per provider
 const [SessionProvider, useFindSessionStore] = createProvider({
@@ -52,7 +52,7 @@ const [SessionProvider, useFindSessionStore] = createProvider({
 
 function UserProfile() {
   const store = useFindSessionStore();
-  const { user, isAuthenticated } = useStoreValue(store);
+  const { user, isAuthenticated } = useStore(store);
 
   if (!isAuthenticated) {
     return <div>Please log in</div>;
@@ -117,7 +117,7 @@ const [GameProvider, useFindGameStore, gameActions] = createProvider({
 
 function GameComponent() {
   const store = useFindGameStore();
-  const { score, level, lives, gameState } = useStoreValue(store);
+  const { score, level, lives, gameState } = useStore(store);
 
   return (
     <div className="game">
@@ -234,5 +234,5 @@ const [AuthProvider] = createProvider({
 ## Related APIs
 
 - [`createStore`](./createStore) - Global store creation
-- [`useStoreValue`](../hooks/useStoreValue) - Subscribe to store changes
+- [`useStore`](../hooks/useStore) - Subscribe to store changes
 - [`useComputed`](../hooks/useComputed) - Derived reactive values

@@ -206,7 +206,7 @@ useWatchEffect(() => {
 ❌ **Don't use for component rendering state**
 
 ```tsx
-// Bad: Use useStoreValue instead
+// Bad: Use useStore instead
 const [localState, setLocalState] = useState("");
 useWatchEffect(() => {
   setLocalState(store.value.data); // Unnecessary indirection
@@ -220,10 +220,10 @@ useWatchEffect(() => {
 | `useWatchEffect` | ✅ Automatic        | ✅ Yes    | ❌ No      | General reactive side effects   |
 | `useWatch`       | ❌ Manual           | ❌ No     | ❌ No      | Specific data watching          |
 | `useEffect`      | ❌ Manual deps      | ✅ Yes    | ❌ No      | React-specific effects          |
-| `useStoreValue`  | ❌ Manual           | ✅ Yes    | ✅ Yes     | Component state synchronization |
+| `useStore`       | ❌ Manual           | ✅ Yes    | ✅ Yes     | Component state synchronization |
 
 ## Related Hooks
 
 - [`useWatch`](./useWatch) - Manual dependency watching with callbacks
-- [`useStoreValue`](./useStoreValue) - Component state synchronization with re-renders
+- [`useStore`](./useStore) - Component state synchronization with re-renders
 - [`useComputed`](./useComputed) - Derived reactive values for rendering

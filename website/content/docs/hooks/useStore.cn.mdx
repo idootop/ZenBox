@@ -1,5 +1,5 @@
 ---
-title: useStoreValue
+title: useStore
 description: 订阅 store 变化并自动触发组件重新渲染
 ---
 
@@ -8,7 +8,7 @@ description: 订阅 store 变化并自动触发组件重新渲染
 ### 语法
 
 ```tsx
-const state = useStoreValue(store, options?)
+const state = useStore(store, options?)
 ```
 
 ### 参数
@@ -29,7 +29,7 @@ const state = useStoreValue(store, options?)
 订阅所有 store 状态变化以实现完整响应式更新：
 
 ```tsx
-import { createStore, useStoreValue } from "zenbox";
+import { createStore, useStore } from "zenbox";
 
 const userStore = createStore({
   name: "张三",
@@ -39,7 +39,7 @@ const userStore = createStore({
 
 function UserProfile() {
   // useStore 的任意属性发生变化，都会触发重新渲染
-  const user = useStoreValue(userStore);
+  const user = useStore(userStore);
 
   return (
     <div>
@@ -58,17 +58,17 @@ function UserProfile() {
 ```tsx
 function UserName() {
   // 仅在 'name' 变化时重新渲染
-  const { name } = useStoreValue(userStore, {
-    pick: ["name"],
-  });
-
+  const name = useStore(
+    userStore,
+    (state) => state.name // 使用 selector 订阅指定属性
+  );
   return <h1>{name}</h1>;
 }
 
 function UserContact() {
   // 仅在 'name' 或 'email' 变化时重新渲染
-  const { name, email } = useStoreValue(userStore, {
-    pick: ["name", "email"],
+  const { name, email } = useStore(userStore, {
+    pick: ["name", "email"], // 使用 pick 订阅指定属性
   });
 
   return (
@@ -97,7 +97,7 @@ const settingsStore = createStore({
 });
 
 function ThemeDisplay() {
-  const { theme } = useStoreValue(settingsStore, {
+  const { theme } = useStore(settingsStore, {
     pick: ["theme"],
     deep: true, // 启用深度比较，避免不必要的重新渲染
   });
@@ -116,7 +116,7 @@ function ThemeDisplay() {
 
 ```tsx
 // Good：仅订阅所需属性
-const { name, status } = useStoreValue(largeStore, {
+const { name, status } = useStore(largeStore, {
   pick: ["name", "status"],
 });
 ```
@@ -125,7 +125,7 @@ const { name, status } = useStoreValue(largeStore, {
 
 ```tsx
 // 低效：订阅所有状态变化
-const store = useStoreValue(largeStore);
+const store = useStore(largeStore);
 return <div>{store.name}</div>; // 仅使用 name，但订阅了所有状态
 ```
 
@@ -133,24 +133,24 @@ return <div>{store.name}</div>; // 仅使用 name，但订阅了所有状态
 
 ```tsx
 // 默认的浅层比较能够满足大多数情况
-const user = useStoreValue(userStore);
+const user = useStore(userStore);
 ```
 
 ❌ **非必要时不要使用深度监听**
 
 ```tsx
 // 昂贵：仅在需要深度对象比较时使用
-const data = useStoreValue(store, { deep: true });
+const data = useStore(store, { deep: true });
 ```
 
 ## Hook 比较
 
-| Hook            | 用途                     | 重新渲染 | 最适用于        |
-| --------------- | ------------------------ | -------- | --------------- |
-| `useStoreValue` | 完整 store 订阅          | ✅ 是    | 所有 store 状态 |
-| `usePick`       | 选择性属性订阅           | ✅ 是    | 特定属性        |
-| `useComputed`   | 响应式更新的计算值       | ✅ 是    | 计算数据        |
-| `useWatch`      | 监听状态变化并执行副作用 | ❌ 否    | 日志、API       |
+| Hook          | 用途                     | 重新渲染 | 最适用于        |
+| ------------- | ------------------------ | -------- | --------------- |
+| `useStore`    | 完整 store 订阅          | ✅ 是    | 所有 store 状态 |
+| `usePick`     | 选择性属性订阅           | ✅ 是    | 特定属性        |
+| `useComputed` | 响应式更新的计算值       | ✅ 是    | 计算数据        |
+| `useWatch`    | 监听状态变化并执行副作用 | ❌ 否    | 日志、API       |
 
 ## 相关 Hook
 

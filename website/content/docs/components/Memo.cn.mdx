@@ -189,7 +189,7 @@ function CartSummary() {
 | 使用场景        | 推荐方式                       | 原因                        |
 | --------------- | ------------------------------ | --------------------------- |
 | 昂贵计算        | `<Memo>`                       | 缓存避免重复计算            |
-| 简单 store 访问 | `usePick` 或 `useStoreValue`   | 简单情况下开销更少          |
+| 简单 store 访问 | `usePick` 或 `useStore`        | 简单情况下开销更少          |
 | 副作用          | `useWatch` 或 `useWatchEffect` | Memo 用于渲染，不适合副作用 |
 | 频繁变化的数据  | 普通组件                       | 数据频繁变化时缓存无效      |
 
@@ -197,4 +197,4 @@ function CartSummary() {
 
 - [`<Watch>`](./Watch) - 无缓存的响应式渲染组件
 - [`useComputed`](../hooks/useComputed) - 响应式更新的计算值
-- [`useStoreValue`](../hooks/useStoreValue) - 同步 store 最新状态
+- [`useStore`](../hooks/useStore) - 同步 store 最新状态

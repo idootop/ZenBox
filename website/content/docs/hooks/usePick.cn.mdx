@@ -21,7 +21,7 @@ const userStore = createStore({
 
 // ❌ Bad：任何 store 状态变化都会触发重新渲染
 function UserName() {
-  const user = useStoreValue(userStore);
+  const user = useStore(userStore);
   return <h1>{user.name}</h1>; // 仅使用 name，但订阅了所有状态
 }
 
@@ -111,20 +111,20 @@ function ThemeSettings() {
 }
 ```
 
-## usePick vs useStoreValue
+## usePick vs useStore
 
-| 方法                     | 代码                                                | 性能                    |
-| ------------------------ | --------------------------------------------------- | ----------------------- |
-| **usePick**              | `usePick(store, "name", "email")`                   | ✅ 最佳 - 仅特定属性    |
-| **useStoreValue + pick** | `useStoreValue(store, { pick: ["name", "email"] })` | ✅ 相同性能，更冗长     |
-| **useStoreValue**        | `useStoreValue(store)`                              | ❌ 任何变化都会重新渲染 |
+| 方法                | 代码                                           | 性能                    |
+| ------------------- | ---------------------------------------------- | ----------------------- |
+| **usePick**         | `usePick(store, "name", "email")`              | ✅ 最佳 - 仅特定属性    |
+| **useStore + pick** | `useStore(store, { pick: ["name", "email"] })` | ✅ 相同性能，更冗长     |
+| **useStore**        | `useStore(store)`                              | ❌ 任何变化都会重新渲染 |
 
 ## 最佳实践
 
 ✅ **明确属性选择**
 
 ```tsx
-// ❌ Bad：不选择任何属性（等同于 useStoreValue）
+// ❌ Bad：不选择任何属性（等同于 useStore）
 const { name } = usePick(userStore);
 
 // ❌ Bad：选择太多属性
@@ -148,6 +148,6 @@ const { name, email, age } = usePick(userStore, "name", "email", "age");
 
 ## 相关 Hook
 
-- [`useStoreValue`](./useStoreValue) - 同步 store 最新状态
+- [`useStore`](./useStore) - 同步 store 最新状态
 - [`useComputed`](./useComputed) - 响应式更新的计算值
 - [`useWatch`](./useWatch) - 监听状态变化并执行副作用

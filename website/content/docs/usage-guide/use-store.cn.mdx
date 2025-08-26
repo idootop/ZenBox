@@ -1,28 +1,28 @@
 ---
-title: useStoreValue / useComputed
+title: useStore / useComputed
 description: 订阅 store 状态变化和创建计算值
 icon: Sigma
 ---
 
-## useStoreValue
+## useStore
 
-`useStoreValue` 是一个 React Hook，可以用它来读取 store 里的值。
+`useStore` 是一个 React Hook，可以用它来读取 store 里的值。
 
 它类似于 `store.value`，但会在 store 状态变化时触发组件重新渲染。
 
 所以你可以用它来保持组件状态与 store 的同步，非常方便。
 
 ```tsx
-// ✅ 组件会在状态变化时自动重新渲染
-function Counter1() {
-  const { count } = useStoreValue(counterStore);
-  return <div>当前计数: {count}</div>;
-}
-
 // ❌ 组件不会在状态变化时重新渲染
 function Counter2() {
   const count = counterStore.value.count;
   return <div>初始计数: {count}</div>;
+}
+
+// ✅ 组件会在状态变化时自动重新渲染
+function Counter1() {
+  const { count } = useStore(counterStore);
+  return <div>当前计数: {count}</div>;
 }
 ```
 
@@ -33,12 +33,14 @@ function Counter2() {
 这样组件只会在选定属性变化时重新渲染。
 
 ```tsx
-const { name, followers } = useStoreValue(userStore, {
+const count = useStore(counterStore, (state) => state.count);
+
+const { name, followers } = useStore(userStore, {
   pick: ["name", "followers"],
 });
 ```
 
-或者使用 `usePick` 选择特定属性，这是 `useStoreValue(store, { pick })` 的简写。
+或者使用 `usePick` 选择特定属性，这是 `useStore(store, { pick })` 的简写。
 
 ```tsx
 const { name, followers } = usePick(userStore, "name", "followers");
@@ -46,7 +48,7 @@ const { name, followers } = usePick(userStore, "name", "followers");
 
 ## useComputed
 
-`useComputed` 类似于 `useStoreValue`，但它会在 store 状态变化时重新计算值。
+`useComputed` 类似于 `useStore`，但它会在 store 状态变化时重新计算值。
 
 并且只有当计算值发生变化时，它才会触发组件重新渲染。
 

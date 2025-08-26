@@ -120,14 +120,14 @@ const userName = useComputed(() => userStore.value.name.toUpperCase());
 
 ## Hook Comparison
 
-| Hook            | Purpose                   | Triggers Re-renders | Use Case                               |
-| --------------- | ------------------------- | ------------------- | -------------------------------------- |
-| `useComputed`   | Derived reactive values   | ✅ Yes              | Data transformation, calculated fields |
-| `useStoreValue` | Direct store subscription | ✅ Yes              | Raw store access                       |
-| `useWatch`      | Side effects on changes   | ❌ No               | Logging, analytics, external APIs      |
+| Hook          | Purpose                   | Triggers Re-renders | Use Case                               |
+| ------------- | ------------------------- | ------------------- | -------------------------------------- |
+| `useComputed` | Derived reactive values   | ✅ Yes              | Data transformation, calculated fields |
+| `useStore`    | Direct store subscription | ✅ Yes              | Raw store access                       |
+| `useWatch`    | Side effects on changes   | ❌ No               | Logging, analytics, external APIs      |
 
 ## Related Hooks
 
-- [`useStoreValue`](./useStoreValue) - Direct store subscription
+- [`useStore`](./useStore) - Direct store subscription
 - [`useWatch`](./useWatch) - Watch changes with side effects
 - [`useWatchEffect`](./useWatchEffect) - Reactive side effects without cleanup

@@ -121,14 +121,14 @@ const userName = useComputed(() => userStore.value.name.toUpperCase());
 
 ## Hook 比较
 
-| Hook            | 用途             | 触发重新渲染 | 使用场景             |
-| --------------- | ---------------- | ------------ | -------------------- |
-| `useComputed`   | 派生响应式值     | ✅ 是        | 数据转换、计算属性   |
-| `useStoreValue` | 直接订阅状态变化 | ✅ 是        | 原始 store 访问      |
-| `useWatch`      | 变化时的副作用   | ❌ 否        | 日志、分析、外部 API |
+| Hook          | 用途             | 触发重新渲染 | 使用场景             |
+| ------------- | ---------------- | ------------ | -------------------- |
+| `useComputed` | 派生响应式值     | ✅ 是        | 数据转换、计算属性   |
+| `useStore`    | 直接订阅状态变化 | ✅ 是        | 原始 store 访问      |
+| `useWatch`    | 变化时的副作用   | ❌ 否        | 日志、分析、外部 API |
 
 ## 相关 Hook
 
-- [`useStoreValue`](./useStoreValue) - 同步 store 最新状态
+- [`useStore`](./useStore) - 同步 store 最新状态
 - [`useWatch`](./useWatch) - 监听状态变化并执行副作用
 - [`useWatchEffect`](./useWatchEffect) - 自动追踪依赖的响应式副作用

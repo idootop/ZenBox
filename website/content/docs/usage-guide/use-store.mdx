@@ -1,28 +1,28 @@
 ---
-title: useStoreValue / useComputed
+title: useStore / useComputed
 description: Subscribe to stores and create computed values for reactive components
 icon: Sigma
 ---
 
-## useStoreValue
+## useStore
 
-`useStoreValue` is a React hook that allows you to read the state of a store.
+`useStore` is a React hook that allows you to read the state of a store.
 
 It's similar to `store.value` but it will trigger the component re-render when the state changes.
 
 So you can use it to keep the component state in sync with the store.
 
 ```tsx
-// ✅ Component re-renders when store changes
-function Counter() {
-  const { count } = useStoreValue(counterStore);
-  return <div>Current Count: {count}</div>;
-}
-
 // ❌ Component shows initial value only, no reactivity
 function StaticCounter() {
   const count = counterStore.value.count;
   return <div>Static Count: {count}</div>;
+}
+
+// ✅ Component re-renders when store changes
+function Counter() {
+  const { count } = useStore(counterStore);
+  return <div>Current Count: {count}</div>;
 }
 ```
 
@@ -33,12 +33,14 @@ If the component only needs a few fields from the store, you can use `pick` to s
 So the component will only re-render when the selected fields change.
 
 ```tsx
-const { name, followers } = useStoreValue(userStore, {
+const count = useStore(counterStore, (state) => state.count);
+
+const { name, followers } = useStore(userStore, {
   pick: ["name", "followers"],
 });
 ```
 
-Or use `usePick` to select specific fields, which is a shortcut for `useStoreValue(store, { pick })`.
+Or use `usePick` to select specific fields, which is a shortcut for `useStore(store, { pick })`.
 
 ```tsx
 const { name, followers } = usePick(userStore, "name", "followers");
@@ -46,7 +48,7 @@ const { name, followers } = usePick(userStore, "name", "followers");
 
 ## useComputed
 
-The `useComputed` hook is similar to `useStoreValue`, but it will re-compute the value when the state changes.
+The `useComputed` hook is similar to `useStore`, but it will re-compute the value when the state changes.
 
 And it will trigger the component re-render only when the computed value changes.
 

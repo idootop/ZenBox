@@ -28,7 +28,7 @@ A reactive store instance with:
 ### Simple State Management
 
 ```tsx
-import { createStore, useStoreValue } from "zenbox";
+import { createStore, useStore } from "zenbox";
 
 // Types are automatically inferred
 const counterStore = createStore({ count: 0 });
@@ -38,7 +38,7 @@ console.log("Current count:", counterStore.value.count);
 
 function Counter() {
   // Reactive subscription for components
-  const { count } = useStoreValue(counterStore);
+  const { count } = useStore(counterStore);
 
   const increment = () => {
     counterStore.setState((state) => {
@@ -188,6 +188,6 @@ store.setState({ cache: data }, { silent: true });
 ## Related APIs
 
 - [`createProvider`](./createProvider) - Component-scoped stores
-- [`useStoreValue`](../hooks/useStoreValue) - Subscribe to store changes
+- [`useStore`](../hooks/useStore) - Subscribe to store changes
 - [`useComputed`](../hooks/useComputed) - Derived reactive values
 - [`useWatch`](../hooks/useWatch) - Side effects on store changes

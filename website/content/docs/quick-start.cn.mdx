@@ -59,13 +59,13 @@ counterStore.setState((state) => {
 
 ### 在组件中使用
 
-使用 `useStoreValue` 订阅状态变化：
+使用 `useStore` 订阅状态变化：
 
 ```tsx
-import { useStoreValue } from "zenbox";
+import { useStore } from "zenbox";
 
 function Counter() {
-  const { count } = useStoreValue(counterStore);
+  const { count } = useStore(counterStore);
 
   function increment() {
     counterStore.setState((state) => {

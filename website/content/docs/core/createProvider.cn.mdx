@@ -36,7 +36,7 @@ const [Provider, useFindStore, storeActions] = createProvider(initialState);
 ### 简单隔离状态
 
 ```tsx
-import { createProvider, useStoreValue } from "zenbox";
+import { createProvider, useStore } from "zenbox";
 
 // 为每个 provider 创建隔离的会话状态
 const [SessionProvider, useFindSessionStore] = createProvider({
@@ -51,7 +51,7 @@ const [SessionProvider, useFindSessionStore] = createProvider({
 
 function UserProfile() {
   const store = useFindSessionStore();
-  const { user, isAuthenticated } = useStoreValue(store);
+  const { user, isAuthenticated } = useStore(store);
 
   if (!isAuthenticated) {
     return <div>请登录</div>;
@@ -116,7 +116,7 @@ const [GameProvider, useFindGameStore, gameActions] = createProvider({
 
 function GameComponent() {
   const store = useFindGameStore();
-  const { score, level, lives, gameState } = useStoreValue(store);
+  const { score, level, lives, gameState } = useStore(store);
 
   return (
     <div className="game">
@@ -181,12 +181,12 @@ function App() {
 
 ## Provider vs 全局 Store
 
-| 特性         | createProvider     | createStore        |
-| ------------ | ------------------ | ------------------ |
-| **作用域**   | 组件树             | 全局应用           |
-| **隔离性**   | ✅ 完全隔离        | ❌ 应用间共享      |
-| **上下文**   | ✅ React Context   | ❌ 直接访问        |
-| **多实例**   | ✅ 独立            | ❌ 单一实例        |
+| 特性       | createProvider     | createStore        |
+| ---------- | ------------------ | ------------------ |
+| **作用域** | 组件树             | 全局应用           |
+| **隔离性** | ✅ 完全隔离        | ❌ 应用间共享      |
+| **上下文** | ✅ React Context   | ❌ 直接访问        |
+| **多实例** | ✅ 独立            | ❌ 单一实例        |
 | **适用于** | 模态框、表单、组件 | 应用状态、用户数据 |
 
 ## 最佳实践
@@ -233,5 +233,5 @@ const [AuthProvider] = createProvider({
 ## 相关 API
 
 - [`createStore`](./createStore) - 全局 store 创建
-- [`useStoreValue`](../hooks/useStoreValue) - 同步 store 最新状态
+- [`useStore`](../hooks/useStore) - 同步 store 最新状态
 - [`useComputed`](../hooks/useComputed) - 响应式更新的计算值

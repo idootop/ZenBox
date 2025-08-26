@@ -28,7 +28,7 @@ const store = createStore(initialState);
 ### 简单状态管理
 
 ```tsx
-import { createStore, useStoreValue } from "zenbox";
+import { createStore, useStore } from "zenbox";
 
 // 类型自动推断
 const counterStore = createStore({ count: 0 });
@@ -38,7 +38,7 @@ console.log("当前计数:", counterStore.value.count);
 
 function Counter() {
   // 组件响应式订阅 store 状态变化，自动重新渲染
-  const { count } = useStoreValue(counterStore);
+  const { count } = useStore(counterStore);
 
   const increment = () => {
     counterStore.setState((state) => {
@@ -189,6 +189,6 @@ store.setState({ cache: data }, { silent: true });
 ## 相关 API
 
 - [`createProvider`](./createProvider) - 创建组件级作用域的 store
-- [`useStoreValue`](../hooks/useStoreValue) - 同步 store 最新状态
+- [`useStore`](../hooks/useStore) - 同步 store 最新状态
 - [`useComputed`](../hooks/useComputed) - 响应式更新的计算值
 - [`useWatch`](../hooks/useWatch) - 监听状态变化并执行副作用

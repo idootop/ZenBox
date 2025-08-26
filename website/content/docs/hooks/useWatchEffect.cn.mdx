@@ -209,7 +209,7 @@ useWatchEffect(() => {
 // Bad：不必要的间接状态
 const [localState, setLocalState] = useState("");
 useWatchEffect(() => {
-  setLocalState(store.value.data); // 应该使用 useStoreValue 替代
+  setLocalState(store.value.data); // 应该使用 useStore 替代
 });
 ```
 
@@ -220,10 +220,10 @@ useWatchEffect(() => {
 | `useWatchEffect` | ✅ 自动     | ✅ 是    | ❌ 否    | 一般响应式副作用 |
 | `useWatch`       | ❌ 手动     | ❌ 否    | ❌ 否    | 特定数据监听     |
 | `useEffect`      | ❌ 手动依赖 | ✅ 是    | ❌ 否    | React 特定副作用 |
-| `useStoreValue`  | ❌ 手动     | ✅ 是    | ✅ 是    | 组件状态同步     |
+| `useStore`       | ❌ 手动     | ✅ 是    | ✅ 是    | 组件状态同步     |
 
 ## 相关 Hook
 
 - [`useWatch`](./useWatch) - 监听状态变化并执行副作用
-- [`useStoreValue`](./useStoreValue) - 同步 store 最新状态
+- [`useStore`](./useStore) - 同步 store 最新状态
 - [`useComputed`](./useComputed) - 响应式更新的计算值

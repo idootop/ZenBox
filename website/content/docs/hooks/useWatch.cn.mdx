@@ -224,7 +224,7 @@ const [displayValue, setDisplayValue] = useState("");
 useWatch(
   () => store.value.data,
   (data) => {
-    setDisplayValue(data); // 应该使用 useStoreValue 替代
+    setDisplayValue(data); // 应该使用 useStore 替代
   }
 );
 ```
@@ -272,11 +272,11 @@ useWatch(
 | ---------------- | -------------------------- | -------- | -------- | ---------- |
 | `useWatch`       | 监听状态变化并执行副作用   | ❌ 否    | ❌ 否    | 特定副作用 |
 | `useWatchEffect` | 自动追踪依赖的响应式副作用 | ❌ 否    | ✅ 是    | 一般副作用 |
-| `useStoreValue`  | 同步 store 最新状态        | ✅ 是    | ❌ 否    | UI 状态    |
+| `useStore`       | 同步 store 最新状态        | ✅ 是    | ❌ 否    | UI 状态    |
 | `useComputed`    | 响应式更新的计算值         | ✅ 是    | ✅ 是    | 计算数据   |
 
 ## 相关 Hook
 
 - [`useWatchEffect`](./useWatchEffect) - 自动跟踪响应式副作用
-- [`useStoreValue`](./useStoreValue) - 同步 store 最新状态
+- [`useStore`](./useStore) - 同步 store 最新状态
 - [`useComputed`](./useComputed) - 响应式更新的计算值

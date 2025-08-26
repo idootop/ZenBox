@@ -189,7 +189,7 @@ function CartSummary() {
 | Use Case               | Recommended Approach           | Why                                               |
 | ---------------------- | ------------------------------ | ------------------------------------------------- |
 | Expensive calculations | `<Memo>`                       | Caching prevents repeated computations            |
-| Simple store access    | `usePick` or `useStoreValue`   | Less overhead for simple cases                    |
+| Simple store access    | `usePick` or `useStore`        | Less overhead for simple cases                    |
 | Side effects           | `useWatch` or `useWatchEffect` | Memo is for rendering, not side effects           |
 | Always changing data   | Regular components             | Memoization won't help if data changes frequently |
 
@@ -197,4 +197,4 @@ function CartSummary() {
 
 - [`<Watch>`](./Watch) - Render prop component without memoization
 - [`useComputed`](../hooks/useComputed) - Computed reactive values
-- [`useStoreValue`](../hooks/useStoreValue) - Direct store subscription
+- [`useStore`](../hooks/useStore) - Direct store subscription

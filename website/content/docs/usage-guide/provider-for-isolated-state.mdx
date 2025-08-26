@@ -72,7 +72,7 @@ function Counter({ title }) {
   const counterStore = useCounterStore();
 
   // Use like any other store
-  const { count } = useStoreValue(counterStore);
+  const { count } = useStore(counterStore);
 
   return (
     <div className="counter">
@@ -85,4 +85,3 @@ function Counter({ title }) {
 ```
 
 Perfect isolation made simple. Each provider creates its own universe! 🌟
-
