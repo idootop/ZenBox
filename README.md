@@ -1,35 +1,50 @@
+<div align="center">
+
 ![ZenBox](https://cdn.jsdelivr.net/gh/idootop/ZenBox@main/website/public/banners/top.png)
 
-## What is ZenBox?
+<div align="center"><strong>React state management that feels like Vue </strong></div>
+<div align="center">Bring Vue's beloved developer experience to the React ecosystem</div>
+<br/>
 
-ZenBox is a modern React state management library that combines the simplicity of Zustand with the reactive patterns of Vue.
+[![中文文档](https://img.shields.io/badge/-中文文档-111111?logo=readdotcv)](https://zenbox.del.wang/cn) [![NPM Version](https://badgen.net/npm/v/zenbox)](https://www.npmjs.com/package/zenbox) [![License](https://img.shields.io/github/license/idootop/zenbox)](https://github.com/idootop/ZenBox/blob/main/LICENSE) [![Built with ZenBox](https://img.shields.io/badge/Built%20with-ZenBox-80d05b?style=social&logo=hackthebox)](https://zenbox.del.wang)
 
-Love Zustand & Vue? Meet ZenBox ❤️
+</div>
 
-### 🐻 Zustand's Simplicity
+## The Pain We All Know
+
+- 😢 Missing Vue's beautiful `computed` values in React
+- 😤 Writing TypeScript interfaces for every Zustand store
+- 🤯 Complex state management that fights against you
+- ……
+
+## The Joy of ZenBox
+
+**ZenBox = Code React like Vue 💚 + manage state like Zustand 🐻**
+
+- 💪 **Powerful** - All of Zustand's benefits + more
+- 🔥 **Easy to Use** - Where Vue's simplicity meets React's power
+- 📦 **Lightweight** - [100 lines of core code](https://zenbox.del.wang/en/blog/react-state-management-in-100-lines), under 3KB gzipped (without Immer)
 
 ```ts
-const counter = createStore({ count: 0 }); // Auto-type inference
-```
+// The Store (Auto-type inference!)
+const store = createStore({
+  count: 0,
+  increment: () => {
+    store.setState((s) => {
+      s.count++;
+    });
+  },
+});
 
-### 💚 Vue-like Developer Experience
+// The Computed (Just like Vue!)
+const doubled = useComputed(() => 2 * store.value.count);
 
-```ts
-const doubled = useComputed(() => counter.value.count * 2);
-
+// The Watcher (Vue vibes!)
 useWatch(
-  () => counter.value.count,
+  () => store.value.count,
   (current, prev) => console.log("Count changed from", prev, "to", current)
 );
 ```
-
-## Why Choose ZenBox?
-
-- 🚀 **Easy to Use** - Intuitive API for immediate productivity
-- ⚡ **High Performance** - Only re-renders what actually changed
-- 💪 **TypeScript First** - Full type inference out of the box, zero boilerplate
-- 🎯 **Flexible Architecture** - Works for both global and component-level state
-- 📦 **Lightweight** - [100 lines of core code](https://zenbox.del.wang/en/blog/react-state-management-in-100-lines), under 3KB gzipped (without Immer)
 
 ## Getting Started
 
@@ -47,16 +62,16 @@ npm install zenbox
 
 ## ZenBox vs Zustand
 
-| Feature                  | ZenBox                             | Zustand                        |
-| ------------------------ | ---------------------------------- | ------------------------------ |
-| **Learning Curve**       | ✅ Minimal (Vue-friendly)          | ✅ Low                         |
-| **Vue-like Reactivity**  | ✅ `useComputed`/`useWatch`        | ❌ Manual handling             |
-| **TypeScript Support**   | ✅ Complete auto-inference         | ⚠️ Manual interface definition |
-| **State Access**         | ✅ Unified `store.value` interface | ❌ Manual `get()`/`set()`      |
-| **Cross-Store Computed** | ✅ Automatic dependency tracking   | ⚠️ Requires pre-combination    |
-| **Store Scoping**        | ✅ Built-in Provider for isolation | ❌ Global by default           |
-| **Immer Integration**    | ✅ Built-in support                | ⚠️ Middleware required         |
-| **Bundle Size**          | **< 3KB** gzipped (without Immer)  | **< 1KB** gzipped              |
+| Feature            | ZenBox                            | Zustand                       |
+| ------------------ | --------------------------------- | ----------------------------- |
+| **Learning Curve** | ✅ Vue-familiar                   | ✅ Low                        |
+| **Vue-like DX**    | ✅ `useComputed` / `useWatch`     | ❌ None                       |
+| **TypeScript**     | ✅ Auto-inference                 | ⚠️ Manual interfaces          |
+| **Cross-Store**    | ✅ Auto tracking                  | ❌ Not supported              |
+| **State Access**   | ✅ Unified `store.value`          | ⚠️ Explicit `get()` / `set()` |
+| **Scoping**        | ✅ Built-in Provider              | ❌ Global by default          |
+| **Immer**          | ✅ Built-in                       | ⚠️ Middleware required        |
+| **Bundle Size**    | **< 3KB** gzipped (without Immer) | **< 1KB** gzipped             |
 
 ## License
 
