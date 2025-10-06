@@ -1,4 +1,4 @@
-![ZenBox](/website/public/banners/top.png)
+![ZenBox](https://cdn.jsdelivr.net/gh/idootop/ZenBox@main/website/public/banners/top.png)
 
 ## What is ZenBox?
 
