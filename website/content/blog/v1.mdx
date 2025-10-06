@@ -27,13 +27,13 @@ npm install zenbox
 ### Basic Example
 
 ```tsx
-import { createStore, useStoreValue } from "zenbox";
+import { createStore, useStore } from "zenbox";
 
 // Create a store with full TypeScript inference
 const counterStore = createStore({ count: 0 });
 
 function Counter() {
-  const count = useStoreValue(counterStore);
+  const count = useStore(counterStore);
 
   const increment = () => {
     counterStore.setState((state) => {

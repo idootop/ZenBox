@@ -25,13 +25,13 @@ npm install zenbox
 ### 基础示例
 
 ```tsx
-import { createStore, useStoreValue } from "zenbox";
+import { createStore, useStore } from "zenbox";
 
 // 自动推导类型，无需手写 interface
 const counterStore = createStore({ count: 0 });
 
 function Counter() {
-  const count = useStoreValue(counterStore);
+  const count = useStore(counterStore);
 
   const increment = () => {
     counterStore.setState((state) => {
