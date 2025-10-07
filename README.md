@@ -2,51 +2,50 @@
 
 ![ZenBox](https://cdn.jsdelivr.net/gh/idootop/ZenBox@main/website/public/banners/top.png)
 
-<div align="center"><strong>React state management that feels like Vue </strong></div>
-<div align="center">Bring Vue's beloved developer experience to the React ecosystem</div>
+<div align="center"><strong>React state management that feels like Vue + Zustand</strong></div>
+<div align="center">Bring Zustand's simplicity with Vue's joyful developer experience to React</div>
 <br/>
 
 [![中文文档](https://img.shields.io/badge/-中文文档-111111?logo=readdotcv)](https://zenbox.del.wang/cn) [![NPM Version](https://badgen.net/npm/v/zenbox)](https://www.npmjs.com/package/zenbox) [![License](https://img.shields.io/github/license/idootop/zenbox)](https://github.com/idootop/ZenBox/blob/main/LICENSE) [![Built with ZenBox](https://img.shields.io/badge/Built%20with-ZenBox-80d05b?style=social&logo=hackthebox)](https://zenbox.del.wang)
 
 </div>
 
-## The Pain We All Know
+## What if React felt as natural as Vue?
 
-- 😢 Missing Vue's beautiful `computed` values in React
-- 😤 Writing TypeScript interfaces for every Zustand store
-- 🤯 Complex state management that fights against you
-- ……
+You know that feeling when you write Vue code? Everything just clicks. `computed` values update automatically, `watch` lets you react to changes elegantly, and `ref.value` gives you a consistent way to access everything.
 
-## The Joy of ZenBox
+Then you switch to React and... where did all that magic go?
+
+## Vue vibes in React
 
 **ZenBox = Code React like Vue 💚 + manage state like Zustand 🐻**
 
 - 💪 **Powerful** - All of Zustand's benefits + more
-- 🔥 **Easy to Use** - Where Vue's simplicity meets React's power
-- 📦 **Lightweight** - [100 lines of core code](https://zenbox.del.wang/en/blog/react-state-management-in-100-lines), under 3KB gzipped (without Immer)
+- ⚡️ **Easy to Use** - Where Vue's simplicity meets React's power
+- 📦 **Lightweight** - [100 lines of core code](https://zenbox.del.wang/en/blog/react-state-management-in-100-lines), no bloat, just the good stuff
 
 ```ts
-// The Store (Auto-type inference!)
-const store = createStore({
-  count: 0,
-  increment: () => {
-    store.setState((s) => {
-      s.count++;
-    });
-  },
+// Types are automatically inferred from initial state
+const userStore = createStore({
+  name: "Del Wang",
+  posts: ["Hello World!"],
 });
 
-// The Computed (Just like Vue!)
-const doubled = useComputed(() => 2 * store.value.count);
+// Computed values that just work
+const greeting = useComputed(() => `Hey ${userStore.value.name}!`);
 
-// The Watcher (Vue vibes!)
+// Watch changes like Vue
 useWatch(
-  () => store.value.count,
-  (current, prev) => console.log("Count changed from", prev, "to", current)
+  () => userStore.value.posts.length,
+  (count) => console.log(`${count} posts now`)
 );
 ```
 
-## Getting Started
+If you squint, this could be Vue code. But it's React, and it works exactly like you'd expect.
+
+This is ZenBox - It's Zustand's simplicity with Vue's joyful developer experience.
+
+## Getting started
 
 👉 Visit [https://zenbox.del.wang](https://zenbox.del.wang) to view the full documentation.
 
@@ -54,7 +53,7 @@ useWatch(
 npm install zenbox
 ```
 
-## Community & Support
+**Community & Support**
 
 - 🐙 **GitHub**: [idootop/ZenBox](https://github.com/idootop/ZenBox)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/idootop/ZenBox/issues)
@@ -64,8 +63,8 @@ npm install zenbox
 
 | Feature            | ZenBox                            | Zustand                       |
 | ------------------ | --------------------------------- | ----------------------------- |
-| **Learning Curve** | ✅ Vue-familiar                   | ✅ Low                        |
-| **Vue-like DX**    | ✅ `useComputed` / `useWatch`     | ❌ None                       |
+| **Learning Curve** | ✅ As easy as Vue                 | ✅ Low                        |
+| **Vue-like Hooks** | ✅ `useComputed` / `useWatch`     | ❌ Not supported              |
 | **TypeScript**     | ✅ Auto-inference                 | ⚠️ Manual interfaces          |
 | **Cross-Store**    | ✅ Auto tracking                  | ❌ Not supported              |
 | **State Access**   | ✅ Unified `store.value`          | ⚠️ Explicit `get()` / `set()` |
@@ -75,4 +74,4 @@ npm install zenbox
 
 ## License
 
-MIT License © 2025-PRESENT [Del Wang](https://del.wang)
+MIT License © 2025-PRESENT [Del Wang](https://github.com/idootop)

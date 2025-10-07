@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0] - 2025-10-06
 
+### ✨ Features
+
+- **Brand new website** - Comprehensive documentation optimization for easier onboarding
+- **Optimized build configuration** - Migrated from tsup to tsdown for better bundle optimization and reduced package size
+- **Updated dependencies** - Latest versions for better performance and security
+
 ### 🔄 Breaking Changes
 
-- **Removed deprecated `useStoreValue`** - Please migrate to `useStore`
+- **Removed deprecated `useStoreValue`** - Please migrate to `useStore` (deprecated since v1.1.0)
 
 ## [1.1.0] - 2025-08-26
 
