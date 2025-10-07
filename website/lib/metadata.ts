@@ -1,10 +1,3 @@
-import { createMetadataImage } from 'fumadocs-core/server';
-import { source } from 'lib/source';
-
-export const metadataImage = createMetadataImage({
-  source,
-});
-
 import type { Metadata } from 'next/types';
 
 import { getSiteDescription, kSiteName, kSiteURL, kTitter } from './const';

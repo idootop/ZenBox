@@ -14,6 +14,9 @@ export const docs = defineDocs({
       title: z.string(),
       description: z.string(),
     }),
+    postprocess: {
+      includeProcessedMarkdown: true,
+    },
   },
   meta: {
     schema: metaSchema,
@@ -28,6 +31,9 @@ export const blogCollection = defineCollections({
     description: z.string(),
     date: z.string().date().or(z.date()),
   }),
+  postprocess: {
+    includeProcessedMarkdown: true,
+  },
 });
 
 export const pageCollection = defineCollections({
