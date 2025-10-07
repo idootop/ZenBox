@@ -1,122 +1,138 @@
 ---
 title: Quick Start
-description: Get up and running with ZenBox in minutes
+description: From zero to productive in 2 minutes
 icon: Rocket
 ---
 
-## Installation
+## Install it
 
 ```npm
 npm install zenbox
 ```
 
-## Get Started in 4 Steps
+## Your first store
 
-<div className="fd-steps">
-
-<div className="fd-step">
-
-### Create a Store
-
-Start with `createStore` and your initial state.
+Let's build a simple counter. Here's the entire thing:
 
 ```tsx
-import { createStore } from "zenbox";
+import { createStore, useStore } from "zenbox";
 
-// Auto-type inference, no need to write interface manually
-const counterStore = createStore({ count: 0 });
-```
-
-</div>
-
-<div className="fd-step">
-
-### Read State
-
-Access current state with `store.value`.
-
-```tsx
-const count = counterStore.value.count;
-```
-
-</div>
-
-<div className="fd-step">
-
-### Update State
-
-Use `store.setState` with built-in Immer support.
-
-```tsx
-counterStore.setState((state) => {
-  state.count++;
+// Create the store - types are inferred automatically
+const counter = createStore({
+  count: 0,
+  increment: () =>
+    counter.setState((s) => {
+      s.count++;
+    }),
+  decrement: () =>
+    counter.setState((s) => {
+      s.count--;
+    }),
+  reset: () => counter.setState({ count: 0 }),
 });
-```
 
-</div>
-
-<div className="fd-step">
-
-### Connect to Components
-
-Use `useStore` for automatic re-renders on state changes.
-
-```tsx
-import { useStore } from "zenbox";
-
+// Use it in a component
 function Counter() {
-  const { count } = useStore(counterStore);
-
-  function increment() {
-    counterStore.setState((state) => {
-      state.count++;
-    });
-  }
+  const { count, increment, decrement, reset } = useStore(counter);
 
   return (
     <div>
-      <p>Count: {count}</p>
-      <button onClick={increment}>Increment</button>
+      <h2>Count: {count}</h2>
+      <button onClick={increment}>+</button>
+      <button onClick={decrement}>-</button>
+      <button onClick={reset}>Reset</button>
     </div>
   );
 }
 ```
 
-</div>
+That's it. No interfaces, no providers, no setup. It just works.
 
-<div className="fd-step">
+## Add some Vue magic
 
-### Vue-style Reactivity
-
-Unlock reactive programming patterns with Vue-inspired hooks.
+Now let's add computed values and watchers:
 
 ```tsx
-function DoubleCount() {
-  const doubleCount = useComputed(() => counterStore.value.count * 2);
+import { useComputed, useWatch } from "zenbox";
 
-  return <p>Double Count: {doubleCount}</p>;
-}
+function EnhancedCounter() {
+  // Computed values - update automatically when dependencies change
+  const doubled = useComputed(() => counter.value.count * 2);
+  const isEven = useComputed(() => counter.value.count % 2 === 0);
 
-function CountWatcher() {
+  // Watch for changes
   useWatch(
-    () => counterStore.value.count,
-    (current, prev) => {
-      console.log("Count changed from", prev, "to", current);
+    () => counter.value.count,
+    (newCount, oldCount) => {
+      if (newCount > 10) {
+        console.log("Getting high!");
+      }
     }
   );
 
-  useWatchEffect(() => {
-    if (counterStore.value.count > 10) {
-      console.log("Count exceeded 10!");
-    }
-  });
-
-  return <p>Watching count changes...</p>;
+  return (
+    <div>
+      <p>Doubled: {doubled}</p>
+      <p>Is even: {isEven ? "Yes" : "No"}</p>
+      <button onClick={counter.value.increment}>Increment</button>
+    </div>
+  );
 }
 ```
 
-</div>
+## Multiple stores? No problem
 
-</div>
+```tsx
+const user = createStore({
+  name: "Alice",
+  email: "alice@example.com",
+});
 
-**Next Steps:** Check out the [Usage Guide](./usage-guide/how-to-create-and-update-store) for advanced patterns and best practices.
+const posts = createStore({
+  items: [],
+  addPost: (title) =>
+    posts.setState((s) => {
+      s.items.push({ id: Date.now(), title, author: user.value.name });
+    }),
+});
+
+function Summary() {
+  // Compute across stores - ZenBox tracks dependencies automatically
+  const userSummary = useComputed(
+    () => `${user.value.name} has written ${posts.value.items.length} posts`
+  );
+
+  return <p>Summary: {userSummary}</p>;
+}
+```
+
+## Optimize re-renders with selectors
+
+When your component only depends on specific fields from the store, use selectors to prevent unnecessary re-renders.
+
+```tsx
+// ❌ Re-renders on any store change, even if age changes
+const { name, email, age } = useStore(userStore);
+
+// ✅ Only re-renders when name or email changes
+const { name, email } = useStore(userStore, { pick: ["name", "email"] });
+```
+
+For convenience, use `usePick` as a shortcut for selecting specific fields:
+
+```tsx
+// Same as above, but more concise
+const { name, email } = usePick(userStore, "name", "email");
+```
+
+## That's really it
+
+You now know everything you need to be productive with ZenBox:
+
+- `createStore()` for your state
+- `useStore()` to subscribe to state changes
+- `usePick()` to optimize re-renders
+- `useComputed()` for derived values
+- `useWatch()` to react to changes
+
+The rest is just building your app. Check out the other guides for advanced patterns.

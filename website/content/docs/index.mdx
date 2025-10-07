@@ -1,40 +1,46 @@
 ---
 title: Introduction
-description: A simple, intuitive React state management library that combines the best of Vue and Zustand
+description: Bring Vue's joyful development experience to React, make React state management easier
 icon: BookOpen
 ---
 
-> Code React like Vue 💚, manage state like Zustand 🐻
+![ZenBox](/banners/top.png)
 
-![ZenBox](/banners/default.png)
+## What if React felt as natural as Vue?
 
-## What is ZenBox?
+You know that feeling when you write Vue code? Everything just clicks. `computed` values update automatically, `watch` lets you react to changes elegantly, and `ref.value` gives you a consistent way to access everything.
 
-ZenBox is a modern React state management library that combines the simplicity of Zustand with the reactive patterns of Vue. It provides an intuitive API that feels natural to developers familiar with either framework.
+Then you switch to React and... where did all that magic go?
 
-Love Zustand & Vue? Meet ZenBox ❤️
+## Vue vibes in React
 
-### 🐻 Zustand's Simplicity
+**ZenBox = Code React like Vue 💚 + manage state like Zustand 🐻**
 
-```ts
-const counter = createStore({ count: 0 }); // Auto-type inference
-```
+- 💪 **Powerful** - All of Zustand's benefits + more
+- ⚡️ **Easy to Use** - Where Vue's simplicity meets React's power
+- 📦 **Lightweight** - [100 lines of core code](../blog/react-state-management-in-100-lines), no bloat, just the good stuff
 
-### 💚 Vue-like Developer Experience
+```tsx
+// Types are automatically inferred from initial state
+const userStore = createStore({
+  name: "Del Wang",
+  posts: ["Hello World!"],
+});
 
-```ts
-const doubled = useComputed(() => counter.value.count * 2);
+// Computed values that just work
+const greeting = useComputed(() => `Hey ${userStore.value.name}!`);
 
+// Watch changes like Vue
 useWatch(
-  () => counter.value.count,
-  (current, prev) => console.log("Count changed from", prev, "to", current)
+  () => userStore.value.posts.length,
+  (count) => console.log(`${count} posts now`)
 );
 ```
 
-## Key Features
+If you squint, this could be Vue code. But it's React, and it works exactly like you'd expect.
 
-- 🚀 **Easy to Use** - Intuitive API for immediate productivity
-- ⚡ **High Performance** - Only re-renders what actually changed
-- 💪 **TypeScript First** - Full type inference out of the box, zero boilerplate
-- 🎯 **Flexible Architecture** - Works for both global and component-level state
-- 📦 **Lightweight** - [100 lines of core code](../blog/react-state-management-in-100-lines), under 3KB gzipped (without Immer)
+This is ZenBox - It's Zustand's simplicity with Vue's joyful developer experience.
+
+## Ready to try it?
+
+The next page will get you up and running in 2 minutes. No joke.

@@ -40,7 +40,13 @@ function CounterDisplay() {
         )}
       </Watch>
 
-      <button onClick={() => counterStore.setState((s) => s.count++)}>
+      <button
+        onClick={() =>
+          counterStore.setState((s) => {
+            s.count++;
+          })
+        }
+      >
         Increment
       </button>
     </div>

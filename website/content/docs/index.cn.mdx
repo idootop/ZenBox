@@ -1,42 +1,48 @@
 ---
 title: 简介
-description: 一个轻量的 React 状态管理库，结合了 Zustand 的简洁和 Vue 的响应式写法
+description: 把 Vue 的愉悦开发体验带到 React 中，让 React 状态管理更简单
 icon: BookOpen
 ---
 
-> 像 Vue 一样写 React 💚，像 Zustand 一样管理状态 🐻
+![ZenBox](/banners/top.png)
 
-![ZenBox](/banners/default.png)
+## 如果 React 也能像 Vue 一样简单呢？
 
-## 什么是 ZenBox？
+你肯定有过这种体验：写 Vue 代码的时候，一切都那么顺手。
 
-ZenBox 是一个现代化的 React 状态管理库，它将 Zustand 的简洁与 Vue 的响应式写法完美结合。
+`computed` 自动更新，`watch` 优雅地响应变化，`ref.value` 给你一致的访问方式。
 
-用起来既简单又符合直觉，**让你写 React 像写 Vue 一样爽！**
+然后切换到 React，突然发现一切似乎变得复杂起来...
 
-**如果你喜欢 Zustand 和 Vue，你一定会喜欢 ZenBox！**
+## 让 React 状态管理更简单
 
-### 🐻 像 Zustand 一样简单
+**ZenBox = 像 Vue 一样写 React 💚 + 像 Zustand 一样管理状态 🐻**
 
-```ts
-const counter = createStore({ count: 0 }); // 自动类型推导，无需手写 interface
-```
+- 💪 **强大易用**: 包含 Zustand 的所有特性 + 更多优化升级。
+- ⚡️ **简单高效**: 像 Vue 一样符合直觉，自动类型推导，自动依赖追踪。
+- 📦 **超级轻量**: [核心代码不到 100 行](../blog/react-state-management-in-100-lines)，压缩后不到 3KB（不含 Immer），浓缩的都是精华。
 
-### 💚 像 Vue 一样熟悉的写法
+```tsx
+// 自动类型推导，无需手写类型接口
+const userStore = createStore({
+  name: "小明",
+  posts: ["你好，世界"],
+});
 
-```ts
-const doubled = useComputed(() => counter.value.count * 2);
+// 计算属性
+const greeting = useComputed(() => `你好 ${userStore.value.name}!`);
 
+// 监听变化
 useWatch(
-  () => counter.value.count,
-  (current, prev) => console.log("从", prev, "变为", current)
+  () => userStore.value.posts.length,
+  (count) => console.log(`现在有 ${count} 篇文章了`)
 );
 ```
 
-## 核心特性
+仔细一看，这不就是 Vue 代码嘛，但它确实是 React，而且完全按照你期望的方式工作。
 
-- 🚀 **简单** - 像 Vue 一样简单，上手即用
-- ⚡ **高效** - 自动依赖追踪，按需 re-render
-- 💪 **安全** - 自动类型推导，无需手写 interface
-- 🎯 **灵活** - 支持全局和组件级状态隔离，多 Store 联合计算
-- 📦 **轻量** - [100 行核心代码](../blog/react-state-management-in-100-lines)，压缩后小于 3KB（不含 Immer）
+这就是 ZenBox - 它既有 Zustand 的简洁，又有 Vue 的愉悦开发体验。
+
+## 想试试看吗？
+
+下一页让你在 2 分钟内快速上手，没开玩笑。

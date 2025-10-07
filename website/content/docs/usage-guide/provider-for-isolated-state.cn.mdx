@@ -41,7 +41,7 @@ const [CounterStoreProvider, useFindCounterStore, storeActions] =
 
 **注意：**
 
-- `storeActions` **只能**在初始状态里的方法中访问，不要导出给外部使用
+- `storeActions` **只能**在初始状态的方法中访问，不应该导出给外部使用
 - 你可以使用 `useFindStore` 从 Provider 获取 store 实例
 - 这与 Vue 的 `provide` / `inject` 模式非常相似
 

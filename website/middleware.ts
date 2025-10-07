@@ -1,4 +1,4 @@
-import { createI18nMiddleware } from 'fumadocs-core/i18n';
+import { createI18nMiddleware } from 'fumadocs-core/i18n/middleware';
 import { i18n } from 'lib/i18n';
 import type { NextFetchEvent, NextRequest } from 'next/server';
 

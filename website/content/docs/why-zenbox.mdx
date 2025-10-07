@@ -4,58 +4,72 @@ description: How ZenBox compares to other React state management libraries
 icon: CircleQuestionMark
 ---
 
-## The Problem
+## Motivation
 
-The React ecosystem offers many state management solutions, but they often fall into two categories: overly complex (like Redux with its boilerplate) or cognitively demanding (like Valtio's proxy patterns with `this` bindings).
+I've been writing React for years. I've used Redux, MobX, Zustand, Jotai, Valtio - you name it. Each has its place, but none felt quite right.
+
+Then I worked on a Vue project. The moment I wrote my first `computed` value, I thought: "Why can't React be this simple?"
 
 ![Zustand x Vue](/images/zustand-vue.jpg)
 
-ZenBox bridges this gap by combining Zustand's simplicity with Vue's reactive patterns, creating an API that feels both natural and powerful.
+So I built ZenBox - it brings Zustand's simplicity with Vue's joyful developer experience to React.
 
-**If you love Zustand & Vue, you'll love ZenBox!**
+## What's actually different
 
-## ZenBox vs The Rest
-
-### Automatic Type Inference
-
-**Zustand:** Manual type definitions required
+### Vue-like development experience
 
 ```tsx
-import { create } from "zustand";
+const userStore = createStore({
+  name: "Alice",
+  age: 25,
+});
 
-interface BearState {
-  bears: number;
-  increase: (by: number) => void;
+// Computed values that just work
+const greeting = useComputed(() => `Hello ${userStore.value.name}!`);
+
+// Watch changes like Vue
+useWatch(
+  () => userStore.value.name,
+  (newName) => console.log(`Name changed: ${newName}`)
+);
+```
+
+### You don't write TypeScript interfaces
+
+**Other libraries:**
+
+```tsx
+interface UserState {
+  name: string;
+  age: number;
+  posts: Post[];
+  updateName: (name: string) => void;
+  addPost: (post: Post) => void;
 }
 
-const useBearStore = create<BearState>()((set) => ({
-  bears: 0,
-  increase: (by) => set((state) => ({ bears: state.bears + by })),
+const useUserStore = create<UserState>()((set) => ({
+  // ... implement everything again, and maintain types in 2 places
 }));
 ```
 
-**✅ ZenBox:** Types flow naturally from your initial state.
+**✅ ZenBox:**
 
 ```tsx
-const store = createStore({
-  count: 0,
-  name: "ZenBox",
-  increment: () => {
-    store.setState((state) => {
-      state.count++;
-    });
-    return store.value.count;
-  },
+const userStore = createStore({
+  name: "Alice",
+  age: 25,
+  updateName: (name) =>
+    userStore.setState((s) => {
+      s.name = name;
+    }),
 });
 
-store.value.count; // number (inferred)
-store.value.name; // string (inferred)
-store.value.increment(); // () => number (inferred)
+// That's it. All types are inferred.
 ```
 
-### Cross-Store Computed Values
+### Cross-store dependencies just work
 
-**Zustand:** Pre-combine stores for shared selectors
+**Zustand:** You need to manually create a combined store with all the slices.
 
 ```tsx
 interface BearSlice {
@@ -69,6 +83,7 @@ interface FishSlice {
 const createBearSlice = () => ({ bears: 0 });
 const createFishSlice = () => ({ fishes: 0 });
 
+// Complex setup
 const useBoundStore = create<BearSlice & FishSlice>()((...a) => ({
   ...createBearSlice(...a),
   ...createFishSlice(...a),
@@ -77,19 +92,121 @@ const useBoundStore = create<BearSlice & FishSlice>()((...a) => ({
 const total = useBoundStore((state) => state.bears + state.fishes);
 ```
 
-**✅ ZenBox:** Effortless computation with automatic dependency tracking
+**✅ ZenBox:** Want to compute something from multiple stores? Just reference them:
 
 ```tsx
-const bearStore = createStore({ bears: 0 });
-const fishStore = createStore({ fishes: 0 });
+const user = createStore({ name: "Alice" });
+const posts = createStore({ items: [] });
+const settings = createStore({ theme: "dark" });
 
-// Simple as 1 + 1 = 2
-const total = useComputed(() => {
-  return bearStore.value.bears + fishStore.value.fishes;
+// ZenBox automatically tracks all three stores
+const dashboard = useComputed(() => ({
+  greeting: `Hello ${user.value.name}`,
+  postCount: posts.value.items.length,
+  isDarkMode: settings.value.theme === "dark",
+}));
+```
+
+### Immer integration
+
+**Zustand:** Manual middleware setup with type gymnastics
+
+```tsx
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
+
+// Separate type definitions required
+type State = {
+  count: number;
+  nested: { items: string[] };
+};
+
+type Actions = {
+  increment: (qty: number) => void;
+  addItem: (item: string) => void;
+};
+
+// Complex middleware wrapping
+export const useCountStore = create<State & Actions>()(
+  immer((set) => ({
+    count: 0,
+    nested: { items: [] },
+    increment: (qty: number) =>
+      set((state) => {
+        state.count += qty;
+      }),
+    addItem: (item: string) =>
+      set((state) => {
+        state.nested.items.push(item);
+      }),
+  }))
+);
+```
+
+**✅ ZenBox:** Immer built-in, zero configuration
+
+```tsx
+const store = createStore({
+  count: 0,
+  nested: { items: [] as string[] },
+  increment: (qty: number) => {
+    store.setState((state) => {
+      state.count += qty; // Direct mutation works
+    });
+  },
+  addItem: (item: string) => {
+    store.setState((state) => {
+      state.nested.items.push(item); // Nested mutations work
+    });
+  },
+});
+
+// Types are automatically inferred from initial state
+```
+
+### Performance optimization
+
+**Zustand:** Manual shallow comparison with imports
+
+```tsx
+import { create } from "zustand";
+import { useShallow } from "zustand/react/shallow";
+
+const useMeals = create(() => ({
+  papaBear: "large porridge-pot",
+  mamaBear: "middle-size porridge pot",
+  littleBear: "A little, small, wee pot",
+}));
+
+// Without useShallow, component re-renders on every state change
+const SlowBearNames = () => {
+  const names = useMeals((state) => Object.keys(state)); // Re-renders always
+  return <div>{names.join(", ")}</div>;
+};
+
+const BearNames = () => {
+  // Manual shallow comparison required
+  const names = useMeals(useShallow((state) => Object.keys(state)));
+
+  return <div>{names.join(", ")}</div>;
+};
+```
+
+**✅ ZenBox:** Shallow comparison by default (same as React's `useMemo`)
+
+```tsx
+// Default to shallow comparison - only re-renders when keys change
+const names = useComputed(() => Object.keys(bearStore.value));
+
+// Deep comparison when needed
+const deepNames = useComputed(() => Object.keys(bearStore.value), {
+  deep: true,
 });
 ```
 
-### State Access Patterns
+**Performance Note:** ZenBox uses shallow comparison by default for optimal performance. Deep comparison is available when needed but should be used sparingly.
+
+### State access patterns
 
 **Zustand:** Manual `get()` and `set()` parameter passing
 
@@ -99,6 +216,7 @@ import { create } from "zustand";
 const useCountStore = create((set, get) => ({
   count: 0,
   increment: () => {
+    // Verbose parameter passing
     set({
       ...get(),
       count: get().count + 1,
@@ -106,6 +224,7 @@ const useCountStore = create((set, get) => ({
   },
 }));
 
+// External access requires getState()
 useCountStore.getState().count;
 useCountStore.getState().increment();
 ```
@@ -117,12 +236,14 @@ const count1 = atom(1);
 const count2 = atom(2);
 const count3 = atom(3);
 
+// Every dependency needs explicit get() calls
 const sum = atom((get) => get(count1) + get(count2) + get(count3));
 
-// Functional patterns require more boilerplate
+// Complex operations become unreadable
 const atoms = [count1, count2, count3, ...otherAtoms];
 const sum = atom((get) => atoms.map(get).reduce((acc, count) => acc + count));
 
+// Write atoms require dual function signatures
 const decrementCountAtom = atom(
   (get) => get(countAtom),
   (get, set, _arg) => set(countAtom, get(countAtom) - 1)
@@ -147,120 +268,50 @@ const state = proxy({
   },
 });
 
-// Getter calls on snapshots work as expected
+// Snapshots create confusion
 const snap = snapshot(state);
 console.log(snap.doubled); // 2
 
-// But state changes don't update snapshots
+// State changes don't update snapshots automatically
 state.count = 10;
-console.log(snap.doubled); // Still 2
+console.log(snap.doubled); // Still 2 - stale!
 ```
 
 **✅ ZenBox:** Unified `store.value` interface for everything
 
 ```tsx
-// Read state
+const store = createStore({
+  count: 0,
+  increment: () =>
+    store.setState((s) => {
+      s.count++;
+    }),
+});
+
+// Read state - always current
 const count = store.value.count;
 
-// Update state
+// Update state - direct assignment
 store.value = { count: count + 1 };
 
-// Call actions
+// Call actions - same interface
 store.value.increment();
 
-// Computed values
+// Computed values - automatic dependency tracking
 const doubleCount = useComputed(() => store.value.count * 2);
 ```
 
-### Immer Integration
+## Feature comparison
 
-**Zustand:** Manual middleware setup
-
-```tsx
-import { create } from "zustand";
-import { immer } from "zustand/middleware/immer";
-
-type State = {
-  count: number;
-};
-
-type Actions = {
-  increment: (qty: number) => void;
-  decrement: (qty: number) => void;
-};
-
-export const useCountStore = create<State & Actions>()(
-  immer((set) => ({
-    count: 0,
-    increment: (qty: number) =>
-      set((state) => {
-        state.count += qty;
-      }),
-    decrement: (qty: number) =>
-      set((state) => {
-        state.count -= qty;
-      }),
-  }))
-);
-```
-
-**✅ ZenBox:** Immer built-in, zero configuration
-
-```tsx
-const store = createStore({
-  count: 0,
-  increment: (qty: number) => {
-    store.setState((state) => {
-      state.count += qty;
-    });
-  },
-});
-```
-
-### Optimized Re-renders
-
-**Zustand:** Manual shallow comparison with `useShallow`
-
-```tsx
-import { create } from "zustand";
-import { useShallow } from "zustand/react/shallow";
-
-const useMeals = create(() => ({
-  papaBear: "large porridge-pot",
-  mamaBear: "middle-size porridge pot",
-  littleBear: "A little, small, wee pot",
-}));
-
-export const BearNames = () => {
-  const names = useMeals(useShallow((state) => Object.keys(state)));
-
-  return <div>{names.join(", ")}</div>;
-};
-```
-
-**✅ ZenBox:** Intelligent diffing by default
-
-```tsx
-// Shallow diffing by default
-const names = useComputed(() => Object.keys(bearStore.value));
-
-// Deep diffing when you need it
-const names = useComputed(() => Object.keys(bearStore.value), { deep: true });
-```
-
-**Performance Note:** Use shallow comparison for most cases. Deep comparison is more expensive and should only be used when necessary.
-
-## Feature Comparison
-
-| Feature                  | ZenBox                             | Zustand                        |
-| ------------------------ | ---------------------------------- | ------------------------------ |
-| **Learning Curve**       | ✅ Minimal (Vue-friendly)          | ✅ Low                         |
-| **Vue-like Reactivity**  | ✅ `useComputed`/`useWatch`        | ❌ Manual handling             |
-| **TypeScript Support**   | ✅ Complete auto-inference         | ⚠️ Manual interface definition |
-| **State Access**         | ✅ Unified `store.value` interface | ❌ Manual `get()`/`set()`      |
-| **Cross-Store Computed** | ✅ Automatic dependency tracking   | ⚠️ Requires pre-combination    |
-| **Store Scoping**        | ✅ Built-in Provider for isolation | ❌ Global by default           |
-| **Immer Integration**    | ✅ Built-in support                | ⚠️ Middleware required         |
-| **Persistence**          | ❌ No built-in support             | ⚠️ Middleware required         |
-| **DevTools**             | ❌ No built-in support             | ⚠️ Middleware required         |
-| **Bundle Size**          | **< 3KB** gzipped (without Immer)  | **< 1KB** gzipped              |
+| Feature            | ZenBox                            | Zustand                       |
+| ------------------ | --------------------------------- | ----------------------------- |
+| **Learning Curve** | ✅ As easy as Vue                 | ✅ Low                        |
+| **Vue-like Hooks** | ✅ `useComputed` / `useWatch`     | ❌ Not supported              |
+| **TypeScript**     | ✅ Auto-inference                 | ⚠️ Manual interfaces          |
+| **Cross-Store**    | ✅ Auto tracking                  | ❌ Not supported              |
+| **State Access**   | ✅ Unified `store.value`          | ⚠️ Explicit `get()` / `set()` |
+| **Scoping**        | ✅ Built-in Provider              | ❌ Global by default          |
+| **Immer**          | ✅ Built-in                       | ⚠️ Middleware required        |
+| **Persistence**    | ❌ No built-in support            | ⚠️ Middleware required        |
+| **DevTools**       | ❌ No built-in support            | ⚠️ Middleware required        |
+| **Bundle Size**    | **< 3KB** gzipped (without Immer) | **< 1KB** gzipped             |

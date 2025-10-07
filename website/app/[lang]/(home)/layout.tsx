@@ -20,7 +20,7 @@ export default async function Layout({
           Made with <span className="heart">❤️</span> by{' '}
           <a
             className="hover:underline"
-            href="https://del.wang"
+            href="https://github.com/idootop"
             rel="noopener noreferrer"
             target="_blank"
           >

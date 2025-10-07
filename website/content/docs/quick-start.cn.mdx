@@ -1,122 +1,138 @@
 ---
 title: 快速开始
-description: 3 分钟快速上手 ZenBox
+description: 2 分钟从零到上手
 icon: Rocket
 ---
 
 ## 安装
 
-```bash
+```npm
 npm install zenbox
 ```
 
-## 基本用法
+## 你的第一个 Store
 
-<div className="fd-steps">
-
-<div className="fd-step">
-
-### 创建 Store
-
-使用 `createStore` 创建带有初始状态的 store：
+先从一个简单的计数器开始：
 
 ```tsx
-import { createStore } from "zenbox";
+import { createStore, useStore } from "zenbox";
 
-// 自动类型推导，无需手写 interface
-const counterStore = createStore({ count: 0 });
-```
-
-</div>
-
-<div className="fd-step">
-
-### 读取状态
-
-通过 `store.value` 访问当前状态：
-
-```tsx
-const count = counterStore.value.count;
-```
-
-</div>
-
-<div className="fd-step">
-
-### 更新状态
-
-使用 `store.setState` 更新状态（支持 Immer 的写法）：
-
-```tsx
-counterStore.setState((state) => {
-  state.count++;
+// 创建 store - 类型自动推导
+const counter = createStore({
+  count: 0,
+  increment: () =>
+    counter.setState((s) => {
+      s.count++;
+    }),
+  decrement: () =>
+    counter.setState((s) => {
+      s.count--;
+    }),
+  reset: () => counter.setState({ count: 0 }),
 });
-```
 
-</div>
-
-<div className="fd-step">
-
-### 在组件中使用
-
-使用 `useStore` 订阅状态变化：
-
-```tsx
-import { useStore } from "zenbox";
-
+// 在组件中使用
 function Counter() {
-  const { count } = useStore(counterStore);
-
-  function increment() {
-    counterStore.setState((state) => {
-      state.count++;
-    });
-  }
+  const { count, increment, decrement, reset } = useStore(counter);
 
   return (
     <div>
-      <p>Count: {count}</p>
-      <button onClick={increment}>增加</button>
+      <h2>计数: {count}</h2>
+      <button onClick={increment}>+</button>
+      <button onClick={decrement}>-</button>
+      <button onClick={reset}>重置</button>
     </div>
   );
 }
 ```
 
-</div>
+是不是很简单？不用手写 Store 类型，不用 provider，不用配置。直接能用。
 
-<div className="fd-step">
+## 加上点 Vue 般的魔法
 
-### 像 Vue 一样的写法
-
-使用 Vue 风格的 hooks 进行响应式编程：
+再加上计算属性和监听器试试看：
 
 ```tsx
-function DoubleCount() {
-  const doubleCount = useComputed(() => counterStore.value.count * 2);
+import { useComputed, useWatch } from "zenbox";
 
-  return <p>doubleCount: {doubleCount}</p>;
-}
+function EnhancedCounter() {
+  // 计算属性 - 依赖变化时自动更新
+  const doubled = useComputed(() => counter.value.count * 2);
+  const isEven = useComputed(() => counter.value.count % 2 === 0);
 
-function CountWatcher() {
+  // 监听变化
   useWatch(
-    () => counterStore.value.count,
-    (current, prev) => {
-      console.log("从", prev, "变为", current);
+    () => counter.value.count,
+    (newCount, oldCount) => {
+      if (newCount > 10) {
+        console.log("数字变大了！");
+      }
     }
   );
 
-  useWatchEffect(() => {
-    if (counterStore.value.count > 10) {
-      console.log("count 超过 10");
-    }
-  });
-
-  return <p>监听计数变化...</p>;
+  return (
+    <div>
+      <p>双倍: {doubled}</p>
+      <p>是偶数: {isEven ? "是" : "否"}</p>
+      <button onClick={counter.value.increment}>增加</button>
+    </div>
+  );
 }
 ```
 
-</div>
+## 多个 Store 也不在话下
 
-</div>
+```tsx
+const user = createStore({
+  name: "小明",
+  email: "xiaoming@example.com",
+});
 
-**下一步：** 查看[使用指南](./usage-guide/how-to-create-and-update-store)了解更多用法和最佳实践。
+const posts = createStore({
+  items: [],
+  addPost: (title) =>
+    posts.setState((s) => {
+      s.items.push({ id: Date.now(), title, author: user.value.name });
+    }),
+});
+
+function Summary() {
+  // 跨 store 计算 - ZenBox 会自动追踪依赖的变化
+  const userSummary = useComputed(
+    () => `${user.value.name} 写了 ${posts.value.items.length} 篇文章`
+  );
+
+  return <p>Summary: {userSummary}</p>;
+}
+```
+
+## 使用选择器优化重渲染
+
+当组件只依赖 Store 中的某些字段时，使用选择器可以避免不必要的重新渲染。
+
+```tsx
+// ❌ 在 store 任何变化时都重新渲染，即使只是 age 变了
+const { name, email, age } = useStore(userStore);
+
+// ✅ 只在 name 或 email 变化时重新渲染
+const { name, email } = useStore(userStore, { pick: ["name", "email"] });
+```
+
+为了方便，也可以使用 `usePick` 来选择指定字段：
+
+```tsx
+// 和上面一样，但更简洁
+const { name, email } = usePick(userStore, "name", "email");
+```
+
+## 就这么简单
+
+现在你已经掌握了用 ZenBox 开发所需的一切，剩下的就是开始构建你的应用了。
+
+- `createStore()` 创建状态
+- `useStore()` 订阅状态变化
+- `usePick()` 选择指定字段
+- `useComputed()` 计算属性
+- `useWatch()` 监听变化
+
+使用指南里还有一些其他高级用法，感兴趣的话不妨去看看。

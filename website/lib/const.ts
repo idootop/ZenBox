@@ -8,6 +8,6 @@ export const kTitter = '@del_wang_404';
 
 export function getSiteDescription(lang: string = 'en') {
   return lang === 'cn'
-    ? '像 Vue 一样写 React 💚，像 Zustand 一样管理状态 🐻'
-    : 'Code React like Vue 💚, manage state like Zustand 🐻';
+    ? '像 Vue 一样写 React'
+    : 'React state management that feels like Vue + Zustand';
 }
