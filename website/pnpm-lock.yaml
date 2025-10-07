@@ -30,8 +30,8 @@ importers:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
       zenbox:
-        specifier: ^1.1.0
-        version: 1.1.0(react@19.1.0)
+        specifier: ^2.0.0
+        version: 2.0.0(react@19.1.0)
     devDependencies:
       '@orama/tokenizers':
         specifier: ^3.1.9
@@ -1846,9 +1846,8 @@ packages:
     resolution: {integrity: sha512-YgvUTfwqyc7UXVMrB+SImsVYSmTS8X/tSrtdNZMImM+n7+QTriRXyXim0mBrTXNeqzVF0KWGgHPeiyViFFrNDw==}
     engines: {node: '>=18'}
 
-  zenbox@1.1.0:
-    resolution: {integrity: sha512-0CulPzgSdw1gW4MtqPbSXYT0ZschzL0aTlYMMTCEuGOKEBijU2a4+IU8o1nipPJENGBEsmWGbcQIlDdpZkbxtw==}
-    engines: {node: '>=18'}
+  zenbox@2.0.0:
+    resolution: {integrity: sha512-ChH6ZSja8DVGkJ2rbsuRzxNWBWCW92eWDhdMSFiG4H7GFucHzZecMImtDjWJoBTuDhxUEwkvUDaN8Gyrzh03Yg==}
     peerDependencies:
       react: '>=16.8.0'
 
@@ -3899,7 +3898,7 @@ snapshots:
 
   yallist@5.0.0: {}
 
-  zenbox@1.1.0(react@19.1.0):
+  zenbox@2.0.0(react@19.1.0):
     dependencies:
       '@del-wang/equals': 1.2.0
       immer: 10.1.3
