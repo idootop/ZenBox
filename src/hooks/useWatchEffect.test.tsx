@@ -1,5 +1,5 @@
-import { act, render } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, configure, render } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createStore } from '../core.js';
 import { useWatchEffect } from './useWatchEffect.js';
@@ -9,13 +9,19 @@ function TestWatchEffect({ watch }: { watch: () => void | VoidFunction }) {
   return <div data-testid="component">rendered</div>;
 }
 
+const reactStrictMode = true;
+
 describe('useWatchEffect', () => {
+  beforeEach(() => {
+    configure({ reactStrictMode });
+  });
+
   it('should run effect immediately', () => {
     const effect = vi.fn();
 
     render(<TestWatchEffect watch={effect} />);
 
-    expect(effect).toHaveBeenCalledTimes(1);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 2 : 1);
   });
 
   it('should rerun effect when dependencies change', () => {
@@ -26,13 +32,13 @@ describe('useWatchEffect', () => {
 
     render(<TestWatchEffect watch={effect} />);
 
-    expect(effect).toHaveBeenCalledTimes(1);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 2 : 1);
 
     act(() => {
       store.setState({ count: 1 });
     });
 
-    expect(effect).toHaveBeenCalledTimes(2);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 2 + 1 : 2);
   });
 
   it('should track multiple dependencies', () => {
@@ -44,19 +50,19 @@ describe('useWatchEffect', () => {
 
     render(<TestWatchEffect watch={effect} />);
 
-    expect(effect).toHaveBeenCalledTimes(1);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 2 : 1);
 
     act(() => {
       store1.setState({ value: 10 });
     });
 
-    expect(effect).toHaveBeenCalledTimes(2);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 2 + 1 : 2);
 
     act(() => {
       store2.setState({ value: 20 });
     });
 
-    expect(effect).toHaveBeenCalledTimes(3);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 3 + 1 : 3);
   });
 
   it('should handle cleanup functions', () => {
@@ -69,15 +75,15 @@ describe('useWatchEffect', () => {
 
     render(<TestWatchEffect watch={effect} />);
 
-    expect(effect).toHaveBeenCalledTimes(1);
-    expect(cleanup).toHaveBeenCalledTimes(0);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 2 : 1);
+    expect(cleanup).toHaveBeenCalledTimes(reactStrictMode ? 2 - 1 : 0);
 
     act(() => {
       store.setState({ count: 1 });
     });
 
-    expect(effect).toHaveBeenCalledTimes(2);
-    expect(cleanup).toHaveBeenCalledTimes(1); // cleanup from previous effect
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 2 + 1 : 2);
+    expect(cleanup).toHaveBeenCalledTimes(reactStrictMode ? 2 + 1 - 1 : 1); // cleanup from previous effect
   });
 
   it('should cleanup on unmount', () => {
@@ -90,11 +96,11 @@ describe('useWatchEffect', () => {
 
     const { unmount } = render(<TestWatchEffect watch={effect} />);
 
-    expect(cleanup).toHaveBeenCalledTimes(0);
+    expect(cleanup).toHaveBeenCalledTimes(reactStrictMode ? 2 - 1 : 0);
 
     unmount();
 
-    expect(cleanup).toHaveBeenCalledTimes(1);
+    expect(cleanup).toHaveBeenCalledTimes(reactStrictMode ? 2 + 1 - 1 : 1);
   });
 
   it('should not trigger effect when no dependencies', () => {
@@ -105,7 +111,7 @@ describe('useWatchEffect', () => {
 
     render(<TestWatchEffect watch={effect} />);
 
-    expect(effect).toHaveBeenCalledTimes(1);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 2 : 1);
 
     // Create and update a store that's not used in effect
     const store = createStore({ count: 0 });
@@ -115,7 +121,7 @@ describe('useWatchEffect', () => {
     });
 
     // Effect should not run again
-    expect(effect).toHaveBeenCalledTimes(1);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 2 : 1);
   });
 
   it('should handle complex dependency tracking', () => {
@@ -131,7 +137,7 @@ describe('useWatchEffect', () => {
 
     render(<TestWatchEffect watch={effect} />);
 
-    expect(effect).toHaveBeenCalledTimes(1);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 2 : 1);
 
     // Change count - should trigger, because store is used in effect
     act(() => {
@@ -140,7 +146,7 @@ describe('useWatchEffect', () => {
       });
     });
 
-    expect(effect).toHaveBeenCalledTimes(2);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 2 + 1 : 2);
 
     // Change posts - should not trigger
     act(() => {
@@ -149,7 +155,7 @@ describe('useWatchEffect', () => {
       });
     });
 
-    expect(effect).toHaveBeenCalledTimes(3);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 3 + 1 : 3);
 
     // Change name - should trigger
     act(() => {
@@ -158,7 +164,7 @@ describe('useWatchEffect', () => {
       });
     });
 
-    expect(effect).toHaveBeenCalledTimes(4);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 4 + 1 : 4);
   });
 
   it('should handle conditional dependency access', () => {
@@ -173,14 +179,14 @@ describe('useWatchEffect', () => {
 
     render(<TestWatchEffect watch={effect} />);
 
-    expect(effect).toHaveBeenCalledTimes(1);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 2 : 1);
 
     // Change store2 when enabled - should trigger
     act(() => {
       store2.setState({ value: 20 });
     });
 
-    expect(effect).toHaveBeenCalledTimes(2);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 2 + 1 : 2);
 
     // Disable and change store2 - should still trigger once for the disable
     act(() => {
@@ -189,13 +195,13 @@ describe('useWatchEffect', () => {
       });
     });
 
-    expect(effect).toHaveBeenCalledTimes(3);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 3 + 1 : 3);
 
     // Now changing store2 should not trigger
     act(() => {
       store2.setState({ value: 30 });
     });
 
-    expect(effect).toHaveBeenCalledTimes(3);
+    expect(effect).toHaveBeenCalledTimes(reactStrictMode ? 3 + 1 : 3);
   });
 });

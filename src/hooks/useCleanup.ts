@@ -1,37 +1,28 @@
-// @ts-nocheck
 /** biome-ignore-all lint/correctness/useHookAtTopLevel: just do it */
-/** biome-ignore-all lint/correctness/useExhaustiveDependencies: just do it */
 import { useEffect, useRef } from 'react';
 
-export const kIsReactDev =
-  typeof window !== 'undefined' &&
-  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' &&
-  (__REACT_DEVTOOLS_GLOBAL_HOOK__.renderers?.get(1)?.bundleType === 1 || // Chrome, Firefox
-    __REACT_DEVTOOLS_GLOBAL_HOOK__.renderers?.get(1) == null); // Safari
-
+/**
+ * Setup a cleanup function that will be called the component unmounts.
+ *
+ * Also works in **React Strict Mode** to ensure the cleanup function is called only once.
+ */
 export function useCleanup(cleanup: () => void) {
-  if (kIsReactDev) {
-    return _useCleanup(cleanup);
+  // @ts-ignore
+  if (process.env.NODE_ENV === 'production') {
+    return useEffect(() => cleanup, []); // react strict mode only enable in development
   }
-  return useEffect(() => cleanup, []);
-}
-
-function _useCleanup(cleanup: () => void) {
-  const refs = useRef({
-    step1: 0,
-    step2: 0,
-  });
-
+  const refs = useRef({ render: 0, mount: 0, strictMode: false });
+  if (refs.current.mount < 1) {
+    refs.current.render++;
+    if (refs.current.render > 1) refs.current.strictMode = true;
+  }
   useEffect(() => {
-    refs.current.step1++;
+    refs.current.mount++;
     return () => {
-      refs.current.step2++;
-      setTimeout(() => {
-        if (refs.current.step1 === refs.current.step2) {
-          cleanup();
-          refs.current.step2++;
-        }
-      });
+      if (refs.current.strictMode && refs.current.mount !== 2) {
+        return; // in react strict mode, we need to cleanup after the second mount
+      }
+      cleanup();
     };
   }, []);
 }

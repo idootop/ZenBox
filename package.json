@@ -30,7 +30,7 @@
   "scripts": {
     "prepack": "pnpm build && clean-pkg-json",
     "build": "del build",
-    "test": "vitest run",
+    "test": "pnpm build && vitest run",
     "lint": "biome check --write --no-errors-on-unmatched --diagnostic-level=error ."
   },
   "files": [

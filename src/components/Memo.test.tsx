@@ -1,10 +1,16 @@
-import { act, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, configure, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createStore } from '../core.js';
 import { Memo } from './Memo.js';
 
+const reactStrictMode = true;
+
 describe('Memo', () => {
+  beforeEach(() => {
+    configure({ reactStrictMode });
+  });
+
   it('should render children with watched value', () => {
     const store = createStore({ count: 42 });
 
@@ -43,7 +49,7 @@ describe('Memo', () => {
 
     render(<Memo watch={() => store.value.count}>{renderFn}</Memo>);
 
-    expect(renderFn).toHaveBeenCalledTimes(1);
+    expect(renderFn).toHaveBeenCalledTimes(reactStrictMode ? 2 : 1);
     expect(renderFn).toHaveBeenCalledWith(0);
 
     // Change name (not watched), should not re-render
@@ -53,7 +59,7 @@ describe('Memo', () => {
       });
     });
 
-    expect(renderFn).toHaveBeenCalledTimes(1);
+    expect(renderFn).toHaveBeenCalledTimes(reactStrictMode ? 2 : 1);
 
     // Change count (watched), should re-render
     act(() => {
@@ -62,7 +68,7 @@ describe('Memo', () => {
       });
     });
 
-    expect(renderFn).toHaveBeenCalledTimes(2);
+    expect(renderFn).toHaveBeenCalledTimes(reactStrictMode ? 2 + 1 : 2);
     expect(renderFn).toHaveBeenCalledWith(1);
   });
 
