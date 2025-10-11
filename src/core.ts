@@ -3,7 +3,7 @@ import { enableMapSet, produce } from 'immer';
 
 import { identity, mergeState } from './utils.js';
 
-export type State = Record<string, any>;
+export type State = Record<any, {}>; // Plain Object
 
 export type StateSetter<S extends State> = (
   newState: Partial<S> | ((prev: S) => S | void),
