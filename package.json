@@ -1,10 +1,10 @@
 {
   "name": "zenbox",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "type": "module",
   "license": "MIT",
   "packageManager": "pnpm@10.18.0",
-  "description": "React state management that feels like Vue + Zustand",
+  "description": "React state management that feels like Vue vibes in React",
 
   "keywords": [
     "vue",

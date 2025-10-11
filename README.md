@@ -2,11 +2,11 @@
 
 ![ZenBox](https://cdn.jsdelivr.net/gh/idootop/ZenBox@main/website/public/banners/top.png)
 
-<div align="center"><strong>React state management that feels like Vue + Zustand</strong></div>
+<div align="center"><strong>React state management that feels like Vue vibes in React</strong></div>
 <div align="center">Bringing Zustand's simplicity and Vue's joyful developer experience to React</div>
 <br/>
 
-[![中文文档](https://img.shields.io/badge/-中文文档-111111?logo=readdotcv)](https://zenbox.del.wang/cn) [![NPM Version](https://badgen.net/npm/v/zenbox)](https://www.npmjs.com/package/zenbox) [![License](https://img.shields.io/github/license/idootop/zenbox)](https://github.com/idootop/ZenBox/blob/main/LICENSE) [![Built with ZenBox](https://img.shields.io/badge/Built%20with-ZenBox-80d05b?style=social&logo=hackthebox)](https://zenbox.del.wang)
+[![中文文档](https://img.shields.io/badge/-中文文档-111111?logo=readdotcv)](https://zenbox.del.wang/cn) [![NPM Version](https://badgen.net/npm/v/zenbox)](https://www.npmjs.com/package/zenbox) [![Minizipped Size](https://img.shields.io/bundlephobia/minzip/zenbox)](https://www.npmjs.com/package/zenbox) [![License](https://img.shields.io/github/license/idootop/zenbox)](https://github.com/idootop/ZenBox/blob/main/LICENSE) [![Built with ZenBox](https://img.shields.io/badge/Built%20with-ZenBox-80d05b?style=social&logo=hackthebox)](https://zenbox.del.wang)
 
 </div>
 
