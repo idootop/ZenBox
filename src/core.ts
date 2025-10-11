@@ -3,7 +3,7 @@ import { enableMapSet, produce } from 'immer';
 
 import { identity, mergeState } from './utils.js';
 
-export type State = Record<any, {}>; // Plain Object
+export type State = Record<any, {} | null | undefined>;
 
 export type StateSetter<S extends State> = (
   newState: Partial<S> | ((prev: S) => S | void),
@@ -42,7 +42,7 @@ export class ZenBox<S extends State> {
         ? produce(this._state, newState)
         : mergeState(this._state, newState);
     if (options?.silent) return; // skip notify
-    for (const listener of this._writeListeners) {
+    for (const listener of Array.from(this._writeListeners)) {
       const { select, equal, onChange, prev } = listener;
       const current = select(this._state);
       if (equal(prev, current)) continue; // no changes
