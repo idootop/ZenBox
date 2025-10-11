@@ -39,7 +39,7 @@ icon: Zap
 当你想在指定状态变化时，重新渲染子树很有用。
 
 ```tsx
-<Watch watch={counterStore}>{(count) => <p>计数: {count}</p>}</Watch>
+<Watch watch={counterStore}>{(state) => <p>计数: {state.count}</p>}</Watch>
 ```
 
 你也可以监听任何计算值并将其传递给子树使用。

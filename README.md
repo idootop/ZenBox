@@ -3,7 +3,7 @@
 ![ZenBox](https://cdn.jsdelivr.net/gh/idootop/ZenBox@main/website/public/banners/top.png)
 
 <div align="center"><strong>React state management that feels like Vue + Zustand</strong></div>
-<div align="center">Bring Zustand's simplicity with Vue's joyful developer experience to React</div>
+<div align="center">Bringing Zustand's simplicity and Vue's joyful developer experience to React</div>
 <br/>
 
 [![中文文档](https://img.shields.io/badge/-中文文档-111111?logo=readdotcv)](https://zenbox.del.wang/cn) [![NPM Version](https://badgen.net/npm/v/zenbox)](https://www.npmjs.com/package/zenbox) [![License](https://img.shields.io/github/license/idootop/zenbox)](https://github.com/idootop/ZenBox/blob/main/LICENSE) [![Built with ZenBox](https://img.shields.io/badge/Built%20with-ZenBox-80d05b?style=social&logo=hackthebox)](https://zenbox.del.wang)
@@ -18,7 +18,7 @@ Then you switch to React and... where did all that magic go?
 
 ## Vue vibes in React
 
-**ZenBox = Code React like Vue 💚 + manage state like Zustand 🐻**
+**ZenBox = Code in React like Vue 💚 + Manage state like Zustand 🐻**
 
 - 💪 **Powerful** - All of Zustand's benefits + more
 - ⚡️ **Easy to Use** - Where Vue's simplicity meets React's power
@@ -43,7 +43,7 @@ useWatch(
 
 If you squint, this could be Vue code. But it's React, and it works exactly like you'd expect.
 
-This is ZenBox - It's Zustand's simplicity with Vue's joyful developer experience.
+This is ZenBox - where Zustand's simplicity meets Vue's joyful developer experience.
 
 ## Getting started
 
@@ -53,9 +53,9 @@ This is ZenBox - It's Zustand's simplicity with Vue's joyful developer experienc
 npm install zenbox
 ```
 
-**Community & Support**
+## Community & Support
 
-- 🐙 **GitHub**: [idootop/ZenBox](https://github.com/idootop/ZenBox)
+- 📚 **Documentation**: [zenbox.del.wang](https://zenbox.del.wang)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/idootop/ZenBox/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/idootop/ZenBox/discussions)
 
