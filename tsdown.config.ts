@@ -10,4 +10,6 @@ export default defineConfig({
     '!./src/**/*.test.ts',
     '!./src/**/*.test.tsx',
   ],
+  // format: 'esm',
+  // noExternal: [/.*/],
 });
