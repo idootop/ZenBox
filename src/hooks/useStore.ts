@@ -50,9 +50,11 @@ export function useStore<
 >(
   store: S,
   options?: { pick?: K; deep?: boolean },
-): K extends (keyof S['value'])[]
-  ? Prettify<Pick<S['value'], K[number]>>
-  : S['value'];
+): K extends undefined
+  ? S['value']
+  : K extends (keyof S['value'])[]
+    ? Prettify<Pick<S['value'], K[number]>>
+    : never;
 
 export function useStore<
   S extends ZenBox<any>,
