@@ -28,7 +28,7 @@
     "url": "git+https://github.com/idootop/ZenBox.git"
   },
   "scripts": {
-    "prepack": "pnpm build && clean-pkg-json",
+    "prepack": "pnpm test && clean-pkg-json",
     "build": "del build",
     "test": "pnpm build && vitest run",
     "lint": "biome check --write --no-errors-on-unmatched --diagnostic-level=error ."
